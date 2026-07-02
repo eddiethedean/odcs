@@ -5,6 +5,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
 import pyodcs
 
 PACKAGE_ROOT = Path(__file__).resolve().parent
@@ -199,11 +200,45 @@ def test_invalid_json_schema_fixture_fails_default_validation() -> None:
 
 def test_parse_rejects_nested_yaml_duplicate_key() -> None:
     result = pyodcs.parse(_fixture("invalid-nested-duplicate-key.yaml"), "yaml")
-    assert not pyodcs.is_valid(result["report"])
-    assert any(
-        diagnostic.get("id") == pyodcs.CODES["DUPLICATE_KEY"]
-        for diagnostic in result["report"]["diagnostics"]
+    assert not pyodcs.is_valid(result)
+    diagnostics = result["report"]["diagnostics"]
+    duplicate = next(
+        diagnostic
+        for diagnostic in diagnostics
+        if diagnostic.get("id") == pyodcs.CODES["DUPLICATE_KEY"]
     )
+    assert duplicate.get("object_ref") == "schema[0].name"
+
+
+def test_parse_rejects_nested_json_duplicate_key() -> None:
+    result = pyodcs.parse(_fixture("invalid-nested-duplicate-key.json"), "json")
+    assert not pyodcs.is_valid(result)
+    duplicate = next(
+        diagnostic
+        for diagnostic in result["report"]["diagnostics"]
+        if diagnostic.get("id") == pyodcs.CODES["DUPLICATE_KEY"]
+    )
+    assert duplicate.get("object_ref") == "schema[0].name"
+
+
+def test_is_valid_accepts_parse_result_shape() -> None:
+    result = pyodcs.parse(_fixture("invalid-nested-duplicate-key.yaml"), "yaml")
+    assert not pyodcs.is_valid(result)
+
+
+def test_parse_file_unsupported_extension_raises_value_error(tmp_path: Path) -> None:
+    path = tmp_path / "contract.txt"
+    path.write_text("version: 1", encoding="utf-8")
+    with pytest.raises(ValueError, match="unsupported file extension"):
+        pyodcs.parse_file(str(path))
+
+
+def test_cli_validate_duplicate_key_exits_2() -> None:
+    result = _run_pyodcs_cli(
+        "validate",
+        str(FIXTURES / "invalid-nested-duplicate-key.yaml"),
+    )
+    assert result.returncode == 2
 
 
 def test_pinned_schema_export() -> None:

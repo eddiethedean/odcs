@@ -34,7 +34,7 @@ pub enum Command {
         /// Emit JSON output.
         #[arg(long)]
         json: bool,
-        /// Enable strict validation (Rust pipeline plus JSON Schema).
+        /// Deprecated no-op retained for compatibility (JSON Schema always runs in validate).
         #[arg(long)]
         strict: bool,
     },

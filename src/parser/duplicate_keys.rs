@@ -34,19 +34,30 @@ pub fn find_json_duplicate_key(content: &[u8]) -> Option<DuplicateKeyFinding> {
     None
 }
 
+/// Result of scanning a YAML document for duplicate mapping keys.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum YamlDuplicateKeyScan {
+    /// Scan completed; no duplicate keys found.
+    Ok,
+    /// First duplicate key found.
+    Duplicate(DuplicateKeyFinding),
+    /// The libyaml event walk failed (malformed YAML or scanner error).
+    ScanFailed,
+}
+
 /// Returns the first duplicate key found in a YAML document, if any.
 ///
 /// Uses an `unsafe-libyaml` event walk so duplicates are detected before
 /// `serde_yaml` deserialization (which silently overwrites duplicate keys).
 /// Flow-style mappings and anchor/alias resolution are not fully validated.
-pub fn find_yaml_duplicate_key(content: &str) -> Option<DuplicateKeyFinding> {
+pub fn find_yaml_duplicate_key(content: &str) -> YamlDuplicateKeyScan {
     let bytes = content.as_bytes();
     let mut parser = MaybeUninit::<sys::yaml_parser_t>::uninit();
 
     unsafe {
         let parser = parser.as_mut_ptr();
         if sys::yaml_parser_initialize(parser).fail {
-            return None;
+            return YamlDuplicateKeyScan::ScanFailed;
         }
 
         struct ParserGuard(*mut sys::yaml_parser_t);
@@ -68,13 +79,13 @@ pub fn find_yaml_duplicate_key(content: &str) -> Option<DuplicateKeyFinding> {
         loop {
             let event_ptr = event.as_mut_ptr();
             if sys::yaml_parser_parse(parser, event_ptr).fail {
-                return None;
+                return YamlDuplicateKeyScan::ScanFailed;
             }
 
             let event_type = (*event_ptr).type_;
             if let Some(finding) = state.handle_event(event_ptr, event_type) {
                 sys::yaml_event_delete(event_ptr);
-                return Some(finding);
+                return YamlDuplicateKeyScan::Duplicate(finding);
             }
 
             sys::yaml_event_delete(event_ptr);
@@ -84,7 +95,7 @@ pub fn find_yaml_duplicate_key(content: &str) -> Option<DuplicateKeyFinding> {
         }
     }
 
-    None
+    YamlDuplicateKeyScan::Ok
 }
 
 fn format_path(segments: &[String]) -> String {
@@ -406,7 +417,10 @@ status: "draft"
 
     #[test]
     fn yaml_valid_document_has_no_duplicate_keys() {
-        assert!(find_yaml_duplicate_key(MINIMAL_YAML).is_none());
+        assert_eq!(
+            find_yaml_duplicate_key(MINIMAL_YAML),
+            YamlDuplicateKeyScan::Ok
+        );
     }
 
     #[test]
@@ -415,7 +429,10 @@ status: "draft"
 id: first
 id: second
 "#;
-        let finding = find_yaml_duplicate_key(yaml).expect("duplicate");
+        let finding = match find_yaml_duplicate_key(yaml) {
+            YamlDuplicateKeyScan::Duplicate(finding) => finding,
+            other => panic!("expected duplicate, got {other:?}"),
+        };
         assert_eq!(finding.key, "id");
         assert_eq!(finding.object_ref, "id");
     }
@@ -427,9 +444,21 @@ schema:
   - name: customers
     name: duplicate
 "#;
-        let finding = find_yaml_duplicate_key(yaml).expect("duplicate");
+        let finding = match find_yaml_duplicate_key(yaml) {
+            YamlDuplicateKeyScan::Duplicate(finding) => finding,
+            other => panic!("expected duplicate, got {other:?}"),
+        };
         assert_eq!(finding.key, "name");
         assert_eq!(finding.object_ref, "schema[0].name");
+    }
+
+    #[test]
+    fn yaml_scan_fails_on_invalid_document() {
+        let yaml = ":\n  bad: [\n";
+        assert_eq!(
+            find_yaml_duplicate_key(yaml),
+            YamlDuplicateKeyScan::ScanFailed
+        );
     }
 
     #[test]

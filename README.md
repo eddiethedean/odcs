@@ -1,6 +1,8 @@
 # odcs — Rust & Python reference implementation for ODCS
 
 [![CI](https://github.com/eddiethedean/odcs/actions/workflows/ci.yml/badge.svg)](https://github.com/eddiethedean/odcs/actions/workflows/ci.yml)
+[![Crates.io](https://img.shields.io/crates/v/odcs)](https://crates.io/crates/odcs)
+[![PyPI](https://img.shields.io/pypi/v/pyodcs)](https://pypi.org/project/pyodcs/)
 [![Documentation](https://readthedocs.org/projects/odcs/badge/?version=latest)](https://odcs.readthedocs.io/)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 

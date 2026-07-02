@@ -6,16 +6,6 @@ use serde_json::Value;
 use crate::diagnostics::{codes, emit, validation_error, DiagnosticCategory, DiagnosticReport};
 use crate::model::{DataContract, Server};
 
-const SERVER_CANONICAL_KEYS: &[&str] = &[
-    "id",
-    "server",
-    "type",
-    "description",
-    "environment",
-    "roles",
-    "customProperties",
-];
-
 const SERVER_TYPES: &[&str] = &[
     "api",
     "athena",
@@ -53,6 +43,25 @@ const SERVER_TYPES: &[&str] = &[
     "custom",
 ];
 
+const SERVER_CANONICAL_KEYS: &[&str] = &[
+    "id",
+    "server",
+    "type",
+    "description",
+    "environment",
+    "roles",
+    "customProperties",
+];
+
+fn allowed_detail_fields(server_type: &str) -> Option<&'static [&'static str]> {
+    match server_type {
+        "snowflake" => Some(&["account", "database", "schema", "host", "port", "warehouse"]),
+        "kafka" => Some(&["host", "format"]),
+        "postgresql" | "postgres" => Some(&["host", "port", "database", "schema"]),
+        _ => None,
+    }
+}
+
 /// Validate server entries and catch typos absorbed into flattened details.
 #[must_use]
 pub fn validate(contract: &DataContract) -> DiagnosticReport {
@@ -89,7 +98,7 @@ fn validate_server_entry(report: &mut DiagnosticReport, server: &Server, object_
             )
             .with_object_ref(format!("{object_ref}.type")),
         );
-        validate_details_keys(report, &server.details, object_ref);
+        validate_details_keys(report, &server.details, object_ref, None);
         return;
     };
 
@@ -119,7 +128,7 @@ fn validate_server_entry(report: &mut DiagnosticReport, server: &Server, object_
         validate_type_specific_fields(report, server, server_type, object_ref);
     }
 
-    validate_details_keys(report, &server.details, object_ref);
+    validate_details_keys(report, &server.details, object_ref, Some(server_type));
 }
 
 fn validate_type_specific_fields(
@@ -176,7 +185,10 @@ fn validate_details_keys(
     report: &mut DiagnosticReport,
     details: &IndexMap<String, Value>,
     object_ref: &str,
+    server_type: Option<&str>,
 ) {
+    let allowed = server_type.and_then(allowed_detail_fields);
+
     for key in details.keys() {
         if SERVER_CANONICAL_KEYS
             .iter()
@@ -194,6 +206,22 @@ fn validate_details_keys(
                 .with_object_ref(format!("{object_ref}.{key}"))
                 .with_remediation("move the field to the server object root or fix the field name spelling"),
             );
+            continue;
+        }
+
+        if let Some(allowed) = allowed {
+            if !allowed.iter().any(|field| *field == key) {
+                emit(
+                    report,
+                    validation_error(
+                        codes::UNKNOWN_FIELD,
+                        DiagnosticCategory::Structure,
+                        format!("unknown server property '{key}' for this server type"),
+                    )
+                    .with_object_ref(format!("{object_ref}.{key}"))
+                    .with_remediation("fix the field name spelling or remove the unknown property"),
+                );
+            }
         }
     }
 }

@@ -72,7 +72,7 @@ odcs inspect contract.yaml --json
 |-------|-------------|
 | `id` | Contract id |
 | `name` | Contract name (if set) |
-| `version` | ODCS document version |
+| `version` | Contract document revision (e.g. `1.0.0`) |
 | `apiVersion` | ODCS API version |
 | `kind` | Document kind |
 | `status` | Lifecycle status |

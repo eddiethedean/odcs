@@ -88,7 +88,7 @@ use odcs::UPSTREAM_SPEC_VERSION; // "3.1.0"
 | `python` | no | PyO3 bindings (used by maturin) |
 
 ```toml
-odcs = { version = "0.4", default-features = false }
+odcs = { version = "0.5", default-features = false }
 ```
 
 ## Python equivalent

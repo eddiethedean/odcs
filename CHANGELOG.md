@@ -15,6 +15,12 @@ Parser hardening release — nested duplicate-key detection for YAML and JSON.
 
 - `odcs:duplicate-key` diagnostics now use dotted paths for nested duplicates (root keys unchanged, e.g. `id`)
 - JSON duplicate-key detection reports path-aware `object_ref` (aligned with YAML)
+- YAML duplicate-key scanner fails closed on libyaml scan errors
+- Unknown nested fields report full dotted `object_ref` paths
+- Server property typos in flattened details emit `odcs:unknown-field`
+- JSON Schema diagnostics deduplicated when Rust validators report the same field
+- Python `is_valid()` accepts parse result dicts (reads `report.diagnostics`)
+- CLI `--strict` help text corrected (deprecated no-op)
 
 ## 0.4.0 — 2026-07-02
 

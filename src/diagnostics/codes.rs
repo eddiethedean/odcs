@@ -24,5 +24,5 @@ pub const INVALID_EXTENSION: &str = "odcs:invalid-extension";
 pub const DUPLICATE_KEY: &str = "odcs:duplicate-key";
 /// Document exceeds size limit.
 pub const DOCUMENT_TOO_LARGE: &str = "odcs:document-too-large";
-/// JSON Schema validation violation (strict mode).
+/// JSON Schema validation violation (default validation).
 pub const JSON_SCHEMA_VIOLATION: &str = "odcs:json-schema-violation";

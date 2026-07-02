@@ -47,6 +47,10 @@ Semantics and exit codes are aligned.
 
 ## Validation errors
 
+### Why does my contract fail with `odcs:duplicate-key`?
+
+Since 0.5.0, duplicate mapping keys at any depth fail parse with exit code `2`. The `object_ref` uses a dotted path (e.g. `schema[0].name`). Fix duplicate keys so each field appears once. See [Migration](migration.md#04x-050).
+
 ### Why does my contract fail with `odcs:unknown-field`?
 
 Version 0.3.0 rejects unknown fields at the root and in nested objects. Use `customProperties` for extensions:

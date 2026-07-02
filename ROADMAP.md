@@ -19,8 +19,8 @@ The [upstream ODCS specification](https://github.com/bitol-io/open-data-contract
 | **7** | [JSON Schema parity](#phase-7--json-schema-parity) | Conformance against official ODCS JSON Schema | **Complete** (`0.4.0`) |
 | **8** | [Python bindings](#phase-8--python-bindings) | PyO3 bindings after Rust API stabilizes | **Complete** (`0.4.0`) |
 | **9** | [Parser hardening](#phase-9--parser-hardening) | Nested YAML duplicate-key detection | **Complete** (`0.5.0`) |
-| **10** | [Diagnostics metadata](#phase-10--diagnostics-metadata) | `validationPhase` on validation diagnostics | Planned (`0.5.0`) |
-| **11** | [Structural validation](#phase-11--structural-validation) | Cross-field rules in `structural.rs` | Planned (`0.5.0`) |
+| **10** | [Diagnostics metadata](#phase-10--diagnostics-metadata) | `validationPhase` on validation diagnostics | Planned (`0.6.0`) |
+| **11** | [Structural validation](#phase-11--structural-validation) | Cross-field rules in `structural.rs` | Planned (`0.6.0`) |
 | **12** | [Section semantics](#phase-12--section-semantics) | Roles, SLA, pricing, support validators | Planned (`0.6.0`) |
 | **13** | [Cross-file references](#phase-13--cross-file-references) | Multi-document FQN resolution | Planned (`0.6.0`) |
 | **14** | [Compatibility analysis](#phase-14--compatibility-analysis) | Contract diff and breaking-change report | Planned (`0.7.0`) |
@@ -183,8 +183,8 @@ Phases 1–9 deliver schema-complete ODCS v3.1.0 document parsing and validation
 
 | Release | Phases | Theme |
 |---------|--------|-------|
-| `0.5.0` | 9 ✓, 10, 11 | Parser correctness, diagnostic metadata, cross-field validation |
-| `0.6.0` | 12, 13 | Section semantics, multi-document reference resolution |
+| `0.5.0` | 9 ✓ | Parser hardening (nested duplicate-key detection) |
+| `0.6.0` | 10, 11, 12, 13 | Diagnostic metadata, structural validation, section semantics, cross-file references |
 | `0.7.0` | 14 | Contract evolution and compatibility reporting |
 | `0.8.0` | 15 | Local registry and discovery |
 | `1.0.0` | 16 | Stable public API, deprecation cleanup, upstream alignment |
@@ -218,7 +218,7 @@ Out of scope for this repository (see [docs/implementation/non-goals.md](docs/im
 
 ## Phase 10 — Diagnostics metadata
 
-**Target:** `0.5.0` — **Planned**
+**Target:** `0.6.0` — **Planned**
 
 **Goal:** Attach the validation pipeline phase to every validation diagnostic so CI and tooling can filter by origin without parsing messages.
 
@@ -242,7 +242,7 @@ Out of scope for this repository (see [docs/implementation/non-goals.md](docs/im
 
 ## Phase 11 — Structural validation
 
-**Target:** `0.5.0` — **Planned**
+**Target:** `0.6.0` — **Planned**
 
 **Goal:** Implement cross-field constraints in [`src/validation/structural.rs`](src/validation/structural.rs) that require reading multiple sections of a contract and are not owned by a single-section validator.
 

@@ -1,6 +1,6 @@
 # Crate Layout
 
-Current layout (as of 0.4.0):
+Current layout (as of 0.5.0):
 
 ```text
 odcs/
@@ -37,6 +37,7 @@ odcs/
       mod.rs
       yaml.rs
       json.rs
+      duplicate_keys.rs
 
     validation/
       mod.rs

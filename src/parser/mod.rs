@@ -122,7 +122,7 @@ pub(crate) fn failure_from_serde(code: &str, error: impl std::fmt::Display) -> P
         format!("failed to parse document: {message}"),
     );
 
-    if let Some(object_ref) = extract_unknown_field_ref(&message) {
+    if let Some(object_ref) = extract_unknown_field_object_ref(&message) {
         diagnostic = diagnostic
             .with_object_ref(object_ref)
             .with_remediation("remove the unknown field or use customProperties for extensions");
@@ -174,6 +174,19 @@ fn failure_document_too_large() -> ParseResult {
         contract: None,
         report,
     }
+}
+
+fn extract_unknown_field_object_ref(message: &str) -> Option<String> {
+    let field = extract_unknown_field_ref(message)?;
+    if let Some(marker) = message.find(": unknown field") {
+        let prefix = message[..marker].trim();
+        if let Some(path) = prefix.rsplit(": ").next() {
+            if path.contains('[') || path.contains('.') {
+                return Some(format!("{path}.{field}"));
+            }
+        }
+    }
+    Some(field)
 }
 
 fn extract_unknown_field_ref(message: &str) -> Option<String> {

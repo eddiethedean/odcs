@@ -62,7 +62,7 @@ See [diagnostics.md](diagnostics.md) for when each code fires.
 
 `validate_result()` may add internal cache keys (`_odcs_validated`, `_odcs_strict`) — do not rely on them in application code.
 
-A report is valid when `is_valid(report)` is `True` (no `error`-severity diagnostics).
+A report is valid when `is_valid(report)` is `True` (no `error`-severity diagnostics). `is_valid()` also accepts a parse result dict and reads diagnostics from `report`.
 
 ## Parsing
 
@@ -80,7 +80,7 @@ report = result["report"]       # {"diagnostics": [...]}
 
 ### `parse_file(path)`
 
-Parse from a file path. Raises `ValueError` on I/O or unsupported extension errors.
+Parse from a file path. Raises `FileNotFoundError` when the file is missing. Raises `ValueError` for unsupported file extensions.
 
 ```python
 result = pyodcs.parse_file("examples/minimal.odcs.yaml")

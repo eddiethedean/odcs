@@ -8,6 +8,7 @@
 | CLI | [`tests/cli.rs`](../../tests/cli.rs) | Exit codes, JSON output, all commands |
 | JSON Schema conformance | [`tests/json_schema_conformance.rs`](../../tests/json_schema_conformance.rs) | Valid/invalid fixtures vs `schema/odcs-v3.1.0.json`; upstream corpus |
 | Spec parity | [`tests/spec_parity.rs`](../../tests/spec_parity.rs) | Default `validate()` agrees with JSON Schema on valid fixtures |
+| Validation negative | [`tests/validation_negative.rs`](../../tests/validation_negative.rs) | Parser hardening, duplicate keys, server typos, dedup |
 | Python | [`python/tests/test_pyodcs.py`](../../python/tests/test_pyodcs.py) | API and CLI parity |
 | Doc tests | [`src/lib.rs`](../../src/lib.rs) | Public API example |
 
@@ -52,6 +53,8 @@ MkDocs site (Read the Docs): `pip install -r docs/requirements.txt && mkdocs bui
 | Spec parity (default vs JSON Schema) | Covered (`spec_parity.rs`) |
 | Schema export | Covered (`cli.rs`) |
 | Deprecated `--strict` alias | Covered (`cli.rs`, `validation_negative.rs`, Python tests) |
+| Nested duplicate-key detection | Covered (`validation_negative.rs`, `cli.rs`, Python tests) |
+| JSON Schema dedup vs Rust validators | Covered (`validation_negative.rs`) |
 
 ## Fixtures
 

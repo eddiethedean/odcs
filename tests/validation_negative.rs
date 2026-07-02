@@ -116,8 +116,16 @@ fn rejects_relationship_dangling_reference() {
 }
 
 #[test]
-fn rejects_server_missing_canonical_name() {
-    assert_invalid_with_code("invalid-server-typo.yaml", codes::MISSING_REQUIRED_FIELD);
+fn rejects_server_typo_in_details() {
+    let report = parse_fixture("invalid-server-typo.yaml").validate();
+    assert!(!report.is_valid());
+    assert!(report
+        .diagnostics
+        .iter()
+        .any(|d| d.id == codes::MISSING_REQUIRED_FIELD));
+    assert!(report.diagnostics.iter().any(|d| {
+        d.id == codes::UNKNOWN_FIELD && d.object_ref.as_deref() == Some("servers[0].sever")
+    }));
 }
 
 #[test]
@@ -212,7 +220,37 @@ fn rejects_oversized_document() {
 fn nested_unknown_field_includes_object_ref() {
     let report = parse_fixture("nested-unknown-field.yaml").report;
     assert!(!report.is_valid());
-    assert!(report.diagnostics.iter().any(|d| d.object_ref.is_some()));
+    let diagnostic = report
+        .diagnostics
+        .iter()
+        .find(|d| d.id == codes::UNKNOWN_FIELD)
+        .expect("unknown field diagnostic");
+    assert_eq!(
+        diagnostic.object_ref.as_deref(),
+        Some("schema[0].properties[0].requred")
+    );
+}
+
+#[test]
+fn yaml_duplicate_scan_failure_is_parse_error() {
+    let yaml = b":\n  bad: [\n";
+    let report = parse(yaml, DocumentFormat::Yaml).report;
+    assert!(!report.is_valid());
+    assert!(report.diagnostics.iter().any(|d| d.id == codes::PARSE_YAML));
+}
+
+#[test]
+fn json_schema_dedup_when_rust_validator_reports_same_field() {
+    let report = parse_fixture("invalid-quality-dimension.yaml").validate();
+    assert!(!report.is_valid());
+    assert!(report
+        .diagnostics
+        .iter()
+        .any(|d| d.id == codes::INVALID_QUALITY));
+    assert!(!report.diagnostics.iter().any(|d| {
+        d.id == codes::JSON_SCHEMA_VIOLATION
+            && d.object_ref.as_deref() == Some("/schema/0/quality/0/dimension")
+    }));
 }
 
 #[test]

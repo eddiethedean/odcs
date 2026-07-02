@@ -103,6 +103,8 @@ def quality_rules_count(contract: dict) -> int:
 
 def is_valid(report: dict) -> bool:
     """Return True when a diagnostic report contains no error-level diagnostics."""
+    if "report" in report and "diagnostics" not in report:
+        report = report.get("report") or {}
     return not any(
         diagnostic.get("severity", "error") == "error"
         for diagnostic in report.get("diagnostics", [])

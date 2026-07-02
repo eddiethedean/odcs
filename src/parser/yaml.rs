@@ -3,7 +3,7 @@
 use crate::diagnostics::codes;
 use crate::model::DataContract;
 
-use super::duplicate_keys::find_yaml_duplicate_key;
+use super::duplicate_keys::{find_yaml_duplicate_key, YamlDuplicateKeyScan};
 use super::{failure_duplicate_key, failure_from_serde, success, ParseResult};
 
 /// Parse YAML bytes into an ODCS contract.
@@ -14,8 +14,15 @@ pub fn parse_yaml(content: &[u8]) -> ParseResult {
         Err(error) => return failure_from_serde(codes::PARSE_YAML, error),
     };
 
-    if let Some(finding) = find_yaml_duplicate_key(text) {
-        return failure_duplicate_key(finding);
+    match find_yaml_duplicate_key(text) {
+        YamlDuplicateKeyScan::Duplicate(finding) => return failure_duplicate_key(finding),
+        YamlDuplicateKeyScan::ScanFailed => {
+            return failure_from_serde(
+                codes::PARSE_YAML,
+                "failed to scan YAML document for duplicate keys",
+            );
+        }
+        YamlDuplicateKeyScan::Ok => {}
     }
 
     let de = serde_yaml::Deserializer::from_slice(content);

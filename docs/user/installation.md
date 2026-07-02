@@ -23,13 +23,13 @@ Add to `Cargo.toml`:
 
 ```toml
 [dependencies]
-odcs = "0.4"
+odcs = "0.5"
 ```
 
 Default features include the CLI. For library-only use:
 
 ```toml
-odcs = { version = "0.4", default-features = false }
+odcs = { version = "0.5", default-features = false }
 ```
 
 ### Build from source

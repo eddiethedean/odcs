@@ -1,5 +1,6 @@
 //! ODCS validation pipeline.
 
+mod dedup;
 mod document;
 mod extensions;
 mod helpers;
@@ -54,6 +55,7 @@ fn run_validation_pipeline(contract: &DataContract) -> DiagnosticReport {
     report.merge(sections::validate(contract));
     report.merge(ids::validate(contract));
     report.merge(json_schema::validate(contract));
+    dedup::dedup_json_schema_overlap(&mut report);
     report
 }
 

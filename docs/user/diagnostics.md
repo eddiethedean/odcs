@@ -34,9 +34,9 @@ A report is **valid** when it contains no `error`-severity diagnostics.
 |------|---------------|----------------------|
 | `odcs:parse-yaml` | YAML syntax or structure cannot be parsed | — |
 | `odcs:parse-json` | JSON syntax or structure cannot be parsed | — |
-| `odcs:duplicate-key` | Duplicate key in document | key name or dotted path (e.g. `schema[0].name`) |
+| `odcs:duplicate-key` | Duplicate mapping key in JSON or YAML (since 0.5.0, nested paths use dotted `object_ref`) | `id` or `schema[0].name` |
 | `odcs:document-too-large` | Document exceeds maximum parse size | — |
-| `odcs:unknown-field` | Unknown field at root or nested object (deny_unknown_fields) | field name |
+| `odcs:unknown-field` | Unknown field at root or nested object (deny_unknown_fields) | dotted path (e.g. `schema[0].properties[0].requred`) |
 | `odcs:unsupported-version` | `version` or `apiVersion` not supported | `version`, `apiVersion` |
 | `odcs:missing-required-field` | Required field missing or empty | field path |
 | `odcs:invalid-kind` | `kind` is not `DataContract` | `kind` |
@@ -115,6 +115,15 @@ odcs validate contract.yaml --json
   ]
 }
 ```
+
+## Duplicate-key limitations (0.5.0+)
+
+Nested duplicate keys in **block-style** YAML mappings and JSON objects are detected before deserialization. The following are **not** fully scanned:
+
+- YAML flow-style mappings (e.g. `{key: value}`)
+- YAML anchors and aliases (`&anchor`, `*alias`)
+
+Use block-style mappings for CI validation. See [migration.md](migration.md).
 
 ## Implementation details
 

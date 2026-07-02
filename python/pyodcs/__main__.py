@@ -77,7 +77,7 @@ def _build_parser() -> argparse.ArgumentParser:
     validate_parser.add_argument(
         "--strict",
         action="store_true",
-        help="Enable strict validation (Rust pipeline plus JSON Schema)",
+        help="Deprecated no-op retained for compatibility (JSON Schema always runs in validate)",
     )
 
     inspect_parser = subparsers.add_parser("inspect", help="Print a contract summary")
