@@ -19,38 +19,30 @@ use crate::diagnostics::DiagnosticReport;
 use crate::model::DataContract;
 
 /// Options controlling validation behavior.
+///
+/// As of 0.4.0, JSON Schema validation always runs. The `strict` flag is
+/// retained for backward compatibility and has no effect.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub struct ValidationOptions {
-    /// When true, run JSON Schema validation after the Rust pipeline.
+    /// Deprecated: JSON Schema validation is always enabled in 0.4.0+.
     pub strict: bool,
 }
 
 impl ValidationOptions {
-    /// Default (non-strict) validation options.
+    /// Default validation options.
     #[must_use]
     pub const fn default_options() -> Self {
         Self { strict: false }
     }
 
-    /// Strict validation: Rust pipeline plus JSON Schema conformance.
+    /// Deprecated alias for default options (strict mode is always on in 0.4.0+).
     #[must_use]
     pub const fn strict() -> Self {
         Self { strict: true }
     }
 }
 
-/// Validate a parsed data contract with default (non-strict) options.
-#[must_use]
-pub fn validate(contract: &DataContract) -> DiagnosticReport {
-    validate_with_options(contract, ValidationOptions::default_options())
-}
-
-/// Validate a parsed data contract.
-#[must_use]
-pub fn validate_with_options(
-    contract: &DataContract,
-    options: ValidationOptions,
-) -> DiagnosticReport {
+fn run_validation_pipeline(contract: &DataContract) -> DiagnosticReport {
     let mut report = DiagnosticReport::new();
     report.merge(document::validate(contract));
     report.merge(structural::validate(contract));
@@ -61,14 +53,27 @@ pub fn validate_with_options(
     report.merge(servers::validate(contract));
     report.merge(sections::validate(contract));
     report.merge(ids::validate(contract));
-    if options.strict {
-        report.merge(json_schema::validate(contract));
-    }
+    report.merge(json_schema::validate(contract));
     report
 }
 
-/// Validate a parsed data contract in strict mode (Rust pipeline + JSON Schema).
+/// Validate a parsed data contract (Rust pipeline + JSON Schema).
+#[must_use]
+pub fn validate(contract: &DataContract) -> DiagnosticReport {
+    validate_with_options(contract, ValidationOptions::default_options())
+}
+
+/// Validate a parsed data contract.
+#[must_use]
+pub fn validate_with_options(
+    contract: &DataContract,
+    _options: ValidationOptions,
+) -> DiagnosticReport {
+    run_validation_pipeline(contract)
+}
+
+/// Validate a parsed data contract (alias for [`validate`] since 0.4.0).
 #[must_use]
 pub fn validate_strict(contract: &DataContract) -> DiagnosticReport {
-    validate_with_options(contract, ValidationOptions::strict())
+    validate(contract)
 }

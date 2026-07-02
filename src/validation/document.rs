@@ -1,7 +1,7 @@
 //! Document-level validation.
 
 use crate::diagnostics::{codes, emit, validation_error, DiagnosticCategory, DiagnosticReport};
-use crate::model::{DataContract, SUPPORTED_ODCS_VERSIONS};
+use crate::model::DataContract;
 
 /// Validate document-level constraints.
 #[must_use]
@@ -17,20 +17,6 @@ pub fn validate(contract: &DataContract) -> DiagnosticReport {
                 "contract version must not be empty",
             )
             .with_object_ref("version"),
-        );
-    } else if !contract.is_supported_version() {
-        emit(
-            &mut report,
-            validation_error(
-                codes::UNSUPPORTED_VERSION,
-                DiagnosticCategory::Compatibility,
-                format!(
-                    "unsupported ODCS version '{}'; supported: {:?}",
-                    contract.version, SUPPORTED_ODCS_VERSIONS
-                ),
-            )
-            .with_object_ref("version")
-            .with_remediation("set version to a supported ODCS release"),
         );
     }
 

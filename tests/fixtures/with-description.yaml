@@ -1,0 +1,16 @@
+version: "3.1.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "description-contract"
+status: "draft"
+description:
+  usage: "Customer analytics dataset"
+  purpose: "Support reporting"
+  limitations: "PII restricted"
+
+schema:
+  - name: "customers"
+    logicalType: "object"
+    properties:
+      - name: "customer_id"
+        logicalType: "string"

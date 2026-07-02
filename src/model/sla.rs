@@ -22,6 +22,10 @@ pub struct ServiceLevelAgreementProperty {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub driver: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub scheduler: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub schedule: Option<String>,
 }
 

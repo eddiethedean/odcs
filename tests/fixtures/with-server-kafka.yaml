@@ -1,0 +1,18 @@
+version: "3.1.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "kafka-server-contract"
+status: "active"
+
+servers:
+  - server: "events"
+    type: "kafka"
+    host: "kafka.example.com:9092"
+    format: "json"
+
+schema:
+  - name: "events"
+    logicalType: "object"
+    properties:
+      - name: "event_id"
+        logicalType: "string"

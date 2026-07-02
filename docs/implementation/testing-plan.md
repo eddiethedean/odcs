@@ -7,6 +7,7 @@
 | Integration | [`tests/skeleton.rs`](../../tests/skeleton.rs) | Parsing, validation, round-trip, section fixtures |
 | CLI | [`tests/cli.rs`](../../tests/cli.rs) | Exit codes, JSON output, all commands |
 | JSON Schema conformance | [`tests/json_schema_conformance.rs`](../../tests/json_schema_conformance.rs) | Valid/invalid fixtures vs `schema/odcs-v3.1.0.json`; upstream corpus |
+| Spec parity | [`tests/spec_parity.rs`](../../tests/spec_parity.rs) | Default `validate()` agrees with JSON Schema on valid fixtures |
 | Python | [`python/tests/test_pyodcs.py`](../../python/tests/test_pyodcs.py) | API and CLI parity |
 | Doc tests | [`src/lib.rs`](../../src/lib.rs) | Public API example |
 
@@ -30,6 +31,8 @@ pytest python/tests -v
 
 CI runs the above via [`.github/workflows/checks.yml`](../../.github/workflows/checks.yml).
 
+MkDocs site (Read the Docs): `pip install -r docs/requirements.txt && mkdocs build --strict`
+
 ## Coverage by category
 
 | Category | Status |
@@ -45,8 +48,10 @@ CI runs the above via [`.github/workflows/checks.yml`](../../.github/workflows/c
 | Deterministic diagnostics | Covered |
 | CLI success/failure exit codes | Covered (`cli.rs`) |
 | JSON output format | Covered |
-| JSON Schema conformance | Covered (`json_schema_conformance.rs`, strict mode) |
-| Strict validation / schema export | Covered (`cli.rs`, `validation_negative.rs`) |
+| JSON Schema conformance | Covered (`json_schema_conformance.rs`, default validation since 0.4.0) |
+| Spec parity (default vs JSON Schema) | Covered (`spec_parity.rs`) |
+| Schema export | Covered (`cli.rs`) |
+| Deprecated `--strict` alias | Covered (`cli.rs`, `validation_negative.rs`, Python tests) |
 
 ## Fixtures
 

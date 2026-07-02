@@ -1,6 +1,6 @@
 # Implementation Phases
 
-All eight reference-implementation phases are **complete** as of `0.4.0`. See [ROADMAP.md](../../ROADMAP.md) for milestone checklists and [ROADMAP.md#future-milestones-05](../../ROADMAP.md#future-milestones-05) for post-0.4 backlog.
+All eight reference-implementation phases and **spec parity** are **complete** as of `0.4.0`. See [ROADMAP.md](../../ROADMAP.md) and [SPEC.md](../../SPEC.md) spec parity policy.
 
 ## Phase 1 — Skeleton
 
@@ -54,7 +54,7 @@ Mirror DTCS diagnostic style:
 
 ## Phase 5 — Validation
 
-**Status:** Complete (`0.4.0`).
+**Status:** Complete (`0.4.0`). Default validation includes JSON Schema conformance.
 
 Implemented validation phases:
 
@@ -84,7 +84,7 @@ odcs version
 
 ## Phase 7 — JSON Schema parity
 
-**Status:** Complete (`0.4.0`).
+**Status:** Complete (`0.4.0`). JSON Schema validation runs in default `validate()`.
 
 Conformance tests in [`tests/json_schema_conformance.rs`](../../tests/json_schema_conformance.rs) validate fixtures against `schema/odcs-v3.1.0.json`. Upstream examples are synced via [`scripts/sync-upstream-examples.sh`](../../scripts/sync-upstream-examples.sh).
 

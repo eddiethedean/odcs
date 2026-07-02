@@ -135,9 +135,20 @@ odcs version
 
 ---
 
+## Spec parity (0.4.0) — Complete
+
+- [x] Default `validate()` includes JSON Schema conformance
+- [x] Upstream `version` / `apiVersion` semantics aligned
+- [x] SLA model complete (`description`, `scheduler`)
+- [x] Enum and server type validation in default mode
+- [x] Expanded section fixture matrix and upstream corpus without normalization
+- [x] Spec parity policy documented in [`SPEC.md`](SPEC.md)
+
+---
+
 ## Future milestones (0.5+)
 
-Phases 1–8 cover the reference-implementation core. The following are explicitly **out of scope** for 0.4.0 per [docs/implementation/non-goals.md](docs/implementation/non-goals.md) and remain stub modules or backlog items:
+Phases 1–8 and spec parity cover the reference-implementation core. The following remain backlog items per [docs/implementation/non-goals.md](docs/implementation/non-goals.md):
 
 | Area | Module | Notes |
 |------|--------|-------|

@@ -12,7 +12,7 @@ It lets you parse ODCS v3.1.0 contracts into a typed object model and validate t
 
 ### Is it production-ready?
 
-**Pre-release** (`0.4.0`, Pre-Alpha on PyPI). Core parsing and validation work; `--strict` mode provides JSON Schema parity against the pinned upstream schema. See [ROADMAP.md](../../ROADMAP.md).
+**Pre-release** (`0.4.0`, Pre-Alpha on PyPI). Default validation is schema-complete for ODCS v3.1.0. See [Roadmap](../upstream/roadmap.md).
 
 ## Installation and usage
 
@@ -50,7 +50,7 @@ customProperties:
 
 ### Why did `quality` at the root stop working?
 
-Quality rules must be nested under `schema[]` in v3.1.0. See [migration-0.3.md](migration-0.3.md).
+Quality rules must be nested under `schema[]` in v3.1.0 (root-level `quality` was removed in 0.3.0).
 
 ### Why does `metric: not_null` fail?
 
@@ -66,16 +66,16 @@ v3.1.0 uses `nullValues`, `missingValues`, `invalidValues`, `duplicateValues`, o
 
 ### What does `--strict` do?
 
-Runs JSON Schema validation against the pinned ODCS v3.1.0 schema after the default Rust validation pipeline. Use it for maximum conformance checking. See [migration-0.4.md](migration-0.4.md).
+Since 0.4.0, nothing extra — JSON Schema validation always runs in default `validate()`. `--strict` is a deprecated no-op alias.
 
 ## Versions
 
 ### What is the difference between `version` and `apiVersion`?
 
-- `version` — ODCS document version (e.g. `"3.1.0"`)
-- `apiVersion` — API version string (e.g. `"v3.1.0"`)
+- `version` — contract document revision (e.g. `1.0.0`, `2.3.1`); any non-empty string
+- `apiVersion` — ODCS specification release (e.g. `v3.1.0`)
 
-This implementation targets ODCS **3.1.0** / API **v3.1.0**.
+This implementation targets ODCS **apiVersion v3.1.0**. Upstream examples commonly use `version: 1.0.0` with `apiVersion: v3.1.0`.
 
 ### How does this relate to DTCS and DPCS?
 
@@ -89,8 +89,8 @@ See [../implementation/relationship-to-dtcs.md](../implementation/relationship-t
 
 ### Where do I start as a contributor?
 
-Read [CONTRIBUTING.md](../../CONTRIBUTING.md) and [../implementation/README.md](../implementation/README.md).
+Read [Contributing](../upstream/contributing.md) and [Implementation overview](../implementation/overview.md).
 
 ### The upstream spec and this repo disagree — which wins?
 
-The upstream ODCS specification always wins. See [SPEC.md](../../SPEC.md).
+The upstream ODCS specification always wins. See [Specification](../upstream/spec.md).

@@ -1,12 +1,9 @@
 Upstream examples synced from bitol-io/open-data-contract-standard @ main
-2026-07-02T00:00:00Z
 
 Files:
   - docs/examples/quality/column-accuracy.odcs.yaml
   - docs/examples/quality/column-custom.odcs.yaml
   - docs/examples/quality/column-validity.odcs.yaml
 
-Normalization: version field set to "3.1.0" for odcs conformance tests.
-
-Note: examples that fail odcs Rust validation (e.g. primaryKeyPosition rules stricter
-than upstream fixtures) are retained for sync fidelity but skipped in conformance tests.
+Document version fields are preserved from upstream (typically version: 1.0.0).
+All parseable upstream examples must pass default validation and JSON Schema conformance.

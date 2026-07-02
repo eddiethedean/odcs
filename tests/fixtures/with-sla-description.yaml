@@ -1,0 +1,20 @@
+version: "1.0.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "sla-description-contract"
+status: "active"
+
+slaProperties:
+  - property: "freshness"
+    value: 24
+    unit: "hours"
+    description: "Data available within 24 hours"
+    scheduler: "cron"
+    schedule: "0 0 * * *"
+
+schema:
+  - name: "customers"
+    logicalType: "object"
+    properties:
+      - name: "customer_id"
+        logicalType: "string"

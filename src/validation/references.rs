@@ -159,6 +159,29 @@ fn is_valid_reference_format(value: &str) -> bool {
     shorthand_reference_regex().is_match(value) || fully_qualified_reference_regex().is_match(value)
 }
 
+fn validate_relationship_type(
+    report: &mut DiagnosticReport,
+    relationship_type: &Option<String>,
+    object_ref: &str,
+) {
+    let Some(relationship_type) = relationship_type.as_deref() else {
+        return;
+    };
+    if relationship_type != "foreignKey" {
+        emit(
+            report,
+            validation_error(
+                codes::UNRESOLVED_REFERENCE,
+                DiagnosticCategory::Reference,
+                format!(
+                    "unsupported relationship type '{relationship_type}'; expected 'foreignKey'"
+                ),
+            )
+            .with_object_ref(format!("{object_ref}.type")),
+        );
+    }
+}
+
 fn validate_composite_parity(
     report: &mut DiagnosticReport,
     from: &RelationshipEndpoint,
@@ -194,6 +217,7 @@ fn validate_schema_relationship(
     object_ref: &str,
     index: &SchemaIndex,
 ) {
+    validate_relationship_type(report, &relationship.base.relationship_type, object_ref);
     validate_endpoint(
         report,
         &relationship.from,
@@ -213,6 +237,8 @@ fn validate_property_relationships(
     for (prop_index, property) in properties.iter().enumerate() {
         let prop_ref = format!("{base}.properties[{prop_index}]");
         for (rel_index, relationship) in property.relationships.iter().enumerate() {
+            let rel_ref = format!("{prop_ref}.relationships[{rel_index}]");
+            validate_relationship_type(report, &relationship.base.relationship_type, &rel_ref);
             validate_endpoint(
                 report,
                 &relationship.to,

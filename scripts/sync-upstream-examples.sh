@@ -3,10 +3,9 @@
 #
 # Usage: ./scripts/sync-upstream-examples.sh [upstream-commit-sha]
 #
-# Examples are copied from https://github.com/bitol-io/open-data-contract-standard
-# and normalized for odcs 0.4 conformance testing:
-#   - version field set to "3.1.0" (upstream examples often use 1.0.0)
-#   - only apiVersion v3.1.0 examples are included
+# Examples are copied from https://github.com/bitol-io/open-data-contract-standard.
+# Only apiVersion v3.1.0 examples are included. Upstream document revision
+# values (e.g. version: 1.0.0) are preserved as-is.
 
 set -euo pipefail
 
@@ -26,9 +25,6 @@ EXAMPLES=(
 for path in "${EXAMPLES[@]}"; do
   name="$(basename "$path")"
   curl -fsSL "$UPSTREAM_REPO/$REF/$path" -o "$DEST/$name"
-  # Normalize contract version for odcs 3.1.0-targeted validation.
-  sed -i.bak 's/^version: 1\.0\.0/version: "3.1.0"/' "$DEST/$name"
-  rm -f "$DEST/$name.bak"
 done
 
 cat >"$DEST/SOURCE.txt" <<EOF
@@ -38,7 +34,8 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ")
 Files:
 $(printf '  - %s\n' "${EXAMPLES[@]}")
 
-Normalization: version field set to "3.1.0" for odcs conformance tests.
+Document version fields are preserved from upstream (typically version: 1.0.0).
+Examples that fail odcs validation due to stricter semantic rules are documented in tests.
 EOF
 
 echo "Synced ${#EXAMPLES[@]} examples to $DEST"

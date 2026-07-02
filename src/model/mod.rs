@@ -18,7 +18,7 @@ mod support;
 mod team;
 mod versioning;
 
-pub use contract::{DataContract, SUPPORTED_ODCS_VERSIONS};
+pub use contract::DataContract;
 pub use custom::{CustomProperties, CustomProperty};
 pub use fundamentals::ContractDescription;
 pub use pricing::Pricing;

@@ -104,7 +104,7 @@ Only `.yaml`, `.yml`, and `.json` are supported. Rename your file or convert the
 
 ### Validation fails on a contract that worked in 0.2.x
 
-Version 0.4.0 adds strict JSON Schema validation. See [migration-0.4.md](migration-0.4.md). Version 0.3.0 enforces stricter parsing and validation. See [migration-0.3.md](migration-0.3.md).
+Version 0.4.0 makes default validation schema-complete. Version 0.3.0 enforces stricter parsing (`deny_unknown_fields`, nested quality). See [CHANGELOG.md](../../CHANGELOG.md) for release notes.
 
 ### macOS / Linux build errors with Python feature
 

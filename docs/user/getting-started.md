@@ -76,7 +76,7 @@ print(pyodcs.inspect(result["contract"]))
 
 ## Step 5 — Explore more examples
 
-The [examples catalog](../../examples/README.md) includes contracts with SLA, team, servers, relationships, and quality rules.
+The [examples catalog](../upstream/examples.md) includes contracts with SLA, team, servers, relationships, and quality rules.
 
 ## What to read next
 
@@ -85,7 +85,6 @@ The [examples catalog](../../examples/README.md) includes contracts with SLA, te
 | CLI flags and JSON output | [cli.md](cli.md) |
 | Python API reference | [python.md](python.md) |
 | Error codes and remediation | [diagnostics.md](diagnostics.md) |
-| Upgrading from 0.2.x | [migration-0.3.md](migration-0.3.md) |
 | Common questions | [faq.md](faq.md) |
 
 ## What this tool does not do

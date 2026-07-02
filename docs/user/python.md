@@ -43,11 +43,10 @@ result = pyodcs.parse_file("examples/minimal.odcs.yaml")
 
 ### `validate(contract, *, strict=False)`
 
-Validate a parsed contract dict. Returns `{"diagnostics": [...]}`. Set `strict=True` for JSON Schema checks.
+Validate a parsed contract dict. Returns `{"diagnostics": [...]}`. Since 0.4.0, default validation includes pinned ODCS v3.1.0 JSON Schema checks. `strict=True` is a deprecated no-op alias.
 
 ```python
 validation = pyodcs.validate(contract)
-strict_validation = pyodcs.validate(contract, strict=True)
 ```
 
 ### `validate_result(result, *, strict=False)`
@@ -56,7 +55,6 @@ Merge parse-time and validation diagnostics from a `parse()` / `parse_file()` re
 
 ```python
 report = pyodcs.validate_result(result)
-strict_report = pyodcs.validate_result(result, strict=True)
 ```
 
 ### `parse_and_validate(content, format="yaml", *, strict=False)`
@@ -120,7 +118,7 @@ The `pyodcs` console script mirrors the Rust `odcs` CLI:
 pyodcs validate examples/minimal.odcs.yaml
 pyodcs inspect examples/minimal.odcs.yaml --json
 pyodcs diagnostics examples/minimal.odcs.yaml
-pyodcs validate examples/minimal.odcs.yaml --strict
+pyodcs validate examples/minimal.odcs.yaml  # --strict is deprecated (no-op since 0.4.0)
 pyodcs schema
 pyodcs schema --json
 pyodcs schema --url-only
@@ -156,7 +154,8 @@ if not pyodcs.is_valid(report):
 | `parse_file()` | `parse_file()` |
 | `validate()` | `validate()` |
 | `parse_and_validate()` | `parse_and_validate()` |
-| `validate(strict=True)` | `validate_strict()` |
+| `validate(strict=True)` | `validate_strict()` (deprecated no-op since 0.4.0) |
+| `diagnostic_codes()` / `CODES` | Diagnostic code constants |
 | `pinned_schema()` | `odcs schema` |
 
 See also [cli.md](cli.md) and [diagnostics.md](diagnostics.md).

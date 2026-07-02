@@ -14,14 +14,11 @@ use super::support::Support;
 use super::team::TeamDeclaration;
 use super::versioning::is_supported_api_version;
 
-/// Supported upstream ODCS document `version` values for this implementation.
-pub const SUPPORTED_ODCS_VERSIONS: &[&str] = &["3.1.0"];
-
 /// An ODCS Data Contract — the canonical root object.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct DataContract {
-    /// ODCS document version.
+    /// ODCS document revision (contract version, e.g. `1.0.0`).
     pub version: String,
     /// ODCS API version.
     pub api_version: String,
@@ -70,12 +67,6 @@ pub struct DataContract {
 }
 
 impl DataContract {
-    /// Returns `true` when the document version is supported by this crate.
-    #[must_use]
-    pub fn is_supported_version(&self) -> bool {
-        SUPPORTED_ODCS_VERSIONS.contains(&self.version.as_str())
-    }
-
     /// Returns `true` when the API version is supported by this crate.
     #[must_use]
     pub fn is_supported_api_version(&self) -> bool {

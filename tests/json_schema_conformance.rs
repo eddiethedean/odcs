@@ -4,7 +4,7 @@ use std::fs;
 
 use jsonschema::Validator;
 use odcs::parser::ParseResult;
-use odcs::{codes, parse, validate, validate_strict, DocumentFormat};
+use odcs::{codes, parse, validate, DocumentFormat};
 use serde_json::Value;
 
 fn pinned_validator() -> Validator {
@@ -47,10 +47,14 @@ const VALID_SCHEMA_FIXTURES: &[&str] = &[
     "minimal.odcs.yaml",
     "minimal.odcs.json",
     "with-sla.yaml",
+    "with-sla-description.yaml",
+    "with-sla-default-element.yaml",
     "with-team.yaml",
     "with-team-legacy-array.yaml",
     "with-roles.yaml",
     "with-servers.yaml",
+    "with-server-kafka.yaml",
+    "with-server-postgres.yaml",
     "with-pricing.yaml",
     "with-support.yaml",
     "with-schema-quality.yaml",
@@ -58,8 +62,16 @@ const VALID_SCHEMA_FIXTURES: &[&str] = &[
     "with-custom-properties.yaml",
     "with-extensions.yaml",
     "with-relationships.yaml",
+    "with-property-relationships.yaml",
     "with-schema-array-items.yaml",
     "with-custom-quality-object.yaml",
+    "with-tenant.yaml",
+    "with-root-tags.yaml",
+    "with-domain.yaml",
+    "with-description.yaml",
+    "with-data-product.yaml",
+    "with-contract-created-ts.yaml",
+    "with-authoritative-definitions.yaml",
 ];
 
 #[test]
@@ -99,6 +111,7 @@ const INVALID_PARITY_FIXTURES: &[&str] = &[
     "invalid-nested-property-ref.yaml",
     "invalid-quality-dimension.yaml",
     "invalid-logical-type.yaml",
+    "invalid-server-type.yaml",
 ];
 
 #[test]
@@ -131,19 +144,18 @@ fn invalid_fixtures_fail_rust_or_json_schema_validation() {
 }
 
 #[test]
-fn json_schema_only_fixture_fails_strict_validation() {
+fn json_schema_only_fixture_fails_default_validation() {
     let result = parse(
         &fixture_bytes("invalid-json-schema-only.yaml"),
         DocumentFormat::Yaml,
     );
     let contract = result.contract.expect("parsed contract");
-    assert!(validate(&contract).is_valid());
-    let strict_report = validate_strict(&contract);
-    assert!(!strict_report.is_valid());
-    assert!(strict_report
+    let report = validate(&contract);
+    assert!(!report.is_valid());
+    assert!(report
         .diagnostics
         .iter()
-        .any(|d| d.id == codes::JSON_SCHEMA_VIOLATION));
+        .any(|d| d.id == codes::INVALID_QUALITY || d.id == codes::JSON_SCHEMA_VIOLATION));
 }
 
 #[test]
@@ -180,13 +192,14 @@ fn upstream_examples_conform_when_parseable() {
         if let Some(ref contract) = contract {
             report.merge(validate(contract));
         }
-        if !report.is_valid() {
-            eprintln!(
-                "skipping upstream example {name} (odcs validation): {:?}",
-                report.diagnostics
-            );
+        if contract.is_none() {
             continue;
         }
+        assert!(
+            report.is_valid(),
+            "upstream example {name} should pass validation: {:?}",
+            report.diagnostics
+        );
         tested += 1;
         assert_fixture_matches_schema(&fixture_name, format);
         let contract = contract.expect("parsed upstream example");

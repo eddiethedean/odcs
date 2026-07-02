@@ -11,7 +11,7 @@ Use this repository if you want to:
 - parse contracts into a typed object model (Rust or Python)
 - get structured diagnostics with stable `odcs:*` error codes
 
-**Status:** Pre-release (`0.4.0`) — core parsing and validation; `--strict` JSON Schema mode available; see [ROADMAP.md](ROADMAP.md).
+**Status:** Pre-release (`0.4.0`) — schema-complete default validation for ODCS v3.1.0; see [ROADMAP.md](ROADMAP.md).
 
 > This repository implements the standard; it is not the ODCS specification itself.
 
@@ -21,6 +21,7 @@ Use this repository if you want to:
 | **Rust crate** | [`odcs`](https://crates.io/crates/odcs) |
 | **Python package** | [`pyodcs`](https://pypi.org/project/pyodcs/) |
 | **API docs** | [docs.rs/odcs](https://docs.rs/odcs) |
+| **User guide** | [odcs.readthedocs.io](https://odcs.readthedocs.io/) |
 
 ## Installation
 
@@ -111,10 +112,9 @@ print(pyodcs.inspect(result["contract"]))
 | Use from Python | [docs/user/python.md](docs/user/python.md) |
 | Understand error codes | [docs/user/diagnostics.md](docs/user/diagnostics.md) |
 | Browse examples | [examples/README.md](examples/README.md) |
-| Upgrade from 0.2.x | [docs/user/migration-0.3.md](docs/user/migration-0.3.md) |
-| Upgrade to 0.4.x | [docs/user/migration-0.4.md](docs/user/migration-0.4.md) |
 | Contribute | [CONTRIBUTING.md](CONTRIBUTING.md) |
-| Full doc index | [docs/README.md](docs/README.md) |
+| Full doc index | [docs/index.md](docs/index.md) |
+| Hosted docs | [odcs.readthedocs.io](https://odcs.readthedocs.io/) |
 
 ## Pipeline
 

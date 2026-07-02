@@ -44,4 +44,4 @@ Additional valid and invalid fixtures used in integration tests live under [`tes
 - Use `customProperties` for extensions; unknown fields are rejected
 - Library metrics must use v3.1.0 names: `nullValues`, `missingValues`, `invalidValues`, `duplicateValues`, `rowCount`
 
-See [../docs/user/faq.md](../docs/user/faq.md) and [../docs/user/migration-0.3.md](../docs/user/migration-0.3.md).
+See [../docs/user/faq.md](../docs/user/faq.md).

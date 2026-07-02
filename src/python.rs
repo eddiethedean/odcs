@@ -195,6 +195,47 @@ fn pinned_schema(py: Python<'_>, json_metadata: bool) -> PyResult<Py<PyAny>> {
     }
 }
 
+/// Return stable `odcs:` diagnostic code constants.
+#[pyfunction]
+fn diagnostic_codes(py: Python<'_>) -> PyResult<Py<PyAny>> {
+    let dict = PyDict::new(py);
+    dict.set_item("PARSE_YAML", crate::diagnostics::codes::PARSE_YAML)?;
+    dict.set_item("PARSE_JSON", crate::diagnostics::codes::PARSE_JSON)?;
+    dict.set_item(
+        "UNSUPPORTED_VERSION",
+        crate::diagnostics::codes::UNSUPPORTED_VERSION,
+    )?;
+    dict.set_item(
+        "MISSING_REQUIRED_FIELD",
+        crate::diagnostics::codes::MISSING_REQUIRED_FIELD,
+    )?;
+    dict.set_item("INVALID_KIND", crate::diagnostics::codes::INVALID_KIND)?;
+    dict.set_item("INVALID_SCHEMA", crate::diagnostics::codes::INVALID_SCHEMA)?;
+    dict.set_item(
+        "INVALID_QUALITY",
+        crate::diagnostics::codes::INVALID_QUALITY,
+    )?;
+    dict.set_item("UNKNOWN_FIELD", crate::diagnostics::codes::UNKNOWN_FIELD)?;
+    dict.set_item(
+        "UNRESOLVED_REFERENCE",
+        crate::diagnostics::codes::UNRESOLVED_REFERENCE,
+    )?;
+    dict.set_item(
+        "INVALID_EXTENSION",
+        crate::diagnostics::codes::INVALID_EXTENSION,
+    )?;
+    dict.set_item("DUPLICATE_KEY", crate::diagnostics::codes::DUPLICATE_KEY)?;
+    dict.set_item(
+        "DOCUMENT_TOO_LARGE",
+        crate::diagnostics::codes::DOCUMENT_TOO_LARGE,
+    )?;
+    dict.set_item(
+        "JSON_SCHEMA_VIOLATION",
+        crate::diagnostics::codes::JSON_SCHEMA_VIOLATION,
+    )?;
+    Ok(dict.into())
+}
+
 /// Native extension module for the Python `pyodcs` package.
 #[pymodule]
 fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
@@ -204,6 +245,7 @@ fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(validate_contract, m)?)?;
     m.add_function(wrap_pyfunction!(validate_document, m)?)?;
     m.add_function(wrap_pyfunction!(pinned_schema, m)?)?;
+    m.add_function(wrap_pyfunction!(diagnostic_codes, m)?)?;
     m.add_function(wrap_pyfunction!(inspect, m)?)?;
     m.add_function(wrap_pyfunction!(quality_rules_count, m)?)?;
     m.add_function(wrap_pyfunction!(inspect_summary, m)?)?;

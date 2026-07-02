@@ -12,6 +12,16 @@ const LIBRARY_METRICS: &[&str] = &[
     "rowCount",
 ];
 
+const QUALITY_DIMENSIONS: &[&str] = &[
+    "accuracy",
+    "completeness",
+    "conformity",
+    "consistency",
+    "coverage",
+    "timeliness",
+    "uniqueness",
+];
+
 /// Validate quality rules declared on schema objects and properties.
 #[must_use]
 pub fn validate(contract: &DataContract) -> DiagnosticReport {
@@ -60,6 +70,23 @@ fn validate_property_quality(
 }
 
 fn validate_rule(report: &mut DiagnosticReport, rule: &DataQuality, object_ref: &str) {
+    if let Some(dimension) = rule.dimension.as_deref() {
+        if !QUALITY_DIMENSIONS.contains(&dimension) {
+            emit(
+                report,
+                validation_error(
+                    codes::INVALID_QUALITY,
+                    DiagnosticCategory::Semantic,
+                    format!(
+                        "unsupported quality dimension '{dimension}'; expected one of: {}",
+                        QUALITY_DIMENSIONS.join(", ")
+                    ),
+                )
+                .with_object_ref(format!("{object_ref}.dimension")),
+            );
+        }
+    }
+
     if let Some(rule_type) = rule.rule_type.as_deref() {
         if !is_known_rule_type(rule_type) {
             emit(
@@ -146,6 +173,29 @@ fn validate_library_rule(report: &mut DiagnosticReport, rule: &DataQuality, obje
             .with_object_ref(format!("{object_ref}.metric")),
         );
     }
+
+    if !has_quality_operator(rule) {
+        emit(
+            report,
+            validation_error(
+                codes::INVALID_QUALITY,
+                DiagnosticCategory::Semantic,
+                "library quality rules require a comparison operator (mustBe, mustBeGreaterThan, mustBeBetween, etc.)",
+            )
+            .with_object_ref(object_ref.to_string()),
+        );
+    }
+}
+
+fn has_quality_operator(rule: &DataQuality) -> bool {
+    rule.must_be.is_some()
+        || rule.must_not_be.is_some()
+        || rule.must_be_greater_than.is_some()
+        || rule.must_be_greater_or_equal_to.is_some()
+        || rule.must_be_less_than.is_some()
+        || rule.must_be_less_or_equal_to.is_some()
+        || rule.must_be_between.is_some()
+        || rule.must_not_be_between.is_some()
 }
 
 fn validate_custom_rule(report: &mut DiagnosticReport, rule: &DataQuality, object_ref: &str) {

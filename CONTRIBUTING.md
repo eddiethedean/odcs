@@ -54,6 +54,8 @@ cargo test --locked
 maturin develop --features python --locked
 pytest python/tests -v
 maturin build --features python --locked
+pip install -r docs/requirements.txt
+mkdocs build --strict
 ```
 
 ## Implementation changes
@@ -79,7 +81,8 @@ The crate targets parsing, the canonical object model, validation, and diagnosti
 
 - User-facing changes: update [docs/user/](docs/user/) and [README.md](README.md).
 - API changes: update [docs/implementation/public-api.md](docs/implementation/public-api.md).
-- Breaking changes: update [CHANGELOG.md](CHANGELOG.md) and [docs/user/migration-0.3.md](docs/user/migration-0.3.md).
+- Breaking changes: update [CHANGELOG.md](CHANGELOG.md)
+- Preview hosted docs locally: `pip install -r docs/requirements.txt && mkdocs serve` (published at [odcs.readthedocs.io](https://odcs.readthedocs.io/)).
 
 ## Pull requests
 

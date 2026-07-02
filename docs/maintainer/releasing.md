@@ -48,6 +48,7 @@ maturin build --features python --locked
 ## Post-release
 
 - Verify [crates.io/crates/odcs](https://crates.io/crates/odcs) and [pypi.org/project/pyodcs](https://pypi.org/project/pyodcs/)
+- Verify [odcs.readthedocs.io](https://odcs.readthedocs.io/) built the new tag (Read the Docs webhook)
 - Update [ROADMAP.md](../../ROADMAP.md) milestone status if needed
 
 ## Upstream ODCS sync

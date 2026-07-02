@@ -66,6 +66,10 @@ pub fn validate(contract: &DataContract) -> DiagnosticReport {
         validate_optional_stable_id(&mut report, &role.id, &format!("roles[{index}].id"));
     }
 
+    for (index, sla) in contract.sla_properties.iter().enumerate() {
+        validate_optional_stable_id(&mut report, &sla.id, &format!("slaProperties[{index}].id"));
+    }
+
     if let Some(team) = &contract.team {
         validate_team_ids(&mut report, team);
     }

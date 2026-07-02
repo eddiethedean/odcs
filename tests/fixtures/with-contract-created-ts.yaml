@@ -1,0 +1,13 @@
+version: "3.1.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "contract-created-ts-contract"
+status: "draft"
+contractCreatedTs: "2024-01-15T10:30:00Z"
+
+schema:
+  - name: "customers"
+    logicalType: "object"
+    properties:
+      - name: "customer_id"
+        logicalType: "string"

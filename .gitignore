@@ -16,6 +16,9 @@
 .env
 .env.*
 
+# MkDocs (Read the Docs)
+/site/
+
 # Python
 __pycache__/
 *.py[cod]

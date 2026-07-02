@@ -19,6 +19,7 @@ def _fixture(name: str) -> bytes:
 def test_upstream_spec_version() -> None:
     assert pyodcs.UPSTREAM_SPEC_VERSION == "3.1.0"
     assert pyodcs.__version__ == "0.4.0"
+    assert pyodcs.CODES["INVALID_KIND"] == "odcs:invalid-kind"
 
 
 def test_parse_valid_yaml_fixture() -> None:
@@ -179,14 +180,21 @@ def test_cli_validate_strict_json_schema_violation() -> None:
     assert "odcs:json-schema-violation" in result.stdout
 
 
-def test_validate_strict_api() -> None:
-    result = pyodcs.parse(_fixture("invalid-json-schema-only.yaml"), "yaml")
+def test_validate_strict_is_deprecated_alias() -> None:
+    result = pyodcs.parse(_fixture("minimal.odcs.yaml"), "yaml")
     contract = result["contract"]
     assert contract is not None
     default_report = pyodcs.validate(contract)
-    assert pyodcs.is_valid(default_report)
     strict_report = pyodcs.validate(contract, strict=True)
-    assert not pyodcs.is_valid(strict_report)
+    assert default_report == strict_report
+
+
+def test_invalid_json_schema_fixture_fails_default_validation() -> None:
+    result = pyodcs.parse(_fixture("invalid-json-schema-only.yaml"), "yaml")
+    contract = result["contract"]
+    assert contract is not None
+    report = pyodcs.validate(contract)
+    assert not pyodcs.is_valid(report)
 
 
 def test_pinned_schema_export() -> None:

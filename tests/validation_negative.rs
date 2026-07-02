@@ -188,9 +188,9 @@ fn nested_unknown_field_includes_object_ref() {
 }
 
 #[test]
-fn api_version_must_match_document_version() {
+fn api_version_must_be_supported() {
     let yaml = br#"
-version: "3.1.0"
+version: "1.0.0"
 apiVersion: "v3.0.2"
 kind: "DataContract"
 id: "mismatch"
@@ -208,6 +208,29 @@ schema:
         .diagnostics
         .iter()
         .any(|d| d.id == codes::UNSUPPORTED_VERSION));
+}
+
+#[test]
+fn accepts_upstream_document_version_with_supported_api_version() {
+    let yaml = br#"
+version: "1.0.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "upstream-version"
+status: "draft"
+schema:
+  - name: "customers"
+    logicalType: "object"
+    properties:
+      - name: "customer_id"
+        logicalType: "string"
+"#;
+    let report = parse(yaml, DocumentFormat::Yaml).validate();
+    assert!(
+        report.is_valid(),
+        "upstream document version should be accepted: {:?}",
+        report.diagnostics
+    );
 }
 
 #[test]
@@ -252,19 +275,43 @@ fn rejects_nested_property_shorthand_reference() {
 }
 
 #[test]
-fn strict_mode_rejects_json_schema_only_violation() {
+fn rejects_invalid_server_type() {
+    assert_invalid_with_code("invalid-server-type.yaml", codes::INVALID_SCHEMA);
+}
+
+#[test]
+fn rejects_invalid_quality_dimension_in_default_mode() {
+    assert_invalid_with_code("invalid-quality-dimension.yaml", codes::INVALID_QUALITY);
+}
+
+#[test]
+fn rejects_invalid_logical_type_in_default_mode() {
+    assert_invalid_with_code("invalid-logical-type.yaml", codes::INVALID_SCHEMA);
+}
+
+#[test]
+fn strict_mode_rejects_json_schema_violation() {
     let result = parse_fixture("invalid-json-schema-only.yaml");
-    let default_report = result.clone().validate();
-    assert!(
-        default_report.is_valid(),
-        "fixture should pass default Rust validation: {:?}",
-        default_report.diagnostics
-    );
     let contract = result.contract.expect("parsed contract");
-    let strict_report = validate_strict(&contract);
-    assert!(!strict_report.is_valid());
-    assert!(strict_report
+    let report = validate_strict(&contract);
+    assert!(!report.is_valid());
+    assert!(report
         .diagnostics
         .iter()
-        .any(|d| d.id == codes::JSON_SCHEMA_VIOLATION));
+        .any(|d| d.id == codes::INVALID_QUALITY || d.id == codes::JSON_SCHEMA_VIOLATION));
+}
+
+#[test]
+fn sla_description_and_scheduler_round_trip() {
+    let contract = parse_fixture("with-sla-description.yaml")
+        .into_contract()
+        .expect("valid fixture");
+    assert_eq!(
+        contract.sla_properties[0].description.as_deref(),
+        Some("Data available within 24 hours")
+    );
+    assert_eq!(
+        contract.sla_properties[0].scheduler.as_deref(),
+        Some("cron")
+    );
 }

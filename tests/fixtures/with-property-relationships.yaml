@@ -1,0 +1,20 @@
+version: "3.1.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "property-relationships-contract"
+status: "active"
+
+schema:
+  - name: "orders"
+    logicalType: "object"
+    properties:
+      - name: "customer_id"
+        logicalType: "string"
+        relationships:
+          - type: "foreignKey"
+            to: "customers.customer_id"
+  - name: "customers"
+    logicalType: "object"
+    properties:
+      - name: "customer_id"
+        logicalType: "string"

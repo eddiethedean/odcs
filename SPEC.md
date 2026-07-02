@@ -95,7 +95,37 @@ The supported version SHALL appear in:
 
 ## Upstream example corpus (0.4.0)
 
-Curated upstream examples are synced from `bitol-io/open-data-contract-standard` @ `main` into `tests/fixtures/upstream/`. See `tests/fixtures/upstream/SOURCE.txt` for the file list and normalization notes.
+Curated upstream examples are synced from `bitol-io/open-data-contract-standard` @ `main` into `tests/fixtures/upstream/`. See `tests/fixtures/upstream/SOURCE.txt` for the file list. Document `version` fields are preserved from upstream (typically `1.0.0`).
+
+------------------------------------------------------------------------
+
+# Spec parity policy (0.4.0)
+
+Default `validate()` runs the Rust semantic pipeline **and** JSON Schema validation against the pinned ODCS v3.1.0 schema in [`schema/odcs-v3.1.0.json`](schema/odcs-v3.1.0.json).
+
+## Matches upstream JSON Schema
+
+- Root document properties and `additionalProperties: false` (via `deny_unknown_fields` on model types)
+- Enum constraints promoted to default validation (`logicalType`, `quality.dimension`, server `type`, relationship `type`)
+- Library quality `DataQualityOperators` oneOf
+- Server type-specific required fields (Snowflake, Kafka, PostgreSQL)
+- SLA `description` and `scheduler` fields
+
+## Intentional extensions (stricter than schema)
+
+Documented deviations that remain in the Rust pipeline:
+
+| Extension | Behavior |
+|-----------|----------|
+| Relationship shorthand resolution | Shorthand refs (`table.column`) must resolve to a known schema object and property in the same document |
+| Composite endpoint length parity | Composite `from`/`to` arrays must have equal length |
+| Library `rule` field | Deprecated `rule` alone is rejected; `metric` is required |
+| `apiVersion` scope | Only `v3.1.0` accepted (schema allows older API versions) |
+
+## Out of scope
+
+- Cross-file / fully-qualified reference resolution
+- Registry server and compatibility analysis (see [docs/implementation/non-goals.md](docs/implementation/non-goals.md))
 
 ------------------------------------------------------------------------
 

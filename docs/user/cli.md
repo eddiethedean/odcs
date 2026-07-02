@@ -17,7 +17,7 @@ odcs version            # Print tool and upstream spec versions
 | Flag | Commands | Description |
 |------|----------|-------------|
 | `--json` | all | Emit JSON output (`schema --json` includes metadata wrapper) |
-| `--strict` | `validate` | Run JSON Schema validation after the Rust pipeline |
+| `--strict` | `validate` | Deprecated no-op (JSON Schema always runs in 0.4.0+) |
 | `--url-only` | `schema` | Print upstream repository URL only |
 
 ## Exit codes
@@ -113,11 +113,9 @@ odcs version --json
 }
 ```
 
-## `--strict`
+## `--strict` (deprecated)
 
-`odcs validate --strict` runs the default validation pipeline, then checks the contract against the pinned ODCS v3.1.0 JSON Schema. Violations emit `odcs:json-schema-violation` diagnostics.
-
-This is different from `parse_strict()` in the library API, which rejects unknown fields at parse time. See [migration-0.4.md](migration-0.4.md).
+Since 0.4.0, JSON Schema validation always runs. `--strict` is accepted for backward compatibility but has no additional effect.
 
 ## CI integration example
 

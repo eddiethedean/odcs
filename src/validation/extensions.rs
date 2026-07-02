@@ -37,6 +37,17 @@ pub fn validate(contract: &DataContract) -> DiagnosticReport {
                     .with_object_ref(format!("authoritativeDefinitions[{index}].url")),
                 );
             }
+            if definition.definition_type.is_empty() {
+                emit(
+                    &mut report,
+                    validation_error(
+                        codes::MISSING_REQUIRED_FIELD,
+                        DiagnosticCategory::Structure,
+                        "authoritative definition type must not be empty",
+                    )
+                    .with_object_ref(format!("authoritativeDefinitions[{index}].type")),
+                );
+            }
         }
     }
 

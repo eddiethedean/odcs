@@ -1,0 +1,13 @@
+version: "3.1.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "domain-contract"
+status: "draft"
+domain: "customer-analytics"
+
+schema:
+  - name: "customers"
+    logicalType: "object"
+    properties:
+      - name: "customer_id"
+        logicalType: "string"

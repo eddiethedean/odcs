@@ -1,9 +1,21 @@
 //! Schema object and property validation.
 
-use std::collections::HashSet;
-
 use crate::diagnostics::{codes, emit, validation_error, DiagnosticCategory, DiagnosticReport};
 use crate::model::{DataContract, SchemaObject, SchemaProperty};
+
+const SCHEMA_OBJECT_LOGICAL_TYPES: &[&str] = &["object"];
+
+const PROPERTY_LOGICAL_TYPES: &[&str] = &[
+    "string",
+    "date",
+    "timestamp",
+    "time",
+    "number",
+    "integer",
+    "object",
+    "array",
+    "boolean",
+];
 
 /// Validate schema objects and properties.
 #[must_use]
@@ -36,41 +48,24 @@ fn validate_schema_object(report: &mut DiagnosticReport, schema: &SchemaObject, 
         );
     }
 
-    validate_primary_keys(report, &schema.properties, base_ref);
-    validate_properties(report, &schema.properties, base_ref);
-}
-
-fn validate_primary_keys(
-    report: &mut DiagnosticReport,
-    properties: &[SchemaProperty],
-    base_ref: &str,
-) {
-    let mut positions = HashSet::new();
-    for (index, property) in properties.iter().enumerate() {
-        let prop_ref = format!("{base_ref}.properties[{index}]");
-        if property.primary_key && property.primary_key_position < 0 {
+    if let Some(logical_type) = schema.logical_type.as_deref() {
+        if !SCHEMA_OBJECT_LOGICAL_TYPES.contains(&logical_type) {
             emit(
                 report,
                 validation_error(
                     codes::INVALID_SCHEMA,
                     DiagnosticCategory::Structure,
-                    "primary key properties require primaryKeyPosition >= 0",
+                    format!(
+                        "unsupported schema object logicalType '{logical_type}'; expected: {}",
+                        SCHEMA_OBJECT_LOGICAL_TYPES.join(", ")
+                    ),
                 )
-                .with_object_ref(format!("{prop_ref}.primaryKeyPosition")),
-            );
-        }
-        if property.primary_key && !positions.insert(property.primary_key_position) {
-            emit(
-                report,
-                validation_error(
-                    codes::INVALID_SCHEMA,
-                    DiagnosticCategory::Structure,
-                    "primary key positions must be unique within a schema object",
-                )
-                .with_object_ref(format!("{prop_ref}.primaryKeyPosition")),
+                .with_object_ref(format!("{base_ref}.logicalType")),
             );
         }
     }
+
+    validate_properties(report, &schema.properties, base_ref);
 }
 
 fn validate_properties(report: &mut DiagnosticReport, properties: &[SchemaProperty], base: &str) {
@@ -91,6 +86,23 @@ fn validate_properties(report: &mut DiagnosticReport, properties: &[SchemaProper
                 )
                 .with_object_ref(format!("{prop_ref}.name")),
             );
+        }
+
+        if let Some(logical_type) = property.logical_type.as_deref() {
+            if !PROPERTY_LOGICAL_TYPES.contains(&logical_type) {
+                emit(
+                    report,
+                    validation_error(
+                        codes::INVALID_SCHEMA,
+                        DiagnosticCategory::Structure,
+                        format!(
+                            "unsupported property logicalType '{logical_type}'; expected one of: {}",
+                            PROPERTY_LOGICAL_TYPES.join(", ")
+                        ),
+                    )
+                    .with_object_ref(format!("{prop_ref}.logicalType")),
+                );
+            }
         }
 
         if property.logical_type.as_deref() == Some("array") && property.items.is_none() {

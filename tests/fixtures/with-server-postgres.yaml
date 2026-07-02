@@ -1,0 +1,20 @@
+version: "1.0.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "postgres-server-contract"
+status: "active"
+
+servers:
+  - server: "analytics"
+    type: "postgresql"
+    host: "db.example.com"
+    port: 5432
+    database: "warehouse"
+    schema: "public"
+
+schema:
+  - name: "orders"
+    logicalType: "object"
+    properties:
+      - name: "order_id"
+        logicalType: "string"

@@ -1,0 +1,103 @@
+site_name: odcs
+site_description: Reference implementation of the Open Data Contract Standard (ODCS)
+site_url: https://odcs.readthedocs.io/
+repo_url: https://github.com/eddiethedean/odcs
+repo_name: eddiethedean/odcs
+edit_uri: edit/main/docs/
+
+docs_dir: docs
+
+theme:
+  name: material
+  features:
+    - navigation.instant
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+    - search.suggest
+    - search.highlight
+    - toc.integrate
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+plugins:
+  - search
+  - include-markdown
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - User guides:
+      - Getting started: user/getting-started.md
+      - Installation: user/installation.md
+      - CLI: user/cli.md
+      - Python: user/python.md
+      - Diagnostics: user/diagnostics.md
+      - FAQ: user/faq.md
+  - Upstream:
+      - Specification: upstream/spec.md
+      - Roadmap: upstream/roadmap.md
+      - Changelog: upstream/changelog.md
+  - Examples: upstream/examples.md
+  - Implementation:
+      - Overview: implementation/overview.md
+      - Project goal: implementation/project-goal.md
+      - Architecture: implementation/architecture.md
+      - Crate layout: implementation/crate-layout.md
+      - Model guide: implementation/model-guide.md
+      - Validation guide: implementation/validation-guide.md
+      - Diagnostics guide: implementation/diagnostics-guide.md
+      - Public API: implementation/public-api.md
+      - CLI specification: implementation/cli-spec.md
+      - Implementation phases: implementation/implementation-phases.md
+      - Testing plan: implementation/testing-plan.md
+      - Rust dependencies: implementation/rust-dependencies.md
+      - Spec usage: implementation/spec-usage.md
+      - Non-goals: implementation/non-goals.md
+      - Relationship to DTCS: implementation/relationship-to-dtcs.md
+  - Contributing: upstream/contributing.md
+  - Maintainer:
+      - Releasing: maintainer/releasing.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/eddiethedean/odcs
+    - icon: fontawesome/brands/rust
+      link: https://docs.rs/odcs
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/pyodcs/
+
+validation:
+  nav:
+    omitted_files: warn
+    not_found: warn
+  links:
+    # Maintainer docs link to src/, tests/, and repo-root files outside docs_dir.
+    not_found: ignore
+    unrecognized_links: ignore
+    absolute_links: warn

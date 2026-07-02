@@ -30,10 +30,14 @@ fn parse_fixture_contract(name: &str) -> DataContract {
 
 const SECTION_FIXTURES: &[&str] = &[
     "with-sla.yaml",
+    "with-sla-description.yaml",
+    "with-sla-default-element.yaml",
     "with-team.yaml",
     "with-team-legacy-array.yaml",
     "with-roles.yaml",
     "with-servers.yaml",
+    "with-server-kafka.yaml",
+    "with-server-postgres.yaml",
     "with-pricing.yaml",
     "with-support.yaml",
     "with-schema-quality.yaml",
@@ -41,8 +45,16 @@ const SECTION_FIXTURES: &[&str] = &[
     "with-custom-properties.yaml",
     "with-extensions.yaml",
     "with-relationships.yaml",
+    "with-property-relationships.yaml",
     "with-schema-array-items.yaml",
     "with-custom-quality-object.yaml",
+    "with-tenant.yaml",
+    "with-root-tags.yaml",
+    "with-domain.yaml",
+    "with-description.yaml",
+    "with-data-product.yaml",
+    "with-contract-created-ts.yaml",
+    "with-authoritative-definitions.yaml",
 ];
 
 #[test]
