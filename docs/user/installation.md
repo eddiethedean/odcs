@@ -1,7 +1,7 @@
 # Installation
 
-!!! tip "Published vs main"
-    Latest **published** releases are **0.4.0** on crates.io and PyPI. The `main` branch is **0.5.0**. See [Release status](../project/release-status.md).
+!!! tip "Version"
+    Current release is **0.5.0** on `main`. Published registries update when tag `v0.5.0` is pushed. See [Release status](../project/release-status.md).
 
 ## Prerequisites
 

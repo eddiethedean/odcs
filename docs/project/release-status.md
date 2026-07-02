@@ -1,56 +1,79 @@
 # Release status
 
-This page clarifies what is on `main` versus what is published to registries.
+Current release: **0.5.0** (on `main`, ready to publish).
 
-## Current versions
+## Version alignment
 
-| Source | Version | Notes |
-|--------|---------|-------|
-| `main` branch (`Cargo.toml`, `pyproject.toml`) | **0.5.0** | Documentation on [Read the Docs](https://odcs.readthedocs.io/) reflects this tree |
-| [crates.io](https://crates.io/crates/odcs) | **0.4.0** | Latest published Rust crate (until `v0.5.0` tag) |
-| [PyPI](https://pypi.org/project/pyodcs/) | **0.4.0** | Latest published Python package (until `v0.5.0` tag) |
+| Source | Version | Status |
+|--------|---------|--------|
+| `Cargo.toml` | **0.5.0** | Aligned |
+| `pyproject.toml` | **0.5.0** | Aligned |
+| `CHANGELOG.md` | **0.5.0** | Release notes present |
+| Git tag | *(none yet)* | Push `v0.5.0` to publish |
 
-!!! note "Why badges may show 0.4.0"
-    README badges read from crates.io and PyPI. They update when maintainers push the `v0.5.0` release tag.
+## Registry status
 
-## What 0.5.0 adds over 0.4.0
+| Registry | Latest published | After `v0.5.0` tag |
+|----------|------------------|---------------------|
+| [crates.io](https://crates.io/crates/odcs) | 0.4.0 | 0.5.0 (via release workflow) |
+| [PyPI](https://pypi.org/project/pyodcs/) | 0.4.0 | 0.5.0 (via release workflow) |
 
-- Nested YAML/JSON duplicate-key detection with path-style `object_ref`
-- Fail-closed YAML duplicate-key scanner
-- Server property typo detection in flattened `details`
-- JSON Schema diagnostic deduplication when Rust validators report the same field
-- Python `is_valid()` accepts parse-result dicts
+## Install 0.5.0
 
-See [Changelog](../changelog.md) for the full list.
-
-## How to install a specific version
-
-### Published release (0.4.0 today)
+### After release (crates.io / PyPI)
 
 ```bash
-cargo install odcs --version 0.4.0 --locked
-pip install pyodcs==0.4.0
+cargo install odcs --version 0.5.0 --locked
+pip install pyodcs==0.5.0
 ```
 
-### Latest `main` (0.5.0) from source
+### From source (before or after tag)
 
 ```bash
 git clone https://github.com/eddiethedean/odcs.git
 cd odcs
 cargo install --path . --locked
-# Python:
-maturin develop --features python --locked
+maturin develop --features python --locked   # Python editable install
 ```
 
-## Pinning in CI
-
-Pin the **published** version for reproducible CI until `v0.5.0` is released:
+## Pin in CI
 
 ```bash
-cargo install odcs --version 0.4.0 --locked
-pip install pyodcs==0.4.0
+cargo install odcs --version 0.5.0 --locked
+pip install pyodcs==0.5.0
 ```
 
-After `v0.5.0` ships, update pins to `0.5.0`. See [CI/CD integration](../user/ci-cd.md).
+See [CI/CD integration](../user/ci-cd.md).
 
-Maintainers: see [Releasing](../maintainer/releasing.md).
+## Publish checklist (maintainers)
+
+Before pushing `v0.5.0`:
+
+- [x] `Cargo.toml` / `pyproject.toml` = `0.5.0`
+- [x] `CHANGELOG.md` has 0.5.0 release notes
+- [x] Full CI parity passes locally (fmt, clippy, doc, test, pytest, mkdocs, publish dry-run)
+- [x] `main` CI green
+- [ ] GitHub secrets `CARGO_REGISTRY_TOKEN` and `PYPI_API_TOKEN` configured
+- [ ] No existing `v0.5.0` tag on remote
+
+To publish:
+
+```bash
+git tag v0.5.0
+git push origin v0.5.0
+```
+
+Monitor [Release workflow](../../.github/workflows/release.yml). See [Releasing](../maintainer/releasing.md) for post-release verification.
+
+## What changed in 0.5.0
+
+See [Changelog](../changelog.md). Highlights:
+
+- Nested YAML/JSON duplicate-key detection with path-style `object_ref`
+- Fail-closed YAML duplicate-key scanner
+- Server property typo detection; JSON Schema diagnostic dedup
+- Documentation adoption improvements
+
+## Previous release
+
+**0.4.0** — schema-complete default validation for ODCS v3.1.0 (JSON Schema always on).

@@ -10,7 +10,7 @@
 
 It checks that your contract document is well-formed and conforms to ODCS v3.1.0 — schema, quality rules, SLAs, ownership, and server metadata. It does **not** run quality checks against live data.
 
-> **Release note:** This tree is **0.5.0** on `main`. Latest published releases on [crates.io](https://crates.io/crates/odcs) and [PyPI](https://pypi.org/project/pyodcs/) are **0.4.0** until `v0.5.0` is tagged. See [Release status](https://odcs.readthedocs.io/en/latest/project/release-status/).
+> **Release:** **0.5.0** is on `main` and ready to publish. Push tag `v0.5.0` to release to [crates.io](https://crates.io/crates/odcs) and [PyPI](https://pypi.org/project/pyodcs/). See [Release status](https://odcs.readthedocs.io/en/latest/project/release-status/).
 
 **Install → validate in 60 seconds:**
 

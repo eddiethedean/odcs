@@ -22,6 +22,13 @@ Parser hardening release — nested duplicate-key detection for YAML and JSON.
 - Python `is_valid()` accepts parse result dicts (reads `report.diagnostics`)
 - CLI `--strict` help text corrected (deprecated no-op)
 
+**Documentation:**
+
+- Adoption-focused docs: What is ODCS primer, API decision guide, troubleshooting, fix-invalid-contract tutorial, glossary, enterprise evaluation brief
+- Release status page; MkDocs nav restructure (removed misleading `upstream/` paths)
+- README sharpened; CI examples pin published version; diagnostic examples corrected for `apiVersion` and dotted `object_ref` paths
+- Expanded architecture guide for contributors
+
 ## 0.4.0 — 2026-07-02
 
 Spec parity and validation maturity release — default validation is schema-complete for ODCS v3.1.0.
