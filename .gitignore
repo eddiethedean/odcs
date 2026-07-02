@@ -1,0 +1,28 @@
+# Rust
+/target/
+**/*.rs.bk
+
+# Editor and OS
+.DS_Store
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+.cursor/
+*.code-workspace
+
+# Environment
+.env
+.env.*
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+.eggs/
+dist/
+.python-version
+venv/
+.venv/
