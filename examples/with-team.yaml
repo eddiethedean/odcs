@@ -1,0 +1,22 @@
+version: "3.1.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "team-contract"
+name: "team_contract"
+status: "active"
+
+team:
+  name: "Data Platform"
+  description: "Owns customer datasets"
+  members:
+    - username: "jdoe"
+      name: "Jane Doe"
+      role: "owner"
+      dateIn: "2024-01-01"
+
+schema:
+  - name: "customers"
+    logicalType: "object"
+    properties:
+      - name: "customer_id"
+        logicalType: "string"

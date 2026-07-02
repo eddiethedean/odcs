@@ -1,0 +1,120 @@
+# Installation
+
+## Prerequisites
+
+| Component | Requirement |
+|-----------|-------------|
+| Rust (`odcs`) | Rust **1.75+** ([rustup](https://rustup.rs/)) |
+| Python (`pyodcs`) | Python **3.9+** |
+| From-source Python build | [maturin](https://www.maturin.rs/) 1.x, Rust toolchain |
+
+## Rust CLI and library
+
+### Install from crates.io
+
+```bash
+cargo install odcs
+odcs version
+```
+
+### Use as a library dependency
+
+Add to `Cargo.toml`:
+
+```toml
+[dependencies]
+odcs = "0.3"
+```
+
+Default features include the CLI. For library-only use:
+
+```toml
+odcs = { version = "0.3", default-features = false }
+```
+
+### Build from source
+
+```bash
+git clone https://github.com/eddiethedean/odcs.git
+cd odcs
+cargo build --release
+cargo install --path . --locked
+```
+
+## Python package
+
+### Install from PyPI
+
+```bash
+pip install pyodcs
+pyodcs version
+```
+
+### Editable install from source
+
+```bash
+git clone https://github.com/eddiethedean/odcs.git
+cd odcs
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install maturin pytest
+maturin develop --features python --locked
+pytest python/tests -v
+```
+
+## Verify installation
+
+```bash
+# Rust
+odcs validate examples/minimal.odcs.yaml
+
+# Python
+pyodcs validate examples/minimal.odcs.yaml
+```
+
+Both should print `valid` and exit with code `0`.
+
+## Troubleshooting
+
+### `odcs: command not found`
+
+Install the binary with `cargo install odcs`, or run from a checkout:
+
+```bash
+cargo run -- validate examples/minimal.odcs.yaml
+```
+
+Ensure `~/.cargo/bin` is on your `PATH`.
+
+### `pyodcs` import fails after editable install
+
+Rebuild the native extension:
+
+```bash
+maturin develop --features python --locked
+```
+
+### `PackageNotFoundError` for pyodcs
+
+You are importing from source without installing. Run `maturin develop` or `pip install pyodcs`.
+
+### Unsupported file extension
+
+Only `.yaml`, `.yml`, and `.json` are supported. Rename your file or convert the format.
+
+### Validation fails on a contract that worked in 0.2.x
+
+Version 0.3.0 enforces stricter parsing and validation. See [migration-0.3.md](migration-0.3.md).
+
+### macOS / Linux build errors with Python feature
+
+Ensure a C compiler and Python development headers are available. On Debian/Ubuntu:
+
+```bash
+sudo apt install python3-dev
+```
+
+## Platform support
+
+- **Rust crate:** any platform supported by the Rust toolchain.
+- **Python wheels:** Linux (glibc and musl), macOS (x86_64 and arm64), Windows — built by CI on release tags.

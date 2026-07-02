@@ -8,7 +8,7 @@ readme = "README.md"
 license = "Apache-2.0"
 keywords = ["odcs", "data-contract", "contracts", "validation"]
 categories = ["parsing", "data-structures"]
-repository = "https://github.com/odcs/odcs"
+repository = "https://github.com/eddiethedean/odcs"
 documentation = "https://docs.rs/odcs"
 
 [lib]
@@ -41,6 +41,7 @@ python = ["dep:pyo3"]
 name = "odcs"
 path = "src/bin/odcs.rs"
 required-features = ["cli"]
+doc = false
 
 [dev-dependencies]
 jsonschema = "0.29"

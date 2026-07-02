@@ -44,7 +44,7 @@ Phase 1 — Skeleton (complete).
 - Professional repository layout aligned with DTCS conventions
 - Rust crate skeleton with full module tree per `crate-layout.md`
 - Basic YAML and JSON parsing for minimal ODCS contracts
-- Extension field preservation on parse
+- Extension field preservation on parse (superseded in 0.3.0 by `deny_unknown_fields`; see [docs/user/migration-0.3.md](docs/user/migration-0.3.md))
 - CLI: `validate`, `inspect`, `diagnostics`, `schema`, `version` with `--json`
 - CLI exit codes: 0 valid, 1 validation error, 2 parse/IO failure
 - Expanded fixture suite and integration tests (`tests/skeleton.rs`, `tests/cli.rs`)

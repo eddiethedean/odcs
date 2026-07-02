@@ -1,6 +1,6 @@
-# Proposed Crate Layout
+# Crate Layout
 
-Recommended layout:
+Current layout (as of 0.3.0):
 
 ```text
 odcs/
@@ -13,13 +13,12 @@ odcs/
 
   src/
     lib.rs
+    bin/odcs.rs
 
     model/
       mod.rs
       contract.rs
-      fundamentals.rs
-      schema.rs
-      field.rs
+      schema.rs          # SchemaObject, SchemaProperty
       quality.rs
       sla.rs
       stakeholders.rs
@@ -28,7 +27,10 @@ odcs/
       pricing.rs
       servers.rs
       support.rs
+      relationships.rs
       custom.rs
+      shared.rs
+      fundamentals.rs
       versioning.rs
 
     parser/
@@ -51,24 +53,40 @@ odcs/
       diagnostic.rs
       severity.rs
       category.rs
+      stage.rs
       report.rs
+      codes.rs
+      builders.rs
 
     compatibility/
-      mod.rs
+      mod.rs             # stub
 
     registry/
-      mod.rs
+      mod.rs             # stub
 
     cli/
       mod.rs
 
+    python.rs            # PyO3 bindings (feature-gated)
+
   python/
     pyodcs/
       __init__.py
+      __main__.py
 
   examples/
   tests/
+    skeleton.rs
+    cli.rs
+    json_schema_conformance.rs
+    fixtures/
+
   docs/
+    user/                # user-facing guides
+    implementation/      # maintainer guides
+    maintainer/
 ```
 
 Keep the layout close to `dtcs` so future maintainers recognize the ecosystem pattern.
+
+Note: `SchemaProperty` lives in `schema.rs` (there is no separate `field.rs` module).

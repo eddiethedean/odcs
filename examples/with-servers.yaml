@@ -1,0 +1,21 @@
+version: "3.1.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "servers-contract"
+name: "servers_contract"
+status: "active"
+
+servers:
+  - server: "warehouse"
+    type: "snowflake"
+    environment: "prod"
+    account: "xy12345"
+    database: "analytics"
+    schema: "public"
+
+schema:
+  - name: "customers"
+    logicalType: "object"
+    properties:
+      - name: "customer_id"
+        logicalType: "string"

@@ -17,6 +17,45 @@ When implementing behavior:
 
 The upstream ODCS specification is the single source of truth for semantics, terminology, and conformance. Implementation docs in [docs/implementation/](docs/implementation/) are illustrative unless explicitly normative.
 
+## Development setup
+
+### Prerequisites
+
+- Rust 1.75+
+- Python 3.9+ (for `pyodcs` work)
+- [maturin](https://www.maturin.rs/) (for Python editable installs)
+
+### Rust
+
+```bash
+git clone https://github.com/eddiethedean/odcs.git
+cd odcs
+cargo build
+cargo test --locked
+```
+
+### Python
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install maturin pytest
+maturin develop --features python --locked
+pytest python/tests -v
+```
+
+### Full CI parity
+
+```bash
+cargo fmt --all -- --check
+cargo clippy --all-targets -- -D warnings
+RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --locked
+cargo test --locked
+maturin develop --features python --locked
+pytest python/tests -v
+maturin build --features python --locked
+```
+
 ## Implementation changes
 
 The Rust reference crate lives in [src/](src/). Before implementing a module:
@@ -28,7 +67,7 @@ The Rust reference crate lives in [src/](src/). Before implementing a module:
 
 ### Scope
 
-The initial crate targets parsing, the canonical object model, validation, and diagnostics. Do not add execution, pipeline composition, or transformation features without an agreed milestone. See [docs/implementation/non-goals.md](docs/implementation/non-goals.md).
+The crate targets parsing, the canonical object model, validation, and diagnostics. Do not add execution, pipeline composition, or transformation features without an agreed milestone. See [docs/implementation/non-goals.md](docs/implementation/non-goals.md).
 
 ### Code style
 
@@ -36,12 +75,22 @@ The initial crate targets parsing, the canonical object model, validation, and d
 - Keep modules aligned with [docs/implementation/crate-layout.md](docs/implementation/crate-layout.md).
 - Prefer conservative behavior when the spec is ambiguous; document open questions with a `TODO` referencing the spec section.
 
+### Documentation
+
+- User-facing changes: update [docs/user/](docs/user/) and [README.md](README.md).
+- API changes: update [docs/implementation/public-api.md](docs/implementation/public-api.md).
+- Breaking changes: update [CHANGELOG.md](CHANGELOG.md) and [docs/user/migration-0.3.md](docs/user/migration-0.3.md).
+
 ## Pull requests
 
 1. Describe whether the change is implementation, documentation, or infrastructure.
 2. Link related issues or design discussions when available.
 3. Include or update tests for behavioral changes.
-4. Ensure `cargo test` passes.
+4. Ensure `cargo test --locked` passes (and Python tests if touching bindings).
+
+## Releases
+
+Maintainers: see [docs/maintainer/releasing.md](docs/maintainer/releasing.md).
 
 ## Questions
 

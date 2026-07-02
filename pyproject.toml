@@ -27,8 +27,8 @@ dependencies = []
 dev = ["pytest>=8"]
 
 [project.urls]
-Homepage = "https://github.com/odcs/odcs"
-Repository = "https://github.com/odcs/odcs"
+Homepage = "https://github.com/eddiethedean/odcs"
+Repository = "https://github.com/eddiethedean/odcs"
 Documentation = "https://docs.rs/odcs"
 
 [project.scripts]

@@ -1,0 +1,60 @@
+# Release Process
+
+Releases are triggered by pushing a version tag. CI publishes to crates.io and PyPI.
+
+## Prerequisites
+
+- All checks pass on `main` ([`.github/workflows/checks.yml`](../../.github/workflows/checks.yml))
+- `Cargo.toml`, `pyproject.toml`, and `CHANGELOG.md` updated for the new version
+- GitHub secrets configured: `CARGO_REGISTRY_TOKEN`, `PYPI_API_TOKEN`
+
+## Version alignment
+
+These files must agree on the version number:
+
+| File | Field |
+|------|-------|
+| `Cargo.toml` | `[package] version` |
+| `pyproject.toml` | `[project] version` |
+| Git tag | `vX.Y.Z` (e.g. `v0.3.0`) |
+
+The release workflow verifies tag ↔ Cargo.toml ↔ pyproject.toml alignment.
+
+## Steps
+
+1. Update `CHANGELOG.md` with release notes.
+2. Bump versions in `Cargo.toml` and `pyproject.toml`.
+3. Commit and push to `main`.
+4. Create and push the tag:
+
+```bash
+git tag v0.3.0
+git push origin v0.3.0
+```
+
+5. Monitor [`.github/workflows/release.yml`](../../.github/workflows/release.yml):
+   - Runs checks
+   - Publishes `odcs` to crates.io
+   - Builds Python wheels (Linux, musllinux, Windows, macOS)
+   - Publishes `pyodcs` to PyPI
+
+## Dry runs
+
+```bash
+cargo publish --dry-run --locked --allow-dirty
+maturin build --features python --locked
+```
+
+## Post-release
+
+- Verify [crates.io/crates/odcs](https://crates.io/crates/odcs) and [pypi.org/project/pyodcs](https://pypi.org/project/pyodcs/)
+- Update [ROADMAP.md](../../ROADMAP.md) milestone status if needed
+
+## Upstream ODCS sync
+
+When bumping for a new upstream ODCS release, follow [SPEC.md](../../SPEC.md) synchronization workflow:
+
+1. Review upstream changelog and JSON Schema
+2. Update pinned fixture in `tests/fixtures/odcs-json-schema-v*.json`
+3. Update `UPSTREAM_SPEC_VERSION` in `src/lib.rs`
+4. Update conformance tests and documentation

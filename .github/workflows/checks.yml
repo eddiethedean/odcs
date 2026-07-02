@@ -39,6 +39,8 @@ jobs:
         run: cargo fmt --all -- --check
       - name: cargo clippy
         run: cargo clippy --all-targets -- -D warnings
+      - name: cargo doc
+        run: RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --locked
       - name: cargo test
         run: cargo test --locked
       - name: cargo build

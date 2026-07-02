@@ -1,0 +1,30 @@
+version: "3.1.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "schema-quality-contract"
+name: "schema_quality_contract"
+status: "active"
+
+schema:
+  - name: "customers"
+    logicalType: "object"
+    properties:
+      - name: "customer_id"
+        logicalType: "string"
+        required: true
+        quality:
+          - name: "customer_id_unique"
+            type: "library"
+            metric: "duplicateValues"
+            mustBe: 0
+            severity: "high"
+      - name: "email"
+        logicalType: "string"
+    quality:
+      - name: "row_count_check"
+        type: "sql"
+        query: "SELECT COUNT(*) FROM customers"
+        mustBeGreaterThan: 0
+      - name: "freshness_note"
+        type: "text"
+        description: "Data refreshed daily"
