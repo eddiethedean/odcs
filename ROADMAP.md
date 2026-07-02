@@ -18,6 +18,14 @@ The [upstream ODCS specification](https://github.com/bitol-io/open-data-contract
 | **6** | [CLI](#phase-6--cli) | `validate`, `inspect`, `diagnostics`, `schema`, `version` | **Complete** (`0.4.0`) |
 | **7** | [JSON Schema parity](#phase-7--json-schema-parity) | Conformance against official ODCS JSON Schema | **Complete** (`0.4.0`) |
 | **8** | [Python bindings](#phase-8--python-bindings) | PyO3 bindings after Rust API stabilizes | **Complete** (`0.4.0`) |
+| **9** | [Parser hardening](#phase-9--parser-hardening) | Nested YAML duplicate-key detection | Planned (`0.5.0`) |
+| **10** | [Diagnostics metadata](#phase-10--diagnostics-metadata) | `validationPhase` on validation diagnostics | Planned (`0.5.0`) |
+| **11** | [Structural validation](#phase-11--structural-validation) | Cross-field rules in `structural.rs` | Planned (`0.5.0`) |
+| **12** | [Section semantics](#phase-12--section-semantics) | Roles, SLA, pricing, support validators | Planned (`0.6.0`) |
+| **13** | [Cross-file references](#phase-13--cross-file-references) | Multi-document FQN resolution | Planned (`0.6.0`) |
+| **14** | [Compatibility analysis](#phase-14--compatibility-analysis) | Contract diff and breaking-change report | Planned (`0.7.0`) |
+| **15** | [Registry](#phase-15--registry) | Local contract index and lookup | Planned (`0.8.0`) |
+| **16** | [1.0 release](#phase-16--10-release) | API stabilization and upstream sync | Planned (`1.0.0`) |
 
 ## Dependencies
 
@@ -37,6 +45,29 @@ Phase 1  Skeleton
              │                                          └──► Phase 7  JSON Schema parity
              │                                                     │
              │                                                     └──► Phase 8  Python bindings
+             │                                                                │
+             │                    ┌───────────────────────────────────────────┤
+             │                    │                                           │
+             │                    ▼                                           ▼
+             │           Phase 9  Parser hardening              Phase 10  Diagnostics metadata
+             │                    │                                           │
+             │                    └───────────────────┬───────────────────────┘
+             │                                        ▼
+             │                              Phase 11  Structural validation
+             │                                        │
+             │                          ┌─────────────┴─────────────┐
+             │                          ▼                           ▼
+             │                Phase 12  Section semantics   Phase 13  Cross-file references
+             │                          │                           │
+             │                          └─────────────┬─────────────┘
+             │                                        ▼
+             │                              Phase 14  Compatibility analysis
+             │                                        │
+             │                                        ▼
+             │                              Phase 15  Registry
+             │                                        │
+             │                                        ▼
+             │                              Phase 16  1.0 release
 ```
 
 ---
@@ -148,12 +179,222 @@ odcs version
 
 ## Future milestones (0.5+)
 
-Phases 1–8 and spec parity cover the reference-implementation core. The following remain backlog items per [docs/implementation/non-goals.md](docs/implementation/non-goals.md):
+Phases 1–8 deliver schema-complete ODCS v3.1.0 document parsing and validation. Phases 9–16 deepen correctness, observability, multi-document workflows, and ecosystem tooling on the path to `1.0.0`.
 
-| Area | Module | Notes |
-|------|--------|-------|
-| Registry server | [`src/registry/mod.rs`](src/registry/mod.rs) | Contract registry / discovery |
-| Compatibility analysis | [`src/compatibility/mod.rs`](src/compatibility/mod.rs) | Cross-version contract diffing |
-| Cross-file reference resolution | validation backlog | Shorthand refs within a single document only |
-| Nested YAML duplicate-key detection | parser backlog | Root-level duplicate keys covered in 0.3.0 |
-| `ValidationPhase` on diagnostics | diagnostics polish | Phase identifiers defined; not yet attached to every diagnostic |
+| Release | Phases | Theme |
+|---------|--------|-------|
+| `0.5.0` | 9, 10, 11 | Parser correctness, diagnostic metadata, cross-field validation |
+| `0.6.0` | 12, 13 | Section semantics, multi-document reference resolution |
+| `0.7.0` | 14 | Contract evolution and compatibility reporting |
+| `0.8.0` | 15 | Local registry and discovery |
+| `1.0.0` | 16 | Stable public API, deprecation cleanup, upstream alignment |
+
+Out of scope for this repository (see [docs/implementation/non-goals.md](docs/implementation/non-goals.md)): data quality execution, DTCS/DPCS transformation semantics, SQL generation, ETL, and runtime engines.
+
+---
+
+## Phase 9 — Parser hardening
+
+**Target:** `0.5.0` — **Planned**
+
+**Goal:** Detect duplicate keys at any YAML nesting depth before serde deserialization, matching JSON behavior in [`src/parser/duplicate_keys.rs`](src/parser/duplicate_keys.rs).
+
+**Context:** [`src/parser/yaml.rs`](src/parser/yaml.rs) calls `find_yaml_root_duplicate_key` only. Nested duplicates are silently overwritten by `serde_yaml` and never reported. JSON already uses a recursive `DupeDetectVisitor`.
+
+**Deliverables:**
+
+- [ ] Extend [`src/parser/duplicate_keys.rs`](src/parser/duplicate_keys.rs) with nested YAML duplicate-key detection (pre-parse pass; path-aware, not root-line heuristic)
+- [ ] Invoke nested check from [`src/parser/yaml.rs`](src/parser/yaml.rs) before `serde_path_to_error::deserialize`
+- [ ] Emit `odcs:duplicate-key` via existing `failure_duplicate_key` helper with dotted `object_ref` paths (e.g. `schema[0].properties[1].name`)
+- [ ] Fixtures: `tests/fixtures/invalid-nested-duplicate-key.yaml` (+ JSON control fixture proving parity)
+- [ ] Tests in [`tests/skeleton.rs`](tests/skeleton.rs) or dedicated parser tests; exit code `2` via CLI
+- [ ] Python/CLI parity (no binding changes expected — parse errors surface through existing path)
+
+**Out of scope:** Duplicate keys inside YAML flow scalars or anchors/aliases (document if unsupported).
+
+**Done when:** Nested YAML duplicate keys fail parse with `odcs:duplicate-key` and a non-root `object_ref`; CI green.
+
+---
+
+## Phase 10 — Diagnostics metadata
+
+**Target:** `0.5.0` — **Planned**
+
+**Goal:** Attach the validation pipeline phase to every validation diagnostic so CI and tooling can filter by origin without parsing messages.
+
+**Context:** [`ValidationPhase`](src/validation/phases.rs) exists but [`Diagnostic`](src/diagnostics/diagnostic.rs) only records coarse `stage` (`parse` | `validation` | …). [`validation_error`](src/diagnostics/builders.rs) does not accept a phase.
+
+**Deliverables:**
+
+- [ ] Add optional `validation_phase: Option<ValidationPhase>` to `Diagnostic` (serde: `validationPhase`, camelCase)
+- [ ] Extend `validation_error` (or add `phase_validation_error`) to require `ValidationPhase` for validation-stage diagnostics
+- [ ] Wire phase through all validators: `document`, `structural`, `schema`, `quality`, `references`, `extensions`, `servers`, `sections`, `ids`, `json_schema`
+- [ ] Leave parse-stage diagnostics without `validationPhase` (field omitted in JSON)
+- [ ] CLI text/JSON output includes `validationPhase` when set; update [`docs/user/diagnostics.md`](docs/user/diagnostics.md)
+- [ ] Export phase name constants in Python diagnostic docs (no separate `CODES` entry — phases are metadata, not error ids)
+- [ ] Snapshot or assertion tests that every validation diagnostic in fixture runs includes `validationPhase`
+
+**Out of scope:** Repurposing `DiagnosticStage` to encode validation phases; reserved stages (`analysis`, `runtime`, …) stay for future use.
+
+**Done when:** `odcs validate --json` emits `validationPhase` on all validation errors; existing diagnostic `id` values unchanged.
+
+---
+
+## Phase 11 — Structural validation
+
+**Target:** `0.5.0` — **Planned**
+
+**Goal:** Implement cross-field constraints in [`src/validation/structural.rs`](src/validation/structural.rs) that require reading multiple sections of a contract and are not owned by a single-section validator.
+
+**Context:** The module is currently a no-op. Root-field checks live in [`document.rs`](src/validation/document.rs); section-specific checks are split across `schema`, `extensions`, `sections`, etc. Phase 11 fills the gap for **inter-section** rules.
+
+**Candidate rules** (confirm against upstream spec + pinned schema before implementing):
+
+- [ ] Unique non-empty `schema[].name` values within a contract
+- [ ] `slaDefaultElement`, when set, references an existing `slaProperties[].property`
+- [ ] `slaProperties[].element`, when set, references an existing `schema[].name`
+- [ ] Unique non-empty `servers[].name` values
+- [ ] `servers[].schema`, when set, references an existing schema object name
+
+**Deliverables:**
+
+- [ ] Spec audit note in [`SPEC.md`](SPEC.md) listing adopted structural rules and any intentional extensions
+- [ ] Implement confirmed rules in `structural.rs` using existing `validation_error` + phase metadata (Phase 10)
+- [ ] Valid/invalid fixtures per rule under `tests/fixtures/`
+- [ ] Tests in [`tests/validation_negative.rs`](tests/validation_negative.rs)
+
+**Out of scope:** Rules already enforced by JSON Schema or a single-section module (move only if logically cross-field); relationship endpoint resolution (Phase 5 / Phase 13).
+
+**Done when:** `structural.rs` emits diagnostics for all adopted rules; no duplicate enforcement elsewhere.
+
+---
+
+## Phase 12 — Section semantics
+
+**Target:** `0.6.0` — **Planned**
+
+**Goal:** Add Rust-side semantic validation for sections where JSON Schema coverage is thin and [`sections.rs`](src/validation/sections.rs) only checks team usernames today.
+
+**Context:** [`extensions.rs`](src/validation/extensions.rs) validates some support/SLA empty fields and custom properties; [`ids.rs`](src/validation/ids.rs) validates optional stable IDs. Phase 12 adds **business semantics** per section model.
+
+**Deliverables:**
+
+| Section | Module | Rules |
+|---------|--------|-------|
+| Team | `sections.rs` | *(existing)* non-empty `team.members[].username` |
+| Roles | `sections.rs` or `roles.rs` | Non-empty `roles[].role`; unique `roles[].id` when present |
+| Support | `sections.rs` | Non-empty `channel` *(existing)*; require `url` when channel is URL-bearing per spec enum |
+| SLA | `sections.rs` or `sla.rs` | Non-empty `property` *(existing in extensions)*; validate `scheduler`/`schedule` pairing if spec defines constraints |
+| Pricing | `sections.rs` or `pricing.rs` | When `priceAmount` is set, require `priceCurrency`; reject negative amounts if spec disallows |
+
+- [ ] Implement validators; prefer extending `sections.rs` unless a section grows large enough to split
+- [ ] Negative fixtures for each new rule
+- [ ] Update [docs/implementation/testing-plan.md](docs/implementation/testing-plan.md) SLA row from “limited semantic validation” to covered items
+- [ ] All new diagnostics use `validationPhase` and stable existing codes where possible (`missing-required-field`, `invalid-schema`, etc.)
+
+**Out of scope:** Re-validating fields already fully constrained by pinned JSON Schema; quality rule execution.
+
+**Done when:** Each section in the table has at least one semantic rule beyond parse + JSON Schema; tests pass.
+
+---
+
+## Phase 13 — Cross-file references
+
+**Target:** `0.6.0` — **Planned**
+
+**Goal:** Resolve fully-qualified relationship endpoints across a loaded set of contracts; fail unresolved refs with actionable diagnostics.
+
+**Context:** [`references.rs`](src/validation/references.rs) validates shorthand `table.column` against an in-document index and accepts FQN strings via regex without resolving them. [`SPEC.md`](SPEC.md) documents single-document resolution as the 0.4.0 policy.
+
+**Design decisions** (resolve before coding):
+
+- [ ] ADR or `docs/implementation/cross-file-references.md` covering: contract index key (`id` vs filename), FQN grammar (reuse existing regex), and load order
+- [ ] `ContractSet` (or equivalent) type: parse + index multiple documents from paths
+- [ ] Extend reference validation to resolve FQN endpoints against the set
+- [ ] CLI: `odcs validate <path> --include <dir>` or repeated `--dep <path>` (update [`docs/implementation/cli-spec.md`](docs/implementation/cli-spec.md))
+- [ ] Library: `validate_set(&ContractSet)` or `parse_and_validate_paths(&[Path])`
+- [ ] Python: `parse_and_validate_paths(...)` binding
+- [ ] Fixtures: two-contract valid/invalid pairs under `tests/fixtures/cross-file/`
+
+**Out of scope for MVP:** Remote URL fetching, registry-backed resolution (Phase 15), workspace manifests.
+
+**Done when:** A relationship `from`/`to` referencing `other-contract/table.column` validates when `other-contract` is included and fails with `odcs:unresolved-reference` when omitted.
+
+---
+
+## Phase 14 — Compatibility analysis
+
+**Target:** `0.7.0` — **Planned**
+
+**Goal:** Compare two parsed contracts and produce a structured breaking-change report for contract evolution workflows.
+
+**Context:** Stub [`src/compatibility/mod.rs`](src/compatibility/mod.rs). `DiagnosticCategory::Compatibility` already exists but is used only for unsupported `apiVersion`.
+
+**Deliverables:**
+
+- [ ] `CompatibilityReport` with classified changes: `breaking`, `additive`, `deprecated`, `unchanged`
+- [ ] Compare dimensions:
+  - Root metadata (`id`, `status`, `version` — informational, not breaking by default)
+  - Schema objects: added/removed/renamed; property added/removed; `logicalType` change; `required` toggle
+  - Quality rules: added/removed; metric or operator change
+  - Relationships: added/removed; endpoint change
+- [ ] Stable codes: `odcs:compatibility-breaking`, `odcs:compatibility-additive`, … (document in diagnostics guide)
+- [ ] CLI: `odcs diff <old> <new>` with text + `--json`; exit `0` if no breaking changes, `1` if breaking
+- [ ] Python: `pyodcs.diff(old, new)` returning report dict
+- [ ] Fixtures: pairs under `tests/fixtures/compatibility/`
+
+**Out of scope:** Automatic migration or contract rewriting; semver inference for `version` field.
+
+**Done when:** `odcs diff` correctly classifies a fixture pair with known breaking schema removal; tests and CLI spec updated.
+
+---
+
+## Phase 15 — Registry
+
+**Target:** `0.8.0` — **Planned**
+
+**Goal:** Provide a local contract index for discovery and optional integration with Phase 13 cross-file resolution.
+
+**Context:** Stub [`src/registry/mod.rs`](src/registry/mod.rs). Deferred from the first-repo milestone per [non-goals](docs/implementation/non-goals.md).
+
+**Deliverables:**
+
+- [ ] `RegistryEntry` model: `id`, `version`, `path`, optional `tags`, `apiVersion`, content hash
+- [ ] Local backend: index file (e.g. `.odcs/registry.json`) + scanned contract directory
+- [ ] API: `register`, `lookup(id)`, `lookup(id, version)`, `list`
+- [ ] CLI: `odcs registry index <dir>`, `odcs registry lookup <id>` (exact names TBD in cli-spec)
+- [ ] Optional: `odcs validate --registry <dir>` loads index for FQN resolution (builds on Phase 13)
+- [ ] Python bindings for lookup/list
+
+**Out of scope for MVP:** HTTP remote registry, auth, publish/subscribe, write-through to external systems.
+
+**Done when:** Indexing a directory of contracts enables lookup by `id` and powers cross-file validation without explicit `--include` for indexed paths.
+
+---
+
+## Phase 16 — 1.0 release
+
+**Target:** `1.0.0` — **Planned**
+
+**Goal:** Ship a stable, semver-major API with deprecated surfaces removed and documented upstream alignment policy.
+
+**Breaking cleanup** (requires major bump):
+
+- [ ] Remove `--strict` from Rust and Python CLIs ([`cli-spec.md`](docs/implementation/cli-spec.md) already marks deprecated)
+- [ ] Remove `ValidationOptions::strict`, `validate_strict()`, and Python `strict=` parameters
+- [ ] Migration note in [`docs/user/migration.md`](docs/user/migration.md) (0.4.x → 1.0)
+
+**Upstream alignment** (when upstream releases beyond 3.1.0):
+
+- [ ] Follow [SPEC.md](SPEC.md) synchronization workflow: pin schema, update model/validators, refresh fixtures via `scripts/sync-upstream-examples.sh`
+- [ ] Document supported `apiVersion` values per release
+- [ ] Add `stakeholders` model if upstream introduces the section (currently N/A — see [`stakeholders.rs`](src/model/stakeholders.rs))
+
+**Release gate:**
+
+- [ ] Public API review: [`docs/implementation/public-api.md`](docs/implementation/public-api.md) matches exported surface
+- [ ] All phases 9–15 complete or explicitly deferred with changelog entries
+- [ ] CHANGELOG and release notes for `1.0.0`
+- [ ] Crates.io + PyPI publish per [docs/maintainer/releasing.md](docs/maintainer/releasing.md)
+
+**Done when:** `1.0.0` published; no deprecated strict API remains; README and SPEC reflect supported upstream version.
