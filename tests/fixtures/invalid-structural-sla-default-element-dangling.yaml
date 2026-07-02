@@ -1,9 +1,9 @@
 version: "3.1.0"
 apiVersion: "v3.1.0"
 kind: "DataContract"
-id: "sla-default-element-contract"
+id: "sla-default-element-dangling-contract"
 status: "draft"
-slaDefaultElement: "customers"
+slaDefaultElement: "missing_table"
 
 schema:
   - name: "customers"

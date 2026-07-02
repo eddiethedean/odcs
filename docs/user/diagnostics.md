@@ -74,7 +74,7 @@ When `stage` is `validation`, diagnostics include `validationPhase` identifying 
 | `validationPhase` | Validator module | Typical checks |
 |-------------------|------------------|----------------|
 | `document` | Document | Required root fields, `apiVersion`, `kind` |
-| `structural` | Structural | Cross-field rules (reserved) |
+| `structural` | Structural | Unique schema/server names; SLA element and `slaDefaultElement` references |
 | `schema` | Schema | Schema names, `logicalType`, array/object shape |
 | `quality` | Quality | Rule types, metrics, dimensions |
 | `references` | References | Relationship endpoints |
@@ -115,6 +115,15 @@ odcs validate contract.yaml --json | jq '.diagnostics[] | select(.validationPhas
   at: apiVersion
   phase: document
   hint: set apiVersion to a supported ODCS release
+```
+
+### Duplicate schema object name
+
+```text
+[error] odcs:invalid-schema: duplicate schema object name 'customers'
+  at: schema[1].name
+  phase: structural
+  hint: use unique non-empty schema object names
 ```
 
 ### Invalid library metric

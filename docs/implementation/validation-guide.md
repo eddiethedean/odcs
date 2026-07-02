@@ -5,7 +5,7 @@ Validation is deterministic and phase-based. The `validate()` function in [`src/
 | Phase | Module | Checks |
 |-------|--------|--------|
 | Document | `document.rs` | Required root fields, `apiVersion` support |
-| Structural | `structural.rs` | Reserved for future cross-field rules |
+| Structural | `structural.rs` | Cross-field rules: unique schema/server names, SLA element references |
 | Schema | `schema.rs` | Schema names, `logicalType` enums, array/object shape |
 | Quality | `quality.rs` | Rule types, metrics, dimensions, operators |
 | References | `references.rs` | Relationship endpoints and types |

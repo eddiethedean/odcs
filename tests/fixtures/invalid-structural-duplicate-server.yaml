@@ -1,0 +1,26 @@
+version: "3.1.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "duplicate-server-contract"
+status: "draft"
+
+servers:
+  - server: "warehouse"
+    type: "snowflake"
+    environment: "prod"
+    account: "xy12345"
+    database: "analytics"
+    schema: "public"
+  - server: "warehouse"
+    type: "snowflake"
+    environment: "dev"
+    account: "xy12345"
+    database: "analytics"
+    schema: "public"
+
+schema:
+  - name: "customers"
+    logicalType: "object"
+    properties:
+      - name: "customer_id"
+        logicalType: "string"

@@ -24,7 +24,7 @@ VALIDATION_PHASES = _validation_phases()
 try:
     __version__ = version("pyodcs")
 except PackageNotFoundError:
-    __version__ = "0.6.0"
+    __version__ = "0.7.0"
 
 
 def parse(content: str | bytes, format: str = "yaml") -> dict:

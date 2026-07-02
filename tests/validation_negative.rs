@@ -3,7 +3,8 @@
 use std::fs;
 
 use odcs::{
-    codes, parse, parse_strict, validate_strict, DocumentFormat, ParseResult, MAX_PARSE_BYTES,
+    codes, parse, parse_strict, validate_strict, DocumentFormat, ParseResult, ValidationPhase,
+    MAX_PARSE_BYTES,
 };
 
 fn fixture_bytes(name: &str) -> Vec<u8> {
@@ -34,6 +35,24 @@ fn assert_invalid_with_code(name: &str, code: &str) {
     assert!(
         report.diagnostics.iter().any(|d| d.id == code),
         "fixture {name}: expected {code}, got {:?}",
+        report.diagnostics
+    );
+}
+
+fn assert_structural_error(name: &str, code: &str, object_ref: &str) {
+    let report = parse_fixture(name).validate();
+    assert!(
+        !report.is_valid(),
+        "fixture {name} should be invalid: {:?}",
+        report.diagnostics
+    );
+    assert!(
+        report.diagnostics.iter().any(|d| {
+            d.id == code
+                && d.validation_phase == Some(ValidationPhase::Structural)
+                && d.object_ref.as_deref() == Some(object_ref)
+        }),
+        "fixture {name}: expected structural {code} at {object_ref}, got {:?}",
         report.diagnostics
     );
 }
@@ -379,5 +398,41 @@ fn sla_description_and_scheduler_round_trip() {
     assert_eq!(
         contract.sla_properties[0].scheduler.as_deref(),
         Some("cron")
+    );
+}
+
+#[test]
+fn rejects_duplicate_schema_names() {
+    assert_structural_error(
+        "invalid-structural-duplicate-schema-name.yaml",
+        codes::INVALID_SCHEMA,
+        "schema[1].name",
+    );
+}
+
+#[test]
+fn rejects_duplicate_server_names() {
+    assert_structural_error(
+        "invalid-structural-duplicate-server.yaml",
+        codes::INVALID_SCHEMA,
+        "servers[1].server",
+    );
+}
+
+#[test]
+fn rejects_dangling_sla_element() {
+    assert_structural_error(
+        "invalid-structural-sla-element-dangling.yaml",
+        codes::UNRESOLVED_REFERENCE,
+        "slaProperties[0].element",
+    );
+}
+
+#[test]
+fn rejects_dangling_sla_default_element() {
+    assert_structural_error(
+        "invalid-structural-sla-default-element-dangling.yaml",
+        codes::UNRESOLVED_REFERENCE,
+        "slaDefaultElement",
     );
 }

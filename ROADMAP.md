@@ -20,7 +20,7 @@ The [upstream ODCS specification](https://github.com/bitol-io/open-data-contract
 | **8** | [Python bindings](#phase-8--python-bindings) | PyO3 bindings after Rust API stabilizes | **Complete** (`0.4.0`) |
 | **9** | [Parser hardening](#phase-9--parser-hardening) | Nested YAML duplicate-key detection | **Complete** (`0.5.0`) |
 | **10** | [Diagnostics metadata](#phase-10--diagnostics-metadata) | `validationPhase` on validation diagnostics | **Complete** (`0.6.0`) |
-| **11** | [Structural validation](#phase-11--structural-validation) | Cross-field rules in `structural.rs` | Planned (`0.7.0`) |
+| **11** | [Structural validation](#phase-11--structural-validation) | Cross-field rules in `structural.rs` | **Complete** (`0.7.0`) |
 | **12** | [Section semantics](#phase-12--section-semantics) | Roles, SLA, pricing, support validators | Planned (`0.7.0`) |
 | **13** | [Cross-file references](#phase-13--cross-file-references) | Multi-document FQN resolution | Planned (`0.7.0`) |
 | **14** | [Compatibility analysis](#phase-14--compatibility-analysis) | Contract diff and breaking-change report | Planned (`0.7.0`) |
@@ -243,26 +243,26 @@ Out of scope for this repository (see [docs/implementation/non-goals.md](docs/im
 
 ## Phase 11 — Structural validation
 
-**Target:** `0.7.0` — **Planned**
+**Target:** `0.7.0` — **Complete**
 
 **Goal:** Implement cross-field constraints in [`src/validation/structural.rs`](src/validation/structural.rs) that require reading multiple sections of a contract and are not owned by a single-section validator.
 
-**Context:** The module is currently a no-op. Root-field checks live in [`document.rs`](src/validation/document.rs); section-specific checks are split across `schema`, `extensions`, `sections`, etc. Phase 11 fills the gap for **inter-section** rules.
+**Context:** Root-field checks live in [`document.rs`](src/validation/document.rs); section-specific checks are split across `schema`, `extensions`, `sections`, etc. Phase 11 fills the gap for **inter-section** rules.
 
-**Candidate rules** (confirm against upstream spec + pinned schema before implementing):
+**Adopted rules** (confirmed against upstream spec + pinned schema):
 
-- [ ] Unique non-empty `schema[].name` values within a contract
-- [ ] `slaDefaultElement`, when set, references an existing `slaProperties[].property`
-- [ ] `slaProperties[].element`, when set, references an existing `schema[].name`
-- [ ] Unique non-empty `servers[].name` values
-- [ ] `servers[].schema`, when set, references an existing schema object name
+- [x] Unique non-empty `schema[].name` values within a contract
+- [x] `slaDefaultElement`, when set, references an existing `schema[].name` (element path notation; deprecated field)
+- [x] `slaProperties[].element`, when set, references an existing `schema[].name` (comma-separated tokens supported)
+- [x] Unique non-empty `servers[].server` values
+- [x] ~~`servers[].schema`~~ — **not adopted** (database/catalog schema string in server details, not an ODCS `schema[]` reference)
 
 **Deliverables:**
 
-- [ ] Spec audit note in [`SPEC.md`](SPEC.md) listing adopted structural rules and any intentional extensions
-- [ ] Implement confirmed rules in `structural.rs` using existing `validation_error` + phase metadata (Phase 10)
-- [ ] Valid/invalid fixtures per rule under `tests/fixtures/`
-- [ ] Tests in [`tests/validation_negative.rs`](tests/validation_negative.rs)
+- [x] Spec audit note in [`SPEC.md`](SPEC.md) listing adopted structural rules and any intentional extensions
+- [x] Implement confirmed rules in `structural.rs` using existing `validation_error` + phase metadata (Phase 10)
+- [x] Valid/invalid fixtures per rule under `tests/fixtures/`
+- [x] Tests in [`tests/validation_negative.rs`](tests/validation_negative.rs)
 
 **Out of scope:** Rules already enforced by JSON Schema or a single-section module (move only if logically cross-field); relationship endpoint resolution (Phase 5 / Phase 13).
 

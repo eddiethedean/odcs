@@ -69,6 +69,10 @@ const VALIDATION_FIXTURES: &[&str] = &[
     "invalid-json-schema-only.yaml",
     "invalid-lone-team-member.yaml",
     "unsupported-version.yaml",
+    "invalid-structural-duplicate-schema-name.yaml",
+    "invalid-structural-duplicate-server.yaml",
+    "invalid-structural-sla-element-dangling.yaml",
+    "invalid-structural-sla-default-element-dangling.yaml",
 ];
 
 /// Fixtures that fail during parse (validationPhase must be absent).

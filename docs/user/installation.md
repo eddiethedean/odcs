@@ -1,7 +1,7 @@
 # Installation
 
 !!! tip "Version"
-    Current release is **0.6.0** on `main`. Published registries update when tag `v0.6.0` is pushed. See [Release status](../project/release-status.md).
+    Current release is **0.7.0** on `main` (unreleased). Latest published: **0.6.0**. See [Release status](../project/release-status.md).
 
 ## Prerequisites
 
@@ -32,7 +32,7 @@ odcs = "0.5"
 Default features include the CLI. For library-only use:
 
 ```toml
-odcs = { version = "0.5", default-features = false }
+odcs = { version = "0.7", default-features = false }
 ```
 
 ### Build from source

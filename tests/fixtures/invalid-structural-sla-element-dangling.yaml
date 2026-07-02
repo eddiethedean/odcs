@@ -1,9 +1,14 @@
 version: "3.1.0"
 apiVersion: "v3.1.0"
 kind: "DataContract"
-id: "sla-default-element-contract"
+id: "sla-element-dangling-contract"
 status: "draft"
-slaDefaultElement: "customers"
+
+slaProperties:
+  - property: "freshness"
+    value: 24
+    unit: "hours"
+    element: "missing_table"
 
 schema:
   - name: "customers"

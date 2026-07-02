@@ -45,7 +45,7 @@ Not fully scanned: flow-style mappings, anchors, and aliases. Documented in [Dia
 | Phase | Module | Checks |
 |-------|--------|--------|
 | Document | `document.rs` | Required root fields, supported `apiVersion` |
-| Structural | `structural.rs` | Reserved for cross-field rules (stub) |
+| Structural | `structural.rs` | Cross-field rules: unique schema/server names, SLA element references |
 | Schema | `schema.rs` | Schema names, `logicalType`, array/object shape |
 | Quality | `quality.rs` | Rule types, metrics, dimensions, operators |
 | References | `references.rs` | Relationship endpoints and types |

@@ -1,13 +1,17 @@
 version: "3.1.0"
 apiVersion: "v3.1.0"
 kind: "DataContract"
-id: "sla-default-element-contract"
+id: "duplicate-schema-name-contract"
 status: "draft"
-slaDefaultElement: "customers"
 
 schema:
   - name: "customers"
     logicalType: "object"
     properties:
       - name: "customer_id"
+        logicalType: "string"
+  - name: "customers"
+    logicalType: "object"
+    properties:
+      - name: "order_id"
         logicalType: "string"

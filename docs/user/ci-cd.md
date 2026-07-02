@@ -58,7 +58,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install odcs
-        run: cargo install odcs --version 0.6.0 --locked
+        run: cargo install odcs --version 0.7.0 --locked
 
       - name: Validate contracts
         run: |
@@ -76,7 +76,7 @@ jobs:
         with:
           python-version: '3.12'
 
-      - run: pip install pyodcs==0.6.0
+      - run: pip install pyodcs==0.7.0
 
       - run: pyodcs validate contracts/customer.yaml
 ```
@@ -102,6 +102,6 @@ Requires `odcs` on `PATH` (`cargo install odcs`).
 ## Notes
 
 - Since 0.4.0, `--strict` is a deprecated no-op — JSON Schema validation always runs in `validate()`.
-- Pin the tool version in CI for reproducibility: `cargo install odcs --version 0.6.0 --locked` and `pip install pyodcs==0.6.0`.
-- See [Release status](../project/release-status.md) if registries have not yet published 0.6.0 (tag not pushed).
+- Pin the tool version in CI for reproducibility: `cargo install odcs --version 0.7.0 --locked` and `pip install pyodcs==0.7.0`.
+- See [Release status](../project/release-status.md) if registries have not yet published 0.7.0 (tag not pushed).
 - See [diagnostics.md](diagnostics.md) for routing on `odcs:*` error codes.

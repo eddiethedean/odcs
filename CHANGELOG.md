@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.7.0 — Unreleased
+
+Development release — Phase 11 structural validation (cross-field rules).
+
+**Added:**
+
+- Structural validation phase: unique `schema[].name` and `servers[].server` values
+- `slaProperties[].element` and `slaDefaultElement` must reference existing schema object names (comma-separated tokens supported for `element`)
+- Negative fixtures and tests for each structural rule
+- SPEC.md structural validation (0.7.0) policy section
+
+**Changed:**
+
+- `with-sla-default-element.yaml` fixture uses `slaDefaultElement: "customers"` to match schema object name semantics
+
 ## 0.6.0 — 2026-07-02
 
 Diagnostics metadata release — validation pipeline phase on every validation diagnostic.

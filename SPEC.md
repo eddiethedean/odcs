@@ -122,6 +122,19 @@ Documented deviations that remain in the Rust pipeline:
 | Library `rule` field | Deprecated `rule` alone is rejected; `metric` is required |
 | `apiVersion` scope | Only `v3.1.0` accepted (schema allows older API versions) |
 
+## Structural validation (0.7.0)
+
+Cross-field rules enforced in `src/validation/structural.rs` (not covered by JSON Schema or single-section validators):
+
+| Rule | Behavior | Diagnostic |
+|------|----------|------------|
+| Unique `schema[].name` | Non-empty schema object names must be unique within `schema[]` | `odcs:invalid-schema` |
+| `slaProperties[].element` → `schema[].name` | Each comma-separated token must reference an existing schema object name | `odcs:unresolved-reference` |
+| `slaDefaultElement` → `schema[].name` | When set, must reference an existing schema object name (deprecated field; same element-path semantics as `slaProperties[].element`) | `odcs:unresolved-reference` |
+| Unique `servers[].server` | Non-empty server identifiers must be unique within `servers[]` | `odcs:invalid-schema` |
+
+**Not adopted:** `servers[].schema` in server-type details is a database/catalog schema string (e.g. Snowflake `"public"`), not a reference to an ODCS `schema[]` object name.
+
 ## Out of scope
 
 - Cross-file / fully-qualified reference resolution

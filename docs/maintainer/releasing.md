@@ -16,7 +16,7 @@ These files must agree on the version number:
 |------|-------|
 | `Cargo.toml` | `[package] version` |
 | `pyproject.toml` | `[project] version` |
-| Git tag | `vX.Y.Z` (e.g. `v0.6.0`) |
+| Git tag | `vX.Y.Z` (e.g. `v0.7.0`) |
 
 The release workflow verifies tag ↔ Cargo.toml ↔ pyproject.toml alignment.
 
@@ -54,8 +54,8 @@ Confirm:
 4. Create and push the tag:
 
 ```bash
-git tag v0.6.0
-git push origin v0.6.0
+git tag v0.7.0
+git push origin v0.7.0
 ```
 
 5. Monitor [`.github/workflows/release.yml`](../../.github/workflows/release.yml):

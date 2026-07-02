@@ -108,7 +108,7 @@ odcs version --json
 
 ```json
 {
-  "crateVersion": "0.6.0",
+  "crateVersion": "0.7.0",
   "upstreamSpecVersion": "3.1.0"
 }
 ```
