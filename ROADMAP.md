@@ -185,7 +185,7 @@ Phases 1–9 deliver schema-complete ODCS v3.1.0 document parsing and validation
 |---------|--------|-------|
 | `0.5.0` | 9 ✓ | Parser hardening (nested duplicate-key detection) |
 | `0.6.0` | 10 ✓ | Diagnostics metadata (`validationPhase`) |
-| `0.7.0` | 11, 12, 13 | Structural validation, section semantics, cross-file references |
+| `0.7.0` | 11 ✓ | Structural validation (section semantics, cross-file refs planned) |
 | `0.8.0` | 14 | Contract evolution and compatibility reporting |
 | `0.9.0` | 15 | Local registry and discovery |
 | `1.0.0` | 16 | Stable public API, deprecation cleanup, upstream alignment |

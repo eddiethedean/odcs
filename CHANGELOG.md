@@ -1,8 +1,8 @@
 # Changelog
 
-## 0.7.0 — Unreleased
+## 0.7.0 — 2026-07-02
 
-Development release — Phase 11 structural validation (cross-field rules).
+Structural validation release — cross-field rules for schema, server, and SLA references.
 
 **Added:**
 

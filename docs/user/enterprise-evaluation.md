@@ -62,9 +62,9 @@ Pin versions in CI for reproducibility. See [CI/CD integration](ci-cd.md).
 | Planned (not yet shipped) | Target |
 |---------------------------|--------|
 | `validationPhase` on diagnostics | 0.6.0 ✓ |
-| Cross-field structural validation | 0.7.0 |
+| Cross-field structural validation | 0.7.0 ✓ |
 | Contract registry module | 0.8.0+ |
-| Compatibility analysis | 0.7.0 |
+| Compatibility analysis | 0.8.0 |
 
 Full timeline: [Roadmap](../roadmap.md).
 

@@ -1,6 +1,6 @@
 # Implementation Phases
 
-All ten reference-implementation phases through **Phase 10 (diagnostics metadata)** and **spec parity** are **complete** as of `0.6.0`. See [ROADMAP.md](../../ROADMAP.md) and [SPEC.md](../../SPEC.md) spec parity policy.
+All reference-implementation phases through **Phase 11 (structural validation)** and **spec parity** are **complete** as of `0.7.0`. See [ROADMAP.md](../../ROADMAP.md) and [SPEC.md](../../SPEC.md) spec parity policy.
 
 ## Phase 1 — Skeleton
 

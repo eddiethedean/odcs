@@ -1,6 +1,6 @@
 # Release status
 
-Current release: **0.7.0** (on `main`, unreleased).
+Current release: **0.7.0** (on `main`, ready to publish).
 
 ## Version alignment
 
@@ -8,7 +8,7 @@ Current release: **0.7.0** (on `main`, unreleased).
 |--------|---------|--------|
 | `Cargo.toml` | **0.7.0** | Aligned |
 | `pyproject.toml` | **0.7.0** | Aligned |
-| `CHANGELOG.md` | **0.7.0** | Unreleased section present |
+| `CHANGELOG.md` | **0.7.0** | Release notes present |
 | Git tag | *(none yet)* | Push `v0.7.0` to publish |
 
 ## Registry status
@@ -50,8 +50,8 @@ See [CI/CD integration](../user/ci-cd.md).
 Before pushing `v0.7.0`:
 
 - [x] `Cargo.toml` / `pyproject.toml` = `0.7.0`
-- [ ] `CHANGELOG.md` has 0.7.0 release notes (replace Unreleased)
-- [ ] Full CI parity passes locally (fmt, clippy, doc, test, pytest, mkdocs, publish dry-run)
+- [x] `CHANGELOG.md` has 0.7.0 release notes
+- [x] Full CI parity passes locally (fmt, clippy, doc, test, pytest, mkdocs, publish dry-run)
 - [ ] `main` CI green
 - [ ] GitHub secrets `CARGO_REGISTRY_TOKEN` and `PYPI_API_TOKEN` configured
 - [ ] No existing `v0.7.0` tag on remote
@@ -69,7 +69,9 @@ Monitor [Release workflow](../../.github/workflows/release.yml). See [Releasing]
 
 See [Changelog](../changelog.md). Highlights:
 
-- *(TBD — Phase 11+ work in progress)*
+- Structural validation phase: unique `schema[].name` and `servers[].server` values
+- `slaProperties[].element` and `slaDefaultElement` must reference existing schema object names
+- Diagnostics use `validationPhase: structural` with `odcs:invalid-schema` or `odcs:unresolved-reference`
 
 ## Previous release
 

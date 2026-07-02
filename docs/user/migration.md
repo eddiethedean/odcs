@@ -2,6 +2,21 @@
 
 This guide covers breaking changes between major pre-1.0 releases of `odcs` and `pyodcs`.
 
+## 0.6.x → 0.7.0
+
+### Structural cross-field validation
+
+**Before (0.6.x):** Cross-field rules (duplicate schema object names, duplicate server identifiers, dangling SLA element references) were not enforced.
+
+**After (0.7.0):** The structural validation phase checks:
+
+- Unique non-empty `schema[].name` values (`odcs:invalid-schema`, `validationPhase: structural`)
+- Unique non-empty `servers[].server` values (`odcs:invalid-schema`)
+- `slaProperties[].element` tokens must reference existing `schema[].name` values (`odcs:unresolved-reference`)
+- `slaDefaultElement`, when set, must reference an existing `schema[].name` (deprecated field; same element-path semantics)
+
+**Action:** Run `odcs validate contract.yaml --json` and fix contracts with duplicate names or dangling SLA element references. If you use `slaDefaultElement`, ensure it names a schema object (not an SLA `property` name).
+
 ## 0.5.x → 0.6.0
 
 ### `validationPhase` on validation diagnostics
