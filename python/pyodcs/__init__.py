@@ -16,7 +16,7 @@ UPSTREAM_SPEC_VERSION = _upstream_spec_version()
 try:
     __version__ = version("pyodcs")
 except PackageNotFoundError:
-    __version__ = "0.1.0"
+    __version__ = "0.2.0"
 
 
 def parse(content: str | bytes, format: str = "yaml") -> dict:

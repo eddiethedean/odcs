@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.0
+
+First published release.
+
+- Phase 1 skeleton milestone (module stubs, fixtures, CLI tests, exit codes)
+- Rust crate `odcs` and Python package `pyodcs`
+- CI and release workflows
+
 ## 0.1.0
 
 Phase 1 — Skeleton (complete).
