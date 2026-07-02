@@ -34,6 +34,7 @@ pub mod diagnostics;
 pub mod model;
 pub mod parser;
 pub mod registry;
+pub mod schema;
 pub mod validation;
 
 #[cfg(feature = "cli")]
@@ -51,7 +52,9 @@ pub use parser::{
     parse, parse_file, parse_json, parse_strict, parse_yaml, DocumentFormat, ParseResult,
     MAX_PARSE_BYTES,
 };
-pub use validation::{validate, ValidationPhase};
+pub use validation::{
+    validate, validate_strict, validate_with_options, ValidationOptions, ValidationPhase,
+};
 
 /// Parse and validate an ODCS document in one step.
 #[must_use]

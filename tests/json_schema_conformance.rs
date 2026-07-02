@@ -4,12 +4,11 @@ use std::fs;
 
 use jsonschema::Validator;
 use odcs::parser::ParseResult;
-use odcs::{parse, validate, DocumentFormat};
+use odcs::{codes, parse, validate, validate_strict, DocumentFormat};
 use serde_json::Value;
 
 fn pinned_validator() -> Validator {
-    let content = fs::read_to_string("tests/fixtures/odcs-json-schema-v3.1.0.json")
-        .expect("read pinned schema");
+    let content = fs::read_to_string("schema/odcs-v3.1.0.json").expect("read pinned schema");
     let schema_value: Value = serde_json::from_str(&content).expect("parse pinned schema");
     jsonschema::validator_for(&schema_value).expect("compile pinned schema")
 }
@@ -90,4 +89,115 @@ fn invalid_kind_fails_validation_before_schema_check() {
     let result = parse(&fixture_bytes("invalid-kind.yaml"), DocumentFormat::Yaml);
     let report = result.validate();
     assert!(!report.is_valid());
+}
+
+const INVALID_PARITY_FIXTURES: &[&str] = &[
+    "invalid-kind.yaml",
+    "invalid-quality-unknown-type.yaml",
+    "invalid-relationship-dangling.yaml",
+    "invalid-relationship-from.yaml",
+    "invalid-nested-property-ref.yaml",
+    "invalid-quality-dimension.yaml",
+    "invalid-logical-type.yaml",
+];
+
+#[test]
+fn invalid_fixtures_fail_rust_or_json_schema_validation() {
+    let validator = pinned_validator();
+    for name in INVALID_PARITY_FIXTURES {
+        let format = if name.ends_with(".json") {
+            DocumentFormat::Json
+        } else {
+            DocumentFormat::Yaml
+        };
+        let ParseResult {
+            contract,
+            report: parse_report,
+        } = parse(&fixture_bytes(name), format);
+        let mut report = parse_report;
+        if let Some(ref contract) = contract {
+            report.merge(validate(contract));
+        }
+        let rust_invalid = !report.is_valid();
+        let schema_invalid = contract.as_ref().is_some_and(|contract| {
+            let instance = serde_json::to_value(contract).expect("serialize contract");
+            !validator.is_valid(&instance)
+        });
+        assert!(
+            rust_invalid || schema_invalid,
+            "fixture {name} should fail Rust validation and/or JSON Schema"
+        );
+    }
+}
+
+#[test]
+fn json_schema_only_fixture_fails_strict_validation() {
+    let result = parse(
+        &fixture_bytes("invalid-json-schema-only.yaml"),
+        DocumentFormat::Yaml,
+    );
+    let contract = result.contract.expect("parsed contract");
+    assert!(validate(&contract).is_valid());
+    let strict_report = validate_strict(&contract);
+    assert!(!strict_report.is_valid());
+    assert!(strict_report
+        .diagnostics
+        .iter()
+        .any(|d| d.id == codes::JSON_SCHEMA_VIOLATION));
+}
+
+#[test]
+fn upstream_examples_conform_when_parseable() {
+    let upstream_dir = std::path::Path::new("tests/fixtures/upstream");
+    if !upstream_dir.exists() {
+        return;
+    }
+    let validator = pinned_validator();
+    let mut tested = 0usize;
+    for entry in fs::read_dir(upstream_dir).expect("read upstream dir") {
+        let entry = entry.expect("read upstream entry");
+        let path = entry.path();
+        if !path.is_file() {
+            continue;
+        }
+        let Some(name) = path.file_name().and_then(|n| n.to_str()) else {
+            continue;
+        };
+        if name == "SOURCE.txt" || name.starts_with('.') {
+            continue;
+        }
+        let format = if name.ends_with(".json") {
+            DocumentFormat::Json
+        } else {
+            DocumentFormat::Yaml
+        };
+        let fixture_name = format!("upstream/{name}");
+        let ParseResult {
+            contract,
+            report: parse_report,
+        } = parse(&fixture_bytes(&fixture_name), format);
+        let mut report = parse_report;
+        if let Some(ref contract) = contract {
+            report.merge(validate(contract));
+        }
+        if !report.is_valid() {
+            eprintln!(
+                "skipping upstream example {name} (odcs validation): {:?}",
+                report.diagnostics
+            );
+            continue;
+        }
+        tested += 1;
+        assert_fixture_matches_schema(&fixture_name, format);
+        let contract = contract.expect("parsed upstream example");
+        let instance = serde_json::to_value(&contract).expect("serialize contract");
+        assert!(
+            validator.is_valid(&instance),
+            "upstream example {name} failed JSON Schema conformance"
+        );
+    }
+    assert!(
+        tested >= 1,
+        "expected at least one upstream example to pass odcs validation"
+    );
 }

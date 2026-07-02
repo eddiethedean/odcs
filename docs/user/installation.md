@@ -23,13 +23,13 @@ Add to `Cargo.toml`:
 
 ```toml
 [dependencies]
-odcs = "0.3"
+odcs = "0.4"
 ```
 
 Default features include the CLI. For library-only use:
 
 ```toml
-odcs = { version = "0.3", default-features = false }
+odcs = { version = "0.4", default-features = false }
 ```
 
 ### Build from source
@@ -104,7 +104,7 @@ Only `.yaml`, `.yml`, and `.json` are supported. Rename your file or convert the
 
 ### Validation fails on a contract that worked in 0.2.x
 
-Version 0.3.0 enforces stricter parsing and validation. See [migration-0.3.md](migration-0.3.md).
+Version 0.4.0 adds strict JSON Schema validation. See [migration-0.4.md](migration-0.4.md). Version 0.3.0 enforces stricter parsing and validation. See [migration-0.3.md](migration-0.3.md).
 
 ### macOS / Linux build errors with Python feature
 

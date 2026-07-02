@@ -11,6 +11,7 @@
 | Understand error codes | [user/diagnostics.md](user/diagnostics.md) |
 | Browse examples | [../examples/README.md](../examples/README.md) |
 | Upgrade from 0.2.x | [user/migration-0.3.md](user/migration-0.3.md) |
+| Upgrade to 0.4.x | [user/migration-0.4.md](user/migration-0.4.md) |
 | Answer common questions | [user/faq.md](user/faq.md) |
 | Contribute code | [../CONTRIBUTING.md](../CONTRIBUTING.md) |
 | Cut a release | [maintainer/releasing.md](maintainer/releasing.md) |
@@ -25,6 +26,7 @@
 | [python.md](user/python.md) | Python API and CLI |
 | [diagnostics.md](user/diagnostics.md) | Diagnostic codes and JSON shape |
 | [migration-0.3.md](user/migration-0.3.md) | Breaking changes in 0.3.0 |
+| [migration-0.4.md](user/migration-0.4.md) | Strict mode and schema export in 0.4.0 |
 | [faq.md](user/faq.md) | Frequently asked questions |
 
 ## Upstream specification

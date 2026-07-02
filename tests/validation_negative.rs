@@ -2,7 +2,9 @@
 
 use std::fs;
 
-use odcs::{codes, parse, parse_strict, DocumentFormat, ParseResult, MAX_PARSE_BYTES};
+use odcs::{
+    codes, parse, parse_strict, validate_strict, DocumentFormat, ParseResult, MAX_PARSE_BYTES,
+};
 
 fn fixture_bytes(name: &str) -> Vec<u8> {
     fs::read(
@@ -231,4 +233,38 @@ schema:
         .expect("valid contract");
     let value = serde_json::to_value(&contract.sla_properties[0].value).expect("serialize sla");
     assert_eq!(value, serde_json::json!(9_007_199_254_740_993_i64));
+}
+
+#[test]
+fn rejects_property_relationship_invalid_from() {
+    assert_invalid_with_code(
+        "invalid-relationship-from.yaml",
+        codes::UNRESOLVED_REFERENCE,
+    );
+}
+
+#[test]
+fn rejects_nested_property_shorthand_reference() {
+    assert_invalid_with_code(
+        "invalid-nested-property-ref.yaml",
+        codes::UNRESOLVED_REFERENCE,
+    );
+}
+
+#[test]
+fn strict_mode_rejects_json_schema_only_violation() {
+    let result = parse_fixture("invalid-json-schema-only.yaml");
+    let default_report = result.clone().validate();
+    assert!(
+        default_report.is_valid(),
+        "fixture should pass default Rust validation: {:?}",
+        default_report.diagnostics
+    );
+    let contract = result.contract.expect("parsed contract");
+    let strict_report = validate_strict(&contract);
+    assert!(!strict_report.is_valid());
+    assert!(strict_report
+        .diagnostics
+        .iter()
+        .any(|d| d.id == codes::JSON_SCHEMA_VIOLATION));
 }

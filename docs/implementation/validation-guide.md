@@ -10,6 +10,7 @@ Validation is deterministic and phase-based. The `validate()` function in [`src/
 | Quality | `quality.rs` | Library metric enum, rule-type constraints |
 | References | `references.rs` | Relationship endpoint integrity |
 | Extensions | `extensions.rs` | Custom property key validation |
+| JSON Schema | `json_schema.rs` | Strict mode only — pinned upstream schema |
 
 `ValidationPhase` in [`src/validation/phases.rs`](../../src/validation/phases.rs) identifies phases for future extension.
 
@@ -18,22 +19,33 @@ Validation is deterministic and phase-based. The `validate()` function in [`src/
 `validate()` returns a `DiagnosticReport` (also available as `ValidationReport`). Use `report.is_valid()` to check for errors.
 
 ```rust
-use odcs::{parse, validate, DocumentFormat};
+use odcs::{parse, validate, validate_strict, DocumentFormat, ValidationOptions};
 
 let result = parse(content, DocumentFormat::Yaml);
-let report = result.validate(); // parse + validation merged
+let contract = result.contract.expect("parse succeeded");
+let report = validate(&contract);
 assert!(report.is_valid());
+
+// Strict mode (Rust pipeline + JSON Schema)
+let strict_report = validate_strict(&contract);
 ```
 
-Do not panic on invalid contracts.
+## Validation options
 
-## Not yet implemented
+```rust
+use odcs::{validate_with_options, ValidationOptions};
 
-- `--strict` CLI mode (reserved)
-- Deep reference resolution across files
-- Full JSON Schema parity for all negative cases
+let report = validate_with_options(
+    &contract,
+    ValidationOptions { strict: true },
+);
+```
 
-See [ROADMAP.md](../../ROADMAP.md) Phase 5 and Phase 7.
+Default `validate()` uses `ValidationOptions::default_options()` (`strict: false`).
+
+## Future validation work
+
+See [ROADMAP.md](../../ROADMAP.md#future-milestones-05) for post-0.4 backlog (cross-file references, registry, compatibility analysis).
 
 ## User-facing reference
 

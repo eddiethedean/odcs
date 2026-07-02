@@ -93,6 +93,10 @@ The supported version SHALL appear in:
 -   SPEC.md
 -   release notes
 
+## Upstream example corpus (0.4.0)
+
+Curated upstream examples are synced from `bitol-io/open-data-contract-standard` @ `main` into `tests/fixtures/upstream/`. See `tests/fixtures/upstream/SOURCE.txt` for the file list and normalization notes.
+
 ------------------------------------------------------------------------
 
 # Synchronization Workflow

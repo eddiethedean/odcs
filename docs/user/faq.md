@@ -12,7 +12,7 @@ It lets you parse ODCS v3.1.0 contracts into a typed object model and validate t
 
 ### Is it production-ready?
 
-**Pre-release** (`0.3.0`, Pre-Alpha on PyPI). Core parsing and validation work; deeper JSON Schema parity and `--strict` mode are still in progress. See [ROADMAP.md](../../ROADMAP.md).
+**Pre-release** (`0.4.0`, Pre-Alpha on PyPI). Core parsing and validation work; `--strict` mode provides JSON Schema parity against the pinned upstream schema. See [ROADMAP.md](../../ROADMAP.md).
 
 ## Installation and usage
 
@@ -66,7 +66,7 @@ v3.1.0 uses `nullValues`, `missingValues`, `invalidValues`, `duplicateValues`, o
 
 ### What does `--strict` do?
 
-Nothing extra yet — it is reserved for future stricter validation. A stderr note is printed when used.
+Runs JSON Schema validation against the pinned ODCS v3.1.0 schema after the default Rust validation pipeline. Use it for maximum conformance checking. See [migration-0.4.md](migration-0.4.md).
 
 ## Versions
 

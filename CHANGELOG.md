@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.4.0
+
+Validation maturity and JSON Schema parity release.
+
+**Added:**
+
+- `--strict` validation mode runs the Rust pipeline plus pinned ODCS v3.1.0 JSON Schema checks
+- `ValidationOptions`, `validate_with_options()`, and `validate_strict()` library APIs
+- `odcs schema` exports the pinned JSON Schema (default stdout; `--json` metadata; `--url-only` URL)
+- `odcs:json-schema-violation` diagnostic code for strict-mode schema errors
+- Pinned schema asset at [`schema/odcs-v3.1.0.json`](schema/odcs-v3.1.0.json)
+- Upstream example corpus under `tests/fixtures/upstream/` with [`scripts/sync-upstream-examples.sh`](scripts/sync-upstream-examples.sh)
+- Broader JSON Schema negative parity tests and reference validation fixtures
+- Python `validate(strict=True)`, `parse_and_validate(strict=True)`, `pinned_schema()`, and CLI parity
+
+**Changed:**
+
+- Default `validate()` behavior is unchanged (non-strict); strict checks are opt-in
+- `odcs schema` default output is full JSON Schema JSON (use `--url-only` for the previous URL-only behavior)
+
 ## 0.3.0
 
 Phase 2 and Phase 3 milestone — full v3.1.0 Canonical Object Model and hardened parsing.

@@ -6,7 +6,7 @@
 |-------|----------|--------|
 | Integration | [`tests/skeleton.rs`](../../tests/skeleton.rs) | Parsing, validation, round-trip, section fixtures |
 | CLI | [`tests/cli.rs`](../../tests/cli.rs) | Exit codes, JSON output, all commands |
-| JSON Schema conformance | [`tests/json_schema_conformance.rs`](../../tests/json_schema_conformance.rs) | Valid fixtures vs pinned upstream schema |
+| JSON Schema conformance | [`tests/json_schema_conformance.rs`](../../tests/json_schema_conformance.rs) | Valid/invalid fixtures vs `schema/odcs-v3.1.0.json`; upstream corpus |
 | Python | [`python/tests/test_pyodcs.py`](../../python/tests/test_pyodcs.py) | API and CLI parity |
 | Doc tests | [`src/lib.rs`](../../src/lib.rs) | Public API example |
 
@@ -45,10 +45,9 @@ CI runs the above via [`.github/workflows/checks.yml`](../../.github/workflows/c
 | Deterministic diagnostics | Covered |
 | CLI success/failure exit codes | Covered (`cli.rs`) |
 | JSON output format | Covered |
-| JSON Schema conformance | Covered (`json_schema_conformance.rs`) |
+| JSON Schema conformance | Covered (`json_schema_conformance.rs`, strict mode) |
+| Strict validation / schema export | Covered (`cli.rs`, `validation_negative.rs`) |
 
 ## Fixtures
 
-Valid and invalid fixtures live in [`tests/fixtures/`](../../tests/fixtures/). Key examples are also copied to [`examples/`](../../examples/) for user documentation.
-
-Add new fixtures based on official ODCS examples when extending conformance coverage.
+Valid and invalid fixtures live in [`tests/fixtures/`](../../tests/fixtures/). Upstream examples are in [`tests/fixtures/upstream/`](../../tests/fixtures/upstream/) (sync via [`scripts/sync-upstream-examples.sh`](../../scripts/sync-upstream-examples.sh)).

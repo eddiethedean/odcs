@@ -1,0 +1,20 @@
+version: "3.1.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "invalid-relationship-from"
+status: "active"
+
+schema:
+  - name: "orders"
+    logicalType: "object"
+    properties:
+      - name: "customer_id"
+        logicalType: "string"
+    relationships:
+      - from: "ghost_table.ghost_col"
+        to: "orders.customer_id"
+  - name: "customers"
+    logicalType: "object"
+    properties:
+      - name: "customer_id"
+        logicalType: "string"

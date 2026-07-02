@@ -7,6 +7,8 @@ use clap::{Parser, Subcommand};
 
 use crate::diagnostics::{inspect_contract, DiagnosticReport, DiagnosticStage};
 use crate::parser::{parse_file, ParseResult};
+use crate::schema::{self, UPSTREAM_REPOSITORY_URL};
+use crate::validation::ValidationOptions;
 use crate::UPSTREAM_SPEC_VERSION;
 
 /// ODCS command-line tool.
@@ -32,7 +34,7 @@ pub enum Command {
         /// Emit JSON output.
         #[arg(long)]
         json: bool,
-        /// Enable strict validation (reserved for Phase 5/6).
+        /// Enable strict validation (Rust pipeline plus JSON Schema).
         #[arg(long)]
         strict: bool,
     },
@@ -52,11 +54,14 @@ pub enum Command {
         #[arg(long)]
         json: bool,
     },
-    /// Print upstream JSON Schema location (reserved).
+    /// Print pinned ODCS JSON Schema.
     Schema {
-        /// Emit JSON output.
+        /// Emit JSON output with schema metadata.
         #[arg(long)]
         json: bool,
+        /// Print upstream repository URL only.
+        #[arg(long)]
+        url_only: bool,
     },
     /// Print tool and upstream specification versions.
     Version {
@@ -70,9 +75,6 @@ pub enum Command {
 pub fn run(cli: Cli) -> i32 {
     match cli.command {
         Command::Validate { path, json, strict } => {
-            if strict {
-                eprintln!("note: --strict validation is reserved for a future release");
-            }
             let result = match parse_file(&path) {
                 Ok(result) => result,
                 Err(error) => {
@@ -80,7 +82,12 @@ pub fn run(cli: Cli) -> i32 {
                     return 2;
                 }
             };
-            let report = result.validate();
+            let options = if strict {
+                ValidationOptions::strict()
+            } else {
+                ValidationOptions::default_options()
+            };
+            let report = result.validate_with_options(options);
             if let Err(error) = render_report(&report, json, ReportMode::Validate) {
                 eprintln!("{error}");
                 return 2;
@@ -160,21 +167,28 @@ pub fn run(cli: Cli) -> i32 {
             }
             exit_code_for_report(&report)
         }
-        Command::Schema { json } => {
-            let schema_url = "https://github.com/bitol-io/open-data-contract-standard";
+        Command::Schema { json, url_only } => {
+            if url_only {
+                if let Err(error) = writeln!(
+                    io::stdout(),
+                    "Upstream ODCS JSON Schema: {UPSTREAM_REPOSITORY_URL}"
+                ) {
+                    eprintln!("{error}");
+                    return 2;
+                }
+                return 0;
+            }
             if json {
                 let payload = serde_json::json!({
-                    "upstreamRepository": schema_url,
-                    "note": "JSON Schema export is planned for a future release",
+                    "schemaVersion": UPSTREAM_SPEC_VERSION,
+                    "upstreamUrl": UPSTREAM_REPOSITORY_URL,
+                    "schema": schema::pinned_schema_value(),
                 });
                 if let Err(code) = write_json_stdout(&payload) {
                     eprintln!("failed to write JSON output");
                     return code;
                 }
-            } else if let Err(error) = writeln!(
-                io::stdout(),
-                "Upstream ODCS JSON Schema: {schema_url}\n(JSON Schema export planned)"
-            ) {
+            } else if let Err(error) = write!(io::stdout(), "{}", schema::PINNED_SCHEMA_JSON) {
                 eprintln!("{error}");
                 return 2;
             }

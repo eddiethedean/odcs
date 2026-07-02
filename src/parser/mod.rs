@@ -13,6 +13,7 @@ use crate::diagnostics::{
     codes, emit, Diagnostic, DiagnosticCategory, DiagnosticReport, DiagnosticStage,
 };
 use crate::model::DataContract;
+use crate::validation::{validate_with_options, ValidationOptions};
 
 /// Maximum document size accepted by [`parse_file`] (16 MiB).
 pub const MAX_PARSE_BYTES: u64 = 16 * 1024 * 1024;
@@ -45,12 +46,18 @@ impl ParseResult {
         }
     }
 
-    /// Parses and validates in one step.
+    /// Parses and validates in one step with default (non-strict) options.
     #[must_use]
     pub fn validate(self) -> DiagnosticReport {
+        self.validate_with_options(ValidationOptions::default_options())
+    }
+
+    /// Parses and validates in one step with the given options.
+    #[must_use]
+    pub fn validate_with_options(self, options: ValidationOptions) -> DiagnosticReport {
         let mut report = self.report;
         if let Some(contract) = self.contract {
-            report.merge(crate::validate(&contract));
+            report.merge(validate_with_options(&contract, options));
         }
         report
     }

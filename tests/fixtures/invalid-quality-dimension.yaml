@@ -1,0 +1,16 @@
+version: "3.1.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "invalid-quality-dimension"
+status: "draft"
+
+schema:
+  - name: "customers"
+    logicalType: "object"
+    properties:
+      - name: "customer_id"
+        logicalType: "string"
+    quality:
+      - name: "bad-dimension"
+        type: "text"
+        dimension: "invalid-dimension-value"

@@ -7,10 +7,18 @@ import json
 import sys
 from pathlib import Path
 
-from pyodcs import UPSTREAM_SPEC_VERSION, inspect, is_valid, parse_file, validate_result
+from pyodcs import (
+    UPSTREAM_REPOSITORY_URL,
+    UPSTREAM_SPEC_VERSION,
+    inspect,
+    is_valid,
+    parse_file,
+    pinned_schema,
+    validate_result,
+)
 from pyodcs._native import inspect_summary as _inspect_summary
 
-PACKAGE_VERSION = "0.3.0"
+PACKAGE_VERSION = "0.4.0"
 
 
 def _package_version() -> str:
@@ -75,7 +83,7 @@ def _build_parser() -> argparse.ArgumentParser:
     validate_parser.add_argument(
         "--strict",
         action="store_true",
-        help="Enable strict validation (reserved for a future release)",
+        help="Enable strict validation (Rust pipeline plus JSON Schema)",
     )
 
     inspect_parser = subparsers.add_parser("inspect", help="Print a contract summary")
@@ -89,8 +97,13 @@ def _build_parser() -> argparse.ArgumentParser:
     diagnostics_parser.add_argument("path", type=Path)
     diagnostics_parser.add_argument("--json", action="store_true")
 
-    schema_parser = subparsers.add_parser("schema", help="Print upstream JSON Schema location")
+    schema_parser = subparsers.add_parser("schema", help="Print pinned ODCS JSON Schema")
     schema_parser.add_argument("--json", action="store_true")
+    schema_parser.add_argument(
+        "--url-only",
+        action="store_true",
+        help="Print upstream repository URL only",
+    )
 
     version_parser = subparsers.add_parser("version", help="Print package versions")
     version_parser.add_argument("--json", action="store_true")
@@ -127,28 +140,16 @@ def _main_impl(argv: list[str] | None = None) -> int:
         return 0
 
     if args.command == "schema":
-        schema_url = "https://github.com/bitol-io/open-data-contract-standard"
-        json_output = getattr(args, "json", False)
-        if json_output:
-            print(
-                json.dumps(
-                    {
-                        "upstreamRepository": schema_url,
-                        "note": "JSON Schema export is planned for a future release",
-                    },
-                    indent=2,
-                )
-            )
+        if args.url_only:
+            print(f"Upstream ODCS JSON Schema: {UPSTREAM_REPOSITORY_URL}")
+            return 0
+        if args.json:
+            print(json.dumps(pinned_schema(json_metadata=True), indent=2))
         else:
-            print(f"Upstream ODCS JSON Schema: {schema_url}")
-            print("(JSON Schema export planned)")
+            print(json.dumps(pinned_schema(), indent=2))
         return 0
 
-    if getattr(args, "strict", False):
-        print(
-            "note: --strict validation is reserved for a future release",
-            file=sys.stderr,
-        )
+    strict = getattr(args, "strict", False)
 
     try:
         result = parse_file(str(args.path))
@@ -156,7 +157,7 @@ def _main_impl(argv: list[str] | None = None) -> int:
         print(error, file=sys.stderr)
         return 2
 
-    report = validate_result(result)
+    report = validate_result(result, strict=strict)
 
     if args.command == "validate":
         _render_report(report, json_output=args.json, mode="validate")

@@ -165,5 +165,51 @@ fn cli_validate_text_includes_object_ref_for_version_errors() {
 fn cli_schema_command_succeeds() {
     let output = odcs_bin().arg("schema").output().expect("run cli");
     assert!(output.status.success());
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(stdout.contains("\"$schema\"") || stdout.contains("\"title\""));
+}
+
+#[test]
+fn cli_schema_url_only_command_succeeds() {
+    let output = odcs_bin()
+        .args(["schema", "--url-only"])
+        .output()
+        .expect("run cli");
+    assert!(output.status.success());
     assert!(String::from_utf8_lossy(&output.stdout).contains("Upstream ODCS JSON Schema"));
+}
+
+#[test]
+fn cli_schema_json_output() {
+    let output = odcs_bin()
+        .args(["schema", "--json"])
+        .output()
+        .expect("run cli");
+    assert!(output.status.success());
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(stdout.contains("\"schemaVersion\""));
+    assert!(stdout.contains("\"schema\""));
+}
+
+#[test]
+fn cli_validate_strict_fails_on_json_schema_violation() {
+    let path = fixture("invalid-json-schema-only.yaml");
+    let output = odcs_bin()
+        .args(["validate", "--strict"])
+        .arg(&path)
+        .output()
+        .expect("run cli");
+    assert_eq!(output.status.code(), Some(1));
+    assert!(String::from_utf8_lossy(&output.stdout).contains(codes::JSON_SCHEMA_VIOLATION));
+}
+
+#[test]
+fn cli_validate_strict_passes_on_minimal() {
+    let path = fixture("minimal.odcs.yaml");
+    let output = odcs_bin()
+        .args(["validate", "--strict"])
+        .arg(&path)
+        .output()
+        .expect("run cli");
+    assert!(output.status.success());
 }

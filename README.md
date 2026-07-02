@@ -11,7 +11,7 @@ Use this repository if you want to:
 - parse contracts into a typed object model (Rust or Python)
 - get structured diagnostics with stable `odcs:*` error codes
 
-**Status:** Pre-release (`0.3.0`) — core parsing and validation work; see [ROADMAP.md](ROADMAP.md).
+**Status:** Pre-release (`0.4.0`) — core parsing and validation; `--strict` JSON Schema mode available; see [ROADMAP.md](ROADMAP.md).
 
 > This repository implements the standard; it is not the ODCS specification itself.
 
@@ -112,6 +112,7 @@ print(pyodcs.inspect(result["contract"]))
 | Understand error codes | [docs/user/diagnostics.md](docs/user/diagnostics.md) |
 | Browse examples | [examples/README.md](examples/README.md) |
 | Upgrade from 0.2.x | [docs/user/migration-0.3.md](docs/user/migration-0.3.md) |
+| Upgrade to 0.4.x | [docs/user/migration-0.4.md](docs/user/migration-0.4.md) |
 | Contribute | [CONTRIBUTING.md](CONTRIBUTING.md) |
 | Full doc index | [docs/README.md](docs/README.md) |
 

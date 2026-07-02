@@ -18,7 +18,7 @@ def _fixture(name: str) -> bytes:
 
 def test_upstream_spec_version() -> None:
     assert pyodcs.UPSTREAM_SPEC_VERSION == "3.1.0"
-    assert pyodcs.__version__ == "0.3.0"
+    assert pyodcs.__version__ == "0.4.0"
 
 
 def test_parse_valid_yaml_fixture() -> None:
@@ -159,4 +159,39 @@ def test_cli_inspect_json_output() -> None:
 def test_cli_schema_command() -> None:
     result = _run_pyodcs_cli("schema")
     assert result.returncode == 0
+    payload = json.loads(result.stdout)
+    assert "$schema" in payload or "title" in payload
+
+
+def test_cli_schema_url_only() -> None:
+    result = _run_pyodcs_cli("schema", "--url-only")
+    assert result.returncode == 0
     assert "Upstream ODCS JSON Schema" in result.stdout
+
+
+def test_cli_validate_strict_json_schema_violation() -> None:
+    result = _run_pyodcs_cli(
+        "validate",
+        "--strict",
+        str(FIXTURES / "invalid-json-schema-only.yaml"),
+    )
+    assert result.returncode == 1
+    assert "odcs:json-schema-violation" in result.stdout
+
+
+def test_validate_strict_api() -> None:
+    result = pyodcs.parse(_fixture("invalid-json-schema-only.yaml"), "yaml")
+    contract = result["contract"]
+    assert contract is not None
+    default_report = pyodcs.validate(contract)
+    assert pyodcs.is_valid(default_report)
+    strict_report = pyodcs.validate(contract, strict=True)
+    assert not pyodcs.is_valid(strict_report)
+
+
+def test_pinned_schema_export() -> None:
+    schema = pyodcs.pinned_schema()
+    assert isinstance(schema, dict)
+    metadata = pyodcs.pinned_schema(json_metadata=True)
+    assert metadata["schemaVersion"] == "3.1.0"
+    assert "schema" in metadata

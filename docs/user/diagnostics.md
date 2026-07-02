@@ -44,6 +44,7 @@ A report is **valid** when it contains no `error`-severity diagnostics.
 | `odcs:invalid-quality` | Quality rule constraint violation | `schema[n].quality[m].…` |
 | `odcs:unresolved-reference` | Relationship endpoint empty or invalid | `schema[n].relationships[m].…` |
 | `odcs:invalid-extension` | Custom property key invalid | `customProperties[n].property` |
+| `odcs:json-schema-violation` | Strict mode JSON Schema mismatch | JSON instance path |
 
 ## Stages
 

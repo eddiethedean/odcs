@@ -22,6 +22,9 @@ Output modes:
 odcs validate contract.yaml
 odcs validate contract.yaml --json
 odcs validate contract.yaml --strict
+odcs schema
+odcs schema --json
+odcs schema --url-only
 ```
 
 Exit codes:
@@ -30,8 +33,18 @@ Exit codes:
 - `1` validation errors
 - `2` parse or IO failure
 
-## `--strict` (reserved)
+## `--strict`
 
-`--strict` is accepted on `validate` for forward compatibility but currently performs no additional validation. A note is printed to stderr when the flag is used.
+`--strict` on `validate` runs the default Rust validation pipeline, then validates the serialized contract against the pinned ODCS v3.1.0 JSON Schema. JSON Schema violations emit `odcs:json-schema-violation` diagnostics.
+
+This is separate from `parse_strict()`, which rejects unknown fields at parse time.
+
+## `odcs schema`
+
+| Flag | Output |
+|------|--------|
+| (default) | Full pinned JSON Schema to stdout |
+| `--json` | `{"schemaVersion","upstreamUrl","schema"}` wrapper |
+| `--url-only` | Upstream repository URL line only |
 
 User-facing CLI documentation: [../user/cli.md](../user/cli.md).

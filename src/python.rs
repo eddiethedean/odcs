@@ -12,6 +12,8 @@ use std::path::Path;
 use crate::diagnostics::inspect_contract;
 use crate::model::DataContract;
 use crate::parser::{parse, parse_file, DocumentFormat, ParseResult};
+use crate::schema;
+use crate::validation::{validate_with_options, ValidationOptions};
 
 fn value_to_py(py: Python<'_>, value: &impl Serialize) -> PyResult<Py<PyAny>> {
     let json = serde_json::to_string(value)
@@ -107,22 +109,43 @@ fn map_io_error(error: std::io::Error, path: &str) -> PyErr {
 
 /// Validate a parsed data contract.
 #[pyfunction]
-fn validate_contract(py: Python<'_>, contract: &Bound<'_, PyAny>) -> PyResult<Py<PyAny>> {
+#[pyo3(signature = (contract, strict=false))]
+fn validate_contract(
+    py: Python<'_>,
+    contract: &Bound<'_, PyAny>,
+    strict: bool,
+) -> PyResult<Py<PyAny>> {
     let contract = contract_from_py(py, contract)?;
-    value_to_py(py, &crate::validate(&contract))
+    let options = if strict {
+        ValidationOptions::strict()
+    } else {
+        ValidationOptions::default_options()
+    };
+    value_to_py(py, &validate_with_options(&contract, options))
 }
 
 /// Parse and validate an ODCS document in one step.
 #[pyfunction]
-#[pyo3(signature = (content, format="yaml"))]
+#[pyo3(signature = (content, format="yaml", strict=false))]
 fn validate_document(
     py: Python<'_>,
     content: &Bound<'_, PyAny>,
     format: &str,
+    strict: bool,
 ) -> PyResult<Py<PyAny>> {
     let bytes = content_to_bytes(content)?;
     let doc_format = parse_format(format)?;
-    value_to_py(py, &crate::parse_and_validate(&bytes, doc_format))
+    let result = parse(&bytes, doc_format);
+    let mut report = result.report;
+    if let Some(contract) = result.contract {
+        let options = if strict {
+            ValidationOptions::strict()
+        } else {
+            ValidationOptions::default_options()
+        };
+        report.merge(validate_with_options(&contract, options));
+    }
+    value_to_py(py, &report)
 }
 
 /// Return a short human-readable contract summary.
@@ -156,6 +179,22 @@ fn inspect_summary(py: Python<'_>, contract: &Bound<'_, PyAny>) -> PyResult<Py<P
     value_to_py(py, &summary)
 }
 
+/// Return the pinned ODCS JSON Schema as a JSON-compatible dict.
+#[pyfunction]
+#[pyo3(signature = (json_metadata=false))]
+fn pinned_schema(py: Python<'_>, json_metadata: bool) -> PyResult<Py<PyAny>> {
+    if json_metadata {
+        let payload = serde_json::json!({
+            "schemaVersion": crate::UPSTREAM_SPEC_VERSION,
+            "upstreamUrl": schema::UPSTREAM_REPOSITORY_URL,
+            "schema": schema::pinned_schema_value(),
+        });
+        value_to_py(py, &payload)
+    } else {
+        value_to_py(py, schema::pinned_schema_value())
+    }
+}
+
 /// Native extension module for the Python `pyodcs` package.
 #[pymodule]
 fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
@@ -164,6 +203,7 @@ fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(parse_path, m)?)?;
     m.add_function(wrap_pyfunction!(validate_contract, m)?)?;
     m.add_function(wrap_pyfunction!(validate_document, m)?)?;
+    m.add_function(wrap_pyfunction!(pinned_schema, m)?)?;
     m.add_function(wrap_pyfunction!(inspect, m)?)?;
     m.add_function(wrap_pyfunction!(quality_rules_count, m)?)?;
     m.add_function(wrap_pyfunction!(inspect_summary, m)?)?;

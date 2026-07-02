@@ -1,15 +1,15 @@
 # Implementation Phases
 
+All eight reference-implementation phases are **complete** as of `0.4.0`. See [ROADMAP.md](../../ROADMAP.md) for milestone checklists and [ROADMAP.md#future-milestones-05](../../ROADMAP.md#future-milestones-05) for post-0.4 backlog.
+
 ## Phase 1 — Skeleton
 
 **Status:** Complete (`0.1.0`).
 
 - Create Rust crate.
-- Add `src` module layout (including stubs for Phase 2+ modules).
+- Add `src` module layout (including stubs for future modules).
 - Add CLI entry point.
 - Add examples and tests folders.
-
-Phase 6 CLI polish (`--strict`, schema export) continues in later milestones.
 
 ## Phase 2 — Canonical Object Model
 
@@ -39,7 +39,7 @@ Model ODCS sections:
 
 ## Phase 4 — Diagnostics
 
-**Status:** Largely complete (`0.3.0`).
+**Status:** Complete (`0.4.0`).
 
 Mirror DTCS diagnostic style:
 
@@ -50,10 +50,11 @@ Mirror DTCS diagnostic style:
 - message
 - object reference
 - remediation
+- stable `odcs:` codes including strict-mode JSON Schema violations
 
 ## Phase 5 — Validation
 
-**Status:** In progress (`0.3.0`).
+**Status:** Complete (`0.4.0`).
 
 Implemented validation phases:
 
@@ -63,12 +64,11 @@ Implemented validation phases:
 4. Quality validation
 5. Reference validation
 6. Extension validation
-
-Remaining: deeper semantic checks, `--strict` mode, and additional conformance coverage.
+7. JSON Schema validation (strict mode)
 
 ## Phase 6 — CLI
 
-**Status:** Largely complete (`0.3.0`).
+**Status:** Complete (`0.4.0`).
 
 Commands:
 
@@ -80,16 +80,16 @@ odcs schema
 odcs version
 ```
 
-`pyodcs` provides a matching Python CLI.
+`--strict` on `validate` enables JSON Schema checks. `odcs schema` exports the pinned schema.
 
 ## Phase 7 — JSON Schema parity
 
-**Status:** Baseline started (`0.3.0`).
+**Status:** Complete (`0.4.0`).
 
-Conformance tests in [`tests/json_schema_conformance.rs`](../../tests/json_schema_conformance.rs) validate pinned fixtures against `tests/fixtures/odcs-json-schema-v3.1.0.json`.
+Conformance tests in [`tests/json_schema_conformance.rs`](../../tests/json_schema_conformance.rs) validate fixtures against `schema/odcs-v3.1.0.json`. Upstream examples are synced via [`scripts/sync-upstream-examples.sh`](../../scripts/sync-upstream-examples.sh).
 
 ## Phase 8 — Python bindings
 
-**Status:** Largely complete (`0.3.0`).
+**Status:** Complete (`0.4.0`).
 
-PyO3 bindings and the `pyodcs` package expose parse, validate, inspect, and CLI helpers.
+PyO3 bindings and the `pyodcs` package expose parse, validate (with `strict`), inspect, schema export, and CLI helpers with parity to the Rust `odcs` CLI.

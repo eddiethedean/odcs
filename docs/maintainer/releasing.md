@@ -16,7 +16,7 @@ These files must agree on the version number:
 |------|-------|
 | `Cargo.toml` | `[package] version` |
 | `pyproject.toml` | `[project] version` |
-| Git tag | `vX.Y.Z` (e.g. `v0.3.0`) |
+| Git tag | `vX.Y.Z` (e.g. `v0.4.0`) |
 
 The release workflow verifies tag ↔ Cargo.toml ↔ pyproject.toml alignment.
 
@@ -28,8 +28,8 @@ The release workflow verifies tag ↔ Cargo.toml ↔ pyproject.toml alignment.
 4. Create and push the tag:
 
 ```bash
-git tag v0.3.0
-git push origin v0.3.0
+git tag v0.4.0
+git push origin v0.4.0
 ```
 
 5. Monitor [`.github/workflows/release.yml`](../../.github/workflows/release.yml):
@@ -55,6 +55,7 @@ maturin build --features python --locked
 When bumping for a new upstream ODCS release, follow [SPEC.md](../../SPEC.md) synchronization workflow:
 
 1. Review upstream changelog and JSON Schema
-2. Update pinned fixture in `tests/fixtures/odcs-json-schema-v*.json`
-3. Update `UPSTREAM_SPEC_VERSION` in `src/lib.rs`
-4. Update conformance tests and documentation
+2. Update pinned schema in `schema/odcs-v3.1.0.json` (and `tests/fixtures/` copy if kept)
+3. Run `./scripts/sync-upstream-examples.sh <upstream-commit>` to refresh example corpus
+4. Update `UPSTREAM_SPEC_VERSION` in `src/lib.rs`
+5. Update conformance tests and documentation

@@ -8,7 +8,7 @@ The `odcs` binary (Rust) and `pyodcs` command (Python) share the same subcommand
 odcs validate <path>    # Parse and validate; print result
 odcs inspect <path>     # Print contract summary
 odcs diagnostics <path> # Print validation diagnostics
-odcs schema             # Print upstream JSON Schema location
+odcs schema             # Print pinned ODCS JSON Schema
 odcs version            # Print tool and upstream spec versions
 ```
 
@@ -16,8 +16,9 @@ odcs version            # Print tool and upstream spec versions
 
 | Flag | Commands | Description |
 |------|----------|-------------|
-| `--json` | all except `schema` | Emit JSON output |
-| `--strict` | `validate` | Reserved; no extra validation yet (stderr note) |
+| `--json` | all | Emit JSON output (`schema --json` includes metadata wrapper) |
+| `--strict` | `validate` | Run JSON Schema validation after the Rust pipeline |
+| `--url-only` | `schema` | Print upstream repository URL only |
 
 ## Exit codes
 
@@ -84,7 +85,17 @@ Same exit codes as `validate`. JSON output contains only the `diagnostics` array
 
 ## schema
 
-Prints the upstream ODCS repository URL. JSON Schema export from this tool is planned for a future release.
+```bash
+odcs schema
+odcs schema --json
+odcs schema --url-only
+```
+
+**Default:** full pinned ODCS v3.1.0 JSON Schema to stdout.
+
+**`--json`:** metadata wrapper with `schemaVersion`, `upstreamUrl`, and `schema`.
+
+**`--url-only`:** upstream repository URL (previous default style).
 
 ## version
 
@@ -97,14 +108,16 @@ odcs version --json
 
 ```json
 {
-  "crateVersion": "0.3.0",
+  "crateVersion": "0.4.0",
   "upstreamSpecVersion": "3.1.0"
 }
 ```
 
-## `--strict` (reserved)
+## `--strict`
 
-`--strict` is accepted for forward compatibility but currently performs no additional validation beyond the default pipeline. A note is printed to stderr when the flag is used.
+`odcs validate --strict` runs the default validation pipeline, then checks the contract against the pinned ODCS v3.1.0 JSON Schema. Violations emit `odcs:json-schema-violation` diagnostics.
+
+This is different from `parse_strict()` in the library API, which rejects unknown fields at parse time. See [migration-0.4.md](migration-0.4.md).
 
 ## CI integration example
 

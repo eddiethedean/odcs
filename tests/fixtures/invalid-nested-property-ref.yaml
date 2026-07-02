@@ -1,0 +1,21 @@
+version: "3.1.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "invalid-nested-property-ref"
+status: "active"
+
+schema:
+  - name: "orders"
+    logicalType: "object"
+    properties:
+      - name: "line_items"
+        logicalType: "array"
+        items:
+          name: "item"
+          logicalType: "object"
+          properties:
+            - name: "sku"
+              logicalType: "string"
+    relationships:
+      - from: "orders.missing_nested"
+        to: "orders.sku"
