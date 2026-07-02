@@ -1,0 +1,7 @@
+version: "3.1.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "unknown-field-contract"
+name: "unknown_field_contract"
+status: "draft"
+customDomain: "sales"

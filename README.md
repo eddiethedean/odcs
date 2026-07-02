@@ -2,9 +2,9 @@
 
 Reference Rust implementation for the [Open Data Contract Standard](https://github.com/bitol-io/open-data-contract-standard).
 
-**Status:** Pre-release skeleton  
+**Status:** Pre-release  
 **Upstream ODCS version:** 3.1.0  
-**Reference implementation:** 0.2.0 (Phase 1 — Skeleton)
+**Reference implementation:** 0.3.0 (Phase 2 & 3 — Canonical Object Model and Parsing)
 
 See [ROADMAP.md](ROADMAP.md) for milestone status.
 

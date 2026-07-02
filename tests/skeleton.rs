@@ -3,6 +3,7 @@
 use std::fs;
 use std::path::PathBuf;
 
+use odcs::model::DataContract;
 use odcs::{codes, parse, parse_file, DocumentFormat, ParseResult, UPSTREAM_SPEC_VERSION};
 
 fn fixture(name: &str) -> PathBuf {
@@ -21,6 +22,24 @@ fn parse_fixture(name: &str) -> ParseResult {
     parse(&content, format)
 }
 
+fn parse_fixture_contract(name: &str) -> DataContract {
+    parse_fixture(name).into_contract().expect("parse fixture")
+}
+
+const SECTION_FIXTURES: &[&str] = &[
+    "with-sla.yaml",
+    "with-team.yaml",
+    "with-team-legacy-array.yaml",
+    "with-roles.yaml",
+    "with-servers.yaml",
+    "with-pricing.yaml",
+    "with-support.yaml",
+    "with-schema-quality.yaml",
+    "with-schema-properties.yaml",
+    "with-custom-properties.yaml",
+    "with-extensions.yaml",
+];
+
 #[test]
 fn upstream_spec_version_is_set() {
     assert_eq!(UPSTREAM_SPEC_VERSION, "3.1.0");
@@ -28,19 +47,19 @@ fn upstream_spec_version_is_set() {
 
 #[test]
 fn parses_minimal_yaml_fixture() {
-    let result = parse_fixture("minimal.odcs.yaml");
-    let contract = result.into_contract().expect("parse fixture");
-    assert_eq!(contract.name, "customer_data_contract");
+    let contract = parse_fixture_contract("minimal.odcs.yaml");
+    assert_eq!(contract.name.as_deref(), Some("customer_data_contract"));
     assert_eq!(contract.version, UPSTREAM_SPEC_VERSION);
+    assert_eq!(contract.api_version, "v3.1.0");
+    assert_eq!(contract.id, "customer-data-contract");
     assert_eq!(contract.schema.len(), 1);
-    assert_eq!(contract.quality.len(), 1);
+    assert_eq!(contract.quality_rules().len(), 1);
 }
 
 #[test]
 fn parses_minimal_json_fixture() {
-    let result = parse_fixture("minimal.odcs.json");
-    let contract = result.into_contract().expect("parse fixture");
-    assert_eq!(contract.name, "customer_data_contract");
+    let contract = parse_fixture_contract("minimal.odcs.json");
+    assert_eq!(contract.name.as_deref(), Some("customer_data_contract"));
     assert_eq!(contract.kind, "DataContract");
 }
 
@@ -62,7 +81,7 @@ fn parses_example_yaml() {
 fn parses_example_json() {
     let result = parse_file("examples/minimal.odcs.json").expect("read example");
     let contract = result.into_contract().expect("parse example");
-    assert_eq!(contract.name, "customer_data_contract");
+    assert_eq!(contract.name.as_deref(), Some("customer_data_contract"));
 }
 
 #[test]
@@ -73,7 +92,7 @@ fn rejects_malformed_yaml() {
         .report
         .diagnostics
         .iter()
-        .any(|d| d.id == codes::PARSE_YAML));
+        .any(|d| { d.id == codes::PARSE_YAML || d.id == codes::UNKNOWN_FIELD }));
 }
 
 #[test]
@@ -88,13 +107,13 @@ fn rejects_malformed_json() {
 }
 
 #[test]
-fn rejects_empty_name() {
+fn rejects_empty_id() {
     let report = parse_fixture("invalid-empty-name.yaml").validate();
     assert!(!report.is_valid());
     assert!(report
         .diagnostics
         .iter()
-        .any(|d| d.id == codes::MISSING_REQUIRED_FIELD));
+        .any(|d| d.id == codes::MISSING_REQUIRED_FIELD && d.object_ref.as_deref() == Some("id")));
 }
 
 #[test]
@@ -118,11 +137,32 @@ fn rejects_unsupported_version() {
 }
 
 #[test]
-fn preserves_extension_fields() {
-    let result = parse_fixture("with-extensions.yaml");
-    let contract = result.into_contract().expect("parse extensions fixture");
-    assert!(contract.extensions.contains_key("customDomain"));
-    assert!(contract.extensions.contains_key("metadata"));
+fn preserves_custom_properties() {
+    let contract = parse_fixture_contract("with-extensions.yaml");
+    let root = contract
+        .custom_properties
+        .as_ref()
+        .expect("root custom properties");
+    assert!(root.iter().any(|p| p.property == "customDomain"));
+    assert!(root.iter().any(|p| p.property == "metadata"));
+
+    let nested = contract.schema[0].properties[0]
+        .element
+        .custom_properties
+        .as_ref()
+        .expect("nested custom properties");
+    assert!(nested.iter().any(|p| p.property == "sourceSystem"));
+}
+
+#[test]
+fn rejects_unknown_root_field() {
+    let result = parse_fixture("unknown-field.yaml");
+    assert!(result.contract.is_none());
+    assert!(result
+        .report
+        .diagnostics
+        .iter()
+        .any(|d| d.id == codes::UNKNOWN_FIELD));
 }
 
 #[test]
@@ -138,4 +178,51 @@ fn diagnostics_are_deterministic_for_invalid_kind() {
 fn into_contract_requires_valid_parse() {
     let result = parse_fixture("malformed.yaml");
     assert!(result.into_contract().is_err());
+}
+
+#[test]
+fn parses_all_section_fixtures() {
+    for name in SECTION_FIXTURES {
+        let contract = parse_fixture_contract(name);
+        assert!(!contract.id.is_empty(), "fixture {name} missing id");
+        assert_eq!(contract.api_version, "v3.1.0");
+    }
+}
+
+#[test]
+fn team_object_and_legacy_array_forms_parse() {
+    let object_form = parse_fixture_contract("with-team.yaml");
+    let legacy_form = parse_fixture_contract("with-team-legacy-array.yaml");
+    assert_eq!(object_form.team.as_ref().unwrap().members().len(), 1);
+    assert_eq!(legacy_form.team.as_ref().unwrap().members().len(), 1);
+}
+
+#[test]
+fn yaml_round_trip_through_json() {
+    let original = parse_fixture_contract("minimal.odcs.yaml");
+    let json = serde_json::to_string(&original).expect("serialize json");
+    let reparsed = parse(json.as_bytes(), DocumentFormat::Json)
+        .into_contract()
+        .expect("parse json round-trip");
+    assert_eq!(original, reparsed);
+}
+
+#[test]
+fn json_round_trip_through_yaml() {
+    let original = parse_fixture_contract("minimal.odcs.json");
+    let yaml = serde_yaml::to_string(&original).expect("serialize yaml");
+    let reparsed = parse(yaml.as_bytes(), DocumentFormat::Yaml)
+        .into_contract()
+        .expect("parse yaml round-trip");
+    assert_eq!(original, reparsed);
+}
+
+#[test]
+fn custom_properties_survive_round_trip() {
+    let original = parse_fixture_contract("with-custom-properties.yaml");
+    let json = serde_json::to_string(&original).expect("serialize");
+    let reparsed = parse(json.as_bytes(), DocumentFormat::Json)
+        .into_contract()
+        .expect("parse");
+    assert_eq!(original, reparsed);
 }

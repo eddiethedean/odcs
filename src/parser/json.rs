@@ -1,35 +1,21 @@
 //! JSON document parser.
 
-use crate::diagnostics::{
-    codes, emit, Diagnostic, DiagnosticCategory, DiagnosticReport, DiagnosticStage,
-};
+use crate::diagnostics::codes;
 use crate::model::DataContract;
 
-use super::ParseResult;
+use super::{failure_from_serde, success, ParseResult};
 
 /// Parse JSON bytes into an ODCS contract.
 #[must_use]
 pub fn parse_json(content: &[u8]) -> ParseResult {
     match serde_json::from_slice::<DataContract>(content) {
-        Ok(contract) => ParseResult {
-            contract: Some(contract),
-            report: DiagnosticReport::new(),
-        },
+        Ok(contract) => success(contract),
         Err(error) => {
-            let mut report = DiagnosticReport::new();
-            emit(
-                &mut report,
-                Diagnostic::error(
-                    codes::PARSE_JSON,
-                    DiagnosticCategory::Syntax,
-                    DiagnosticStage::Parse,
-                    format!("failed to parse JSON: {error}"),
-                ),
-            );
-            ParseResult {
-                contract: None,
-                report,
-            }
+            let location = match (error.line(), error.column()) {
+                (0, 0) => String::new(),
+                (line, column) => format!(" (line {line}, column {column})"),
+            };
+            failure_from_serde(codes::PARSE_JSON, format!("{error}{location}"))
         }
     }
 }

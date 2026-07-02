@@ -37,15 +37,44 @@ pub fn validate(contract: &DataContract) -> DiagnosticReport {
         );
     }
 
-    if contract.name.is_empty() {
+    if !contract.is_supported_api_version() {
+        emit(
+            &mut report,
+            com_error(
+                codes::UNSUPPORTED_VERSION,
+                DiagnosticCategory::Compatibility,
+                format!(
+                    "unsupported ODCS apiVersion '{}'; supported: {:?}",
+                    contract.api_version,
+                    crate::model::SUPPORTED_API_VERSIONS
+                ),
+            )
+            .with_object_ref("apiVersion")
+            .with_remediation("set apiVersion to a supported ODCS release"),
+        );
+    }
+
+    if contract.id.is_empty() {
         emit(
             &mut report,
             validation_error(
                 codes::MISSING_REQUIRED_FIELD,
                 DiagnosticCategory::Structure,
-                "contract name must not be empty",
+                "contract id must not be empty",
             )
-            .with_object_ref("name"),
+            .with_object_ref("id"),
+        );
+    }
+
+    if contract.api_version.is_empty() {
+        emit(
+            &mut report,
+            validation_error(
+                codes::MISSING_REQUIRED_FIELD,
+                DiagnosticCategory::Structure,
+                "contract apiVersion must not be empty",
+            )
+            .with_object_ref("apiVersion"),
         );
     }
 

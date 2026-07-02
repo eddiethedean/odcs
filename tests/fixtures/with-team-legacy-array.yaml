@@ -1,0 +1,18 @@
+version: "3.1.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "team-legacy-contract"
+name: "team_legacy_contract"
+status: "active"
+
+team:
+  - username: "asmith"
+    name: "Alex Smith"
+    role: "steward"
+
+schema:
+  - name: "customers"
+    logicalType: "object"
+    properties:
+      - name: "customer_id"
+        logicalType: "string"

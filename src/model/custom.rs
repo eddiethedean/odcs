@@ -1,3 +1,3 @@
-//! Custom property types (stub).
-//!
-//! Full custom property modeling is planned for Phase 2.
+//! Custom property types.
+
+pub use super::shared::{CustomProperties, CustomProperty};

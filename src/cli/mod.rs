@@ -122,12 +122,14 @@ pub fn run(cli: Cli) -> i32 {
             };
             if json {
                 let summary = serde_json::json!({
+                    "id": contract.id,
                     "name": contract.name,
                     "version": contract.version,
+                    "apiVersion": contract.api_version,
                     "kind": contract.kind,
                     "status": contract.status,
                     "schemaCount": contract.schema.len(),
-                    "qualityCount": contract.quality.len(),
+                    "qualityCount": contract.quality_rules().len(),
                 });
                 if let Err(error) = writeln!(
                     io::stdout(),

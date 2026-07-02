@@ -1,0 +1,19 @@
+version: "3.1.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "roles-contract"
+name: "roles_contract"
+status: "active"
+
+roles:
+  - role: "analyst"
+    description: "Read-only analytics access"
+    access: "read"
+    firstLevelApprovers: "data-owner@example.com"
+
+schema:
+  - name: "customers"
+    logicalType: "object"
+    properties:
+      - name: "customer_id"
+        logicalType: "string"

@@ -22,12 +22,14 @@ pub(crate) use builders::{com_error, emit, validation_error};
 #[must_use]
 pub fn inspect_contract(contract: &DataContract) -> String {
     format!(
-        "name: {}\nversion: {}\nkind: {}\nstatus: {}\nschema: {}\nquality: {}\n",
-        contract.name,
+        "id: {}\nname: {}\nversion: {}\napiVersion: {}\nkind: {}\nstatus: {}\nschema: {}\nquality: {}\n",
+        contract.id,
+        contract.name.as_deref().unwrap_or("-"),
         contract.version,
+        contract.api_version,
         contract.kind,
         contract.status,
         contract.schema.len(),
-        contract.quality.len(),
+        contract.quality_rules().len(),
     )
 }

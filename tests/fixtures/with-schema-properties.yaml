@@ -1,0 +1,30 @@
+version: "3.1.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "schema-properties-contract"
+name: "schema_properties_contract"
+status: "active"
+
+schema:
+  - name: "customers"
+    logicalType: "object"
+    physicalName: "dim_customers"
+    dataGranularityDescription: "One row per customer"
+    properties:
+      - name: "customer_id"
+        logicalType: "string"
+        physicalType: "varchar(36)"
+        physicalName: "customer_id"
+        required: true
+        unique: true
+        primaryKey: true
+        primaryKeyPosition: 1
+        classification: "internal"
+        businessName: "Customer Identifier"
+        description: "Stable customer key"
+      - name: "email"
+        logicalType: "string"
+        required: false
+        partitioned: false
+        partitionKeyPosition: -1
+        criticalDataElement: true

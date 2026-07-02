@@ -41,7 +41,10 @@ def test_parse_file_repo_example() -> None:
 
 
 def test_validate_result_merges_parse_and_validation_diagnostics() -> None:
-    result = pyodcs.parse(b"version: not-a-version\nkind: wrong\nname: ''\nstatus: draft\n", "yaml")
+    result = pyodcs.parse(
+        b"version: '3.1.0'\napiVersion: v9.9.9\nkind: wrong\nid: ''\nstatus: draft\n",
+        "yaml",
+    )
     report = pyodcs.validate_result(result)
     assert not pyodcs.is_valid(report)
 
@@ -52,3 +55,4 @@ def test_inspect_contract() -> None:
     assert contract is not None
     summary = pyodcs.inspect(contract)
     assert "customer_data_contract" in summary
+    assert "customer-data-contract" in summary

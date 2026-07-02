@@ -1,3 +1,3 @@
-//! Fundamentals types (stub).
-//!
-//! Full fundamentals modeling is planned for Phase 2.
+//! Document identity and fundamentals helpers.
+
+pub use super::shared::ContractDescription;

@@ -14,8 +14,9 @@
 //!
 //! let yaml = br#"
 //! version: "3.1.0"
+//! apiVersion: "v3.1.0"
 //! kind: "DataContract"
-//! name: "example"
+//! id: "example"
 //! status: "draft"
 //! "#;
 //!

@@ -11,8 +11,8 @@ The [upstream ODCS specification](https://github.com/bitol-io/open-data-contract
 | Phase | Name | Focus | Status |
 |-------|------|-------|--------|
 | **1** | [Skeleton](#phase-1--skeleton) | Crate layout, CLI entry point, examples, tests | **Complete** (`0.1.0`) |
-| **2** | [Canonical Object Model](#phase-2--canonical-object-model) | ODCS sections as Rust types | Planned |
-| **3** | [Parsing](#phase-3--parsing) | YAML and JSON parsing with extension preservation | Planned |
+| **2** | [Canonical Object Model](#phase-2--canonical-object-model) | ODCS sections as Rust types | **Complete** (`0.3.0`) |
+| **3** | [Parsing](#phase-3--parsing) | YAML and JSON parsing with diagnostics | **Complete** (`0.3.0`) |
 | **4** | [Diagnostics](#phase-4--diagnostics) | Structured diagnostics aligned with DTCS style | Planned |
 | **5** | [Validation](#phase-5--validation) | Phase-based validation pipeline | Planned |
 | **6** | [CLI](#phase-6--cli) | `validate`, `inspect`, `diagnostics`, `schema`, `version` | Planned |
@@ -56,24 +56,23 @@ Phase 1  Skeleton
 
 ## Phase 2 — Canonical Object Model
 
-Model ODCS sections:
+**Target:** `0.3.0` — **Complete**
 
-- fundamentals
-- schema
-- quality
-- SLA
-- stakeholders
-- team
-- roles
-- servers
-- pricing
-- custom properties
+- [x] Shared types (`StableId`, `Tags`, `CustomProperty`, `AuthoritativeDefinitions`, `ContractDescription`)
+- [x] Root `DataContract` with v3.1.0 required fields
+- [x] `SchemaObject` / `SchemaProperty` with nested quality
+- [x] Section modules: SLA, servers, team (object + legacy array), roles, pricing, support
+- [x] `stakeholders` documented as N/A for v3.1.0
 
 ## Phase 3 — Parsing
 
-- Parse YAML and JSON
-- Preserve unknown extension fields
-- Return structured errors and diagnostics
+**Target:** `0.3.0` — **Complete**
+
+- [x] YAML and JSON parsing via serde
+- [x] Parse helpers (`success` / `failure_from_serde`)
+- [x] Parse diagnostics with paths and unknown-field detection
+- [x] Fixture migration and round-trip tests
+- [x] Upstream JSON Schema reference fixture pinned under `tests/fixtures/`
 
 ## Phase 4 — Diagnostics
 

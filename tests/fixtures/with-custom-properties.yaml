@@ -1,0 +1,29 @@
+version: "3.1.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "custom-properties-contract"
+name: "custom_properties_contract"
+status: "active"
+
+customProperties:
+  - property: "costCenter"
+    value: "CC-1001"
+  - property: "retentionDays"
+    value: 365
+
+description:
+  purpose: "Customer master data"
+  usage: "Analytics and operations"
+  customProperties:
+    - property: "audience"
+      value: "internal"
+
+schema:
+  - name: "customers"
+    logicalType: "object"
+    customProperties:
+      - property: "domain"
+        value: "customer"
+    properties:
+      - name: "customer_id"
+        logicalType: "string"

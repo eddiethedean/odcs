@@ -1,0 +1,20 @@
+version: "3.1.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "support-contract"
+name: "support_contract"
+status: "active"
+
+support:
+  - channel: "slack"
+    url: "https://example.slack.com/archives/data"
+    description: "Primary support channel"
+    tool: "slack"
+    scope: "incidents"
+
+schema:
+  - name: "customers"
+    logicalType: "object"
+    properties:
+      - name: "customer_id"
+        logicalType: "string"

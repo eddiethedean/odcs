@@ -1,7 +1,22 @@
 version: "3.1.0"
+apiVersion: "v3.1.0"
 kind: "DataContract"
+id: "extended-contract"
 name: "extended_contract"
 status: "draft"
-customDomain: "sales"
-metadata:
-  owner: "data-platform"
+customProperties:
+  - property: "customDomain"
+    value: "sales"
+  - property: "metadata"
+    value:
+      owner: "data-platform"
+
+schema:
+  - name: "orders"
+    logicalType: "object"
+    properties:
+      - name: "order_id"
+        logicalType: "string"
+        customProperties:
+          - property: "sourceSystem"
+            value: "erp"

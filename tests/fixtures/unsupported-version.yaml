@@ -1,4 +1,6 @@
 version: "9.9.9"
+apiVersion: "v9.9.9"
 kind: "DataContract"
+id: "unsupported-version-contract"
 name: "unsupported_version_contract"
 status: "draft"

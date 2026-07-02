@@ -1,36 +1,35 @@
 # ODCS Canonical Object Model Guide
 
-Root type:
+The root type is [`DataContract`](../../src/model/contract.rs), aligned with upstream ODCS v3.1.0.
 
-```rust
-pub struct DataContract {
-    pub version: String,
-    pub kind: Option<String>,
-    pub api_version: Option<String>,
-    pub id: Option<String>,
-    pub name: String,
-    pub description: Option<String>,
-    pub status: Option<String>,
-    pub tenant: Option<String>,
-    pub domain: Option<String>,
-    pub data_product: Option<String>,
-    pub schema: Vec<SchemaObject>,
-    pub quality: Vec<QualityRule>,
-    pub sla: Option<Sla>,
-    pub stakeholders: Vec<Stakeholder>,
-    pub team: Vec<TeamMember>,
-    pub roles: Vec<Role>,
-    pub servers: Vec<Server>,
-    pub pricing: Option<Pricing>,
-    pub custom: IndexMap<String, serde_json::Value>,
-}
-```
+## Root document
 
-This is only a starting sketch. Cursor should adapt it to the ODCS spec and official schema.
+Required fields: `version`, `apiVersion`, `kind`, `id`, `status`.
 
-Design rules:
+Optional sections: `name`, `tenant`, `tags`, `domain`, `description`, `servers`, `schema`, `support`, `price`, `team`, `roles`, `slaProperties`, `authoritativeDefinitions`, `customProperties`, `contractCreatedTs`.
 
-- Prefer explicit structs.
-- Preserve extension/custom fields.
-- Separate model from validation.
-- Avoid DTCS transformation-specific concepts.
+Deprecated fields (parsed but not required): `dataProduct`, `slaDefaultElement`.
+
+Quality rules are nested under `schema[]` objects and properties — not at the contract root.
+
+## Module layout
+
+| Module | Types |
+|--------|-------|
+| `shared` | `StableId`, `Tags`, `CustomProperty`, `AuthoritativeDefinition`, `ContractDescription`, `SchemaElement` |
+| `schema` | `SchemaObject`, `SchemaProperty` |
+| `quality` | `DataQuality`, `DataQualityChecks` |
+| `sla` | `ServiceLevelAgreementProperty` |
+| `servers` | `Server` |
+| `team` | `Team`, `TeamMember`, `TeamDeclaration` |
+| `roles` | `Role` |
+| `pricing` | `Pricing` |
+| `support` | `SupportItem`, `Support` |
+| `relationships` | `RelationshipSchemaLevel`, `RelationshipPropertyLevel` |
+
+## Design rules
+
+- Prefer explicit structs mapped from the upstream JSON Schema.
+- Use `customProperties` arrays for extensions (root `additionalProperties: false`).
+- Separate model types from validation logic.
+- Apply `#[serde(rename_all = "camelCase")]` on document structs.

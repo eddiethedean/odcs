@@ -1,10 +1,13 @@
 version: "3.1.0"
+apiVersion: "v3.1.0"
 kind: "DataContract"
+id: "customer-data-contract"
 name: "customer_data_contract"
 status: "draft"
 
 schema:
   - name: "customers"
+    logicalType: "object"
     physicalName: "customers"
     properties:
       - name: "customer_id"
@@ -14,9 +17,7 @@ schema:
       - name: "email"
         logicalType: "string"
         required: false
-
-quality:
-  - name: "customer_id_not_null"
-    type: "library"
-    rule: "not_null"
-    field: "customer_id"
+    quality:
+      - name: "customer_id_not_null"
+        type: "library"
+        metric: "not_null"

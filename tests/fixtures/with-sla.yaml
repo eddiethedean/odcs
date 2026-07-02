@@ -1,0 +1,21 @@
+version: "3.1.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "sla-contract"
+name: "sla_contract"
+status: "active"
+
+slaProperties:
+  - property: "freshness"
+    value: 24
+    unit: "hours"
+    element: "customers"
+    driver: "business"
+    schedule: "0 0 * * *"
+
+schema:
+  - name: "customers"
+    logicalType: "object"
+    properties:
+      - name: "customer_id"
+        logicalType: "string"

@@ -8,7 +8,7 @@ use std::path::Path;
 pub use json::parse_json;
 pub use yaml::parse_yaml;
 
-use crate::diagnostics::DiagnosticReport;
+use crate::diagnostics::{emit, DiagnosticReport};
 use crate::model::DataContract;
 
 /// Result of parsing an ODCS document.
@@ -69,6 +69,79 @@ pub fn parse(content: &[u8], format: DocumentFormat) -> ParseResult {
         DocumentFormat::Yaml => parse_yaml(content),
         DocumentFormat::Json => parse_json(content),
     }
+}
+
+/// Build a successful parse result.
+pub(crate) fn success(contract: DataContract) -> ParseResult {
+    ParseResult {
+        contract: Some(contract),
+        report: DiagnosticReport::new(),
+    }
+}
+
+/// Build a failed parse result with a diagnostic.
+#[allow(dead_code)]
+pub(crate) fn failure(code: &str, message: String) -> ParseResult {
+    let mut report = DiagnosticReport::new();
+    emit(
+        &mut report,
+        crate::diagnostics::Diagnostic::error(
+            code,
+            crate::diagnostics::DiagnosticCategory::Syntax,
+            crate::diagnostics::DiagnosticStage::Parse,
+            message,
+        ),
+    );
+    ParseResult {
+        contract: None,
+        report,
+    }
+}
+
+/// Build a failed parse result with an enriched serde diagnostic.
+pub(crate) fn failure_from_serde(code: &str, error: impl std::fmt::Display) -> ParseResult {
+    let message = error.to_string();
+    let mut diagnostic = crate::diagnostics::Diagnostic::error(
+        code,
+        crate::diagnostics::DiagnosticCategory::Syntax,
+        crate::diagnostics::DiagnosticStage::Parse,
+        format!("failed to parse document: {message}"),
+    );
+
+    if let Some(object_ref) = extract_unknown_field_ref(&message) {
+        diagnostic = diagnostic
+            .with_object_ref(object_ref)
+            .with_remediation("remove the unknown field or use customProperties for extensions");
+        diagnostic.id = crate::diagnostics::codes::UNKNOWN_FIELD.to_string();
+    } else if let Some(object_ref) = extract_serde_path(&message) {
+        diagnostic = diagnostic.with_object_ref(object_ref);
+    }
+
+    let mut report = DiagnosticReport::new();
+    emit(&mut report, diagnostic);
+    ParseResult {
+        contract: None,
+        report,
+    }
+}
+
+fn extract_unknown_field_ref(message: &str) -> Option<String> {
+    let marker = "unknown field `";
+    let start = message.find(marker)? + marker.len();
+    let rest = &message[start..];
+    let end = rest.find('`')?;
+    Some(rest[..end].to_string())
+}
+
+fn extract_serde_path(message: &str) -> Option<String> {
+    let marker = " at line ";
+    if !message.contains(marker) {
+        return None;
+    }
+    message
+        .split_whitespace()
+        .find(|token| token.contains('.'))
+        .map(|token| token.trim_end_matches(',').to_string())
 }
 
 /// Parse an ODCS document from a file path.
