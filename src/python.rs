@@ -115,6 +115,30 @@ fn inspect(py: Python<'_>, contract: &Bound<'_, PyAny>) -> PyResult<String> {
     Ok(inspect_contract(&contract))
 }
 
+/// Return the number of nested quality rules in a contract.
+#[pyfunction]
+fn quality_rules_count(py: Python<'_>, contract: &Bound<'_, PyAny>) -> PyResult<usize> {
+    let contract = contract_from_py(py, contract)?;
+    Ok(contract.quality_rules().len())
+}
+
+/// Return inspect summary fields as JSON-compatible dict.
+#[pyfunction]
+fn inspect_summary(py: Python<'_>, contract: &Bound<'_, PyAny>) -> PyResult<Py<PyAny>> {
+    let contract = contract_from_py(py, contract)?;
+    let summary = serde_json::json!({
+        "id": contract.id,
+        "name": contract.name,
+        "version": contract.version,
+        "apiVersion": contract.api_version,
+        "kind": contract.kind,
+        "status": contract.status,
+        "schemaCount": contract.schema.len(),
+        "qualityCount": contract.quality_rules().len(),
+    });
+    value_to_py(py, &summary)
+}
+
 /// Native extension module for the Python `pyodcs` package.
 #[pymodule]
 fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
@@ -124,5 +148,7 @@ fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(validate_contract, m)?)?;
     m.add_function(wrap_pyfunction!(validate_document, m)?)?;
     m.add_function(wrap_pyfunction!(inspect, m)?)?;
+    m.add_function(wrap_pyfunction!(quality_rules_count, m)?)?;
+    m.add_function(wrap_pyfunction!(inspect_summary, m)?)?;
     Ok(())
 }

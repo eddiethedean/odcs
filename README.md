@@ -4,7 +4,7 @@ Reference Rust implementation for the [Open Data Contract Standard](https://gith
 
 **Status:** Pre-release  
 **Upstream ODCS version:** 3.1.0  
-**Reference implementation:** 0.3.0 (Phase 2 & 3 — Canonical Object Model and Parsing)
+**Reference implementation:** 0.3.0 (Phase 2–3 complete; validation, CLI, Python bindings, and JSON Schema conformance baseline in progress)
 
 See [ROADMAP.md](ROADMAP.md) for milestone status.
 

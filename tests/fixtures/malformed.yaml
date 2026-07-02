@@ -1,1 +1,2 @@
-not: [valid: yaml
+version: "3.1.0"
+apiVersion: [unclosed

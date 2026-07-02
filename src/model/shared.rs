@@ -13,7 +13,7 @@ pub type Tags = Vec<String>;
 
 /// Custom property key/value pair.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct CustomProperty {
     /// Stable identifier.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -32,7 +32,7 @@ pub type CustomProperties = Vec<CustomProperty>;
 
 /// Link to an authoritative external definition.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct AuthoritativeDefinition {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub id: Option<StableId>,
@@ -48,7 +48,7 @@ pub type AuthoritativeDefinitions = Vec<AuthoritativeDefinition>;
 
 /// High-level contract description object at the document root.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct ContractDescription {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub usage: Option<String>,
@@ -64,7 +64,7 @@ pub struct ContractDescription {
 
 /// Common element metadata shared by schema objects and properties.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct SchemaElement {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub id: Option<StableId>,

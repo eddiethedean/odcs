@@ -1,0 +1,16 @@
+version: "3.1.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "array-items-contract"
+name: "array_items_contract"
+status: "active"
+
+schema:
+  - name: "customers"
+    logicalType: "object"
+    properties:
+      - name: "tags"
+        logicalType: "array"
+        items:
+          name: "tag"
+          logicalType: "string"

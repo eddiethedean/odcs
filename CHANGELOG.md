@@ -9,7 +9,7 @@ Phase 2 and Phase 3 milestone — full v3.1.0 Canonical Object Model and hardene
 - Root-level `quality` removed; quality checks belong under `schema[]`
 - Root `extensions` flatten removed; use `customProperties` arrays
 - Required root fields: `version`, `apiVersion`, `kind`, `id`, `status`
-- Unknown root fields are rejected at parse time (`deny_unknown_fields`)
+- Unknown root and nested fields are rejected at parse time (`deny_unknown_fields`)
 
 **Added:**
 
@@ -17,6 +17,17 @@ Phase 2 and Phase 3 milestone — full v3.1.0 Canonical Object Model and hardene
 - Parse diagnostics with object references and `odcs:unknown-field`
 - Section fixtures and YAML/JSON round-trip tests
 - Upstream `odcs-json-schema-v3.1.0.json` pinned in `tests/fixtures/`
+
+### Fixed
+
+- Relationship `type` field serde mapping and array `items` on schema properties
+- `DataQuality.implementation` accepts object values for custom rules
+- Nested `deny_unknown_fields` on document model types
+- Phase-based validation pipeline with required-field, quality, reference, and extension checks
+- `ParseResult::into_contract()` now rejects validation-invalid contracts
+- Python CLI exit codes, inspect JSON parity, and `schema` subcommand
+- JSON Schema conformance tests for valid fixtures
+- Documentation aligned with the `0.3.0` API and milestone status
 
 ## 0.2.0
 

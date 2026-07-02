@@ -13,11 +13,11 @@ The [upstream ODCS specification](https://github.com/bitol-io/open-data-contract
 | **1** | [Skeleton](#phase-1--skeleton) | Crate layout, CLI entry point, examples, tests | **Complete** (`0.1.0`) |
 | **2** | [Canonical Object Model](#phase-2--canonical-object-model) | ODCS sections as Rust types | **Complete** (`0.3.0`) |
 | **3** | [Parsing](#phase-3--parsing) | YAML and JSON parsing with diagnostics | **Complete** (`0.3.0`) |
-| **4** | [Diagnostics](#phase-4--diagnostics) | Structured diagnostics aligned with DTCS style | Planned |
-| **5** | [Validation](#phase-5--validation) | Phase-based validation pipeline | Planned |
-| **6** | [CLI](#phase-6--cli) | `validate`, `inspect`, `diagnostics`, `schema`, `version` | Planned |
-| **7** | [JSON Schema parity](#phase-7--json-schema-parity) | Conformance against official ODCS JSON Schema | Planned |
-| **8** | [Python bindings](#phase-8--python-bindings) | PyO3 bindings after Rust API stabilizes | Planned |
+| **4** | [Diagnostics](#phase-4--diagnostics) | Structured diagnostics aligned with DTCS style | **Largely complete** (`0.3.0`) |
+| **5** | [Validation](#phase-5--validation) | Phase-based validation pipeline | **In progress** (`0.3.0`) |
+| **6** | [CLI](#phase-6--cli) | `validate`, `inspect`, `diagnostics`, `schema`, `version` | **Largely complete** (`0.3.0`) |
+| **7** | [JSON Schema parity](#phase-7--json-schema-parity) | Conformance against official ODCS JSON Schema | **Baseline started** (`0.3.0`) |
+| **8** | [Python bindings](#phase-8--python-bindings) | PyO3 bindings after Rust API stabilizes | **Largely complete** (`0.3.0`) |
 
 ## Dependencies
 
@@ -76,31 +76,29 @@ Phase 1  Skeleton
 
 ## Phase 4 — Diagnostics
 
-Mirror DTCS diagnostic style:
+**Target:** `0.3.0` — **Largely complete**
 
-- identifier
-- severity
-- category
-- stage
-- message
-- object reference
-- remediation
+- [x] Structured `Diagnostic` records with id, severity, category, stage, message
+- [x] `object_ref` and `remediation` support
+- [x] Stable `odcs:` diagnostic codes
+- [x] CLI text and JSON output
 
 ## Phase 5 — Validation
 
-Implement validation phases:
+**Target:** `0.3.0` — **In progress**
 
-1. Document validation
-2. Canonical Object Model validation
-3. Structural validation
-4. Schema validation
-5. Quality validation
-6. Reference validation
-7. Extension validation
+- [x] Document validation (required root fields, version checks)
+- [x] Structural validation (version/apiVersion consistency)
+- [x] Schema validation (required schema/property names)
+- [x] Quality validation (library metrics, rule-type constraints)
+- [x] Reference validation (relationship endpoints)
+- [x] Extension validation (custom property keys)
+- [ ] `--strict` mode semantics
+- [ ] Deeper reference resolution
 
 ## Phase 6 — CLI
 
-Commands:
+**Target:** `0.3.0` — **Largely complete**
 
 ```bash
 odcs validate <path>
@@ -110,10 +108,24 @@ odcs schema
 odcs version
 ```
 
+- [x] Rust CLI with exit codes per `cli-spec.md`
+- [x] Python `pyodcs` CLI parity
+- [ ] Full `--strict` enforcement
+- [ ] JSON Schema export from `odcs schema`
+
 ## Phase 7 — JSON Schema parity
 
-Compare behavior against official ODCS JSON Schema examples and conformance fixtures.
+**Target:** `0.3.0` — **Baseline started**
+
+- [x] Pinned upstream schema fixture
+- [x] Conformance tests for valid section fixtures
+- [ ] Broader negative-case parity
+- [ ] Example corpus from upstream repository
 
 ## Phase 8 — Python bindings
 
-Add PyO3 bindings after the Rust API stabilizes.
+**Target:** `0.3.0` — **Largely complete**
+
+- [x] PyO3 bindings via maturin (`pyodcs._native`)
+- [x] Parse, validate, inspect helpers
+- [x] Python CLI

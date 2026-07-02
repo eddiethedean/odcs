@@ -10,7 +10,7 @@ pub type DataQualityChecks = Vec<DataQuality>;
 
 /// A single data quality rule.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct DataQuality {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub id: Option<StableId>,
@@ -56,7 +56,7 @@ pub struct DataQuality {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub engine: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub implementation: Option<String>,
+    pub implementation: Option<Value>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub must_be: Option<Value>,
     #[serde(default, skip_serializing_if = "Option::is_none")]

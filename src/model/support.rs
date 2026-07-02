@@ -6,7 +6,7 @@ use super::shared::{CustomProperties, StableId};
 
 /// A support channel entry.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct SupportItem {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub id: Option<StableId>,

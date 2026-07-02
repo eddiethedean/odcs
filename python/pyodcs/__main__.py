@@ -8,6 +8,31 @@ import sys
 from pathlib import Path
 
 from pyodcs import UPSTREAM_SPEC_VERSION, inspect, is_valid, parse_file, validate_result
+from pyodcs._native import inspect_summary as _inspect_summary
+
+PACKAGE_VERSION = "0.3.0"
+
+
+def _package_version() -> str:
+    try:
+        from importlib.metadata import version
+
+        return version("pyodcs")
+    except Exception:
+        return PACKAGE_VERSION
+
+
+def _has_parse_failure(report: dict) -> bool:
+    return any(
+        diagnostic.get("stage") == "parse"
+        for diagnostic in report.get("diagnostics", [])
+    )
+
+
+def _exit_code_for_report(report: dict) -> int:
+    if _has_parse_failure(report):
+        return 2
+    return 0 if is_valid(report) else 1
 
 
 def _render_report(report: dict, *, json_output: bool, mode: str) -> None:
@@ -27,9 +52,8 @@ def _render_report(report: dict, *, json_output: bool, mode: str) -> None:
     for diagnostic in diagnostics:
         severity = diagnostic.get("severity", "error")
         code = diagnostic.get("id", "odcs:unknown")
-        category = diagnostic.get("category", "syntax")
         message = diagnostic.get("message", "")
-        print(f"[{severity}] {code} ({category}) - {message}")
+        print(f"[{severity}] {code}: {message}")
         if object_ref := diagnostic.get("object_ref"):
             print(f"  at: {object_ref}")
         if remediation := diagnostic.get("remediation"):
@@ -49,6 +73,11 @@ def _build_parser() -> argparse.ArgumentParser:
     validate_parser = subparsers.add_parser("validate", help="Parse and validate a contract")
     validate_parser.add_argument("path", type=Path)
     validate_parser.add_argument("--json", action="store_true")
+    validate_parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="Enable strict validation (reserved for a future release)",
+    )
 
     inspect_parser = subparsers.add_parser("inspect", help="Print a contract summary")
     inspect_parser.add_argument("path", type=Path)
@@ -60,6 +89,9 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     diagnostics_parser.add_argument("path", type=Path)
     diagnostics_parser.add_argument("--json", action="store_true")
+
+    schema_parser = subparsers.add_parser("schema", help="Print upstream JSON Schema location")
+    schema_parser.add_argument("--json", action="store_true")
 
     version_parser = subparsers.add_parser("version", help="Print package versions")
     version_parser.add_argument("--json", action="store_true")
@@ -87,50 +119,60 @@ def main(argv: list[str] | None = None) -> int:
             print(f"upstream ODCS {UPSTREAM_SPEC_VERSION}")
         return 0
 
-    path = args.path
-    result = parse_file(str(path))
+    if args.command == "schema":
+        schema_url = "https://github.com/bitol-io/open-data-contract-standard"
+        json_output = getattr(args, "json", False)
+        if json_output:
+            print(
+                json.dumps(
+                    {
+                        "upstreamRepository": schema_url,
+                        "note": "JSON Schema export is planned for a future release",
+                    },
+                    indent=2,
+                )
+            )
+        else:
+            print(f"Upstream ODCS JSON Schema: {schema_url}")
+            print("(JSON Schema export planned)")
+        return 0
+
+    if getattr(args, "strict", False):
+        print(
+            "note: --strict validation is reserved for a future release",
+            file=sys.stderr,
+        )
+
+    try:
+        result = parse_file(str(args.path))
+    except (FileNotFoundError, OSError, ValueError) as error:
+        print(error, file=sys.stderr)
+        return 2
+
     report = validate_result(result)
 
     if args.command == "validate":
         _render_report(report, json_output=args.json, mode="validate")
-        return 0 if is_valid(report) else 1
+        return _exit_code_for_report(report)
 
     if args.command == "diagnostics":
         _render_report(report, json_output=args.json, mode="diagnostics")
-        return 0 if is_valid(report) else 1
+        return _exit_code_for_report(report)
 
-    if not is_valid(report):
+    if _has_parse_failure(report) or not is_valid(report):
         _render_report(report, json_output=args.json, mode="diagnostics")
-        return 1
+        return _exit_code_for_report(report)
 
     contract = result.get("contract")
     if contract is None:
         _render_report(report, json_output=args.json, mode="diagnostics")
-        return 1
+        return 2
 
     if args.json:
-        print(
-            json.dumps(
-                {
-                    "name": contract["name"],
-                    "version": contract["version"],
-                    "kind": contract["kind"],
-                    "status": contract["status"],
-                    "schemaCount": len(contract.get("schema", [])),
-                    "qualityCount": len(contract.get("quality", [])),
-                },
-                indent=2,
-            )
-        )
+        print(json.dumps(_inspect_summary(contract), indent=2))
     else:
         print(inspect(contract), end="")
     return 0
-
-
-def _package_version() -> str:
-    from importlib.metadata import version
-
-    return version("pyodcs")
 
 
 if __name__ == "__main__":

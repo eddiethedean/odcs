@@ -9,7 +9,7 @@ use super::shared::SchemaElement;
 
 /// A schema object describing a dataset within a data contract.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct SchemaObject {
     #[serde(flatten)]
     pub element: SchemaElement,
@@ -30,13 +30,16 @@ pub struct SchemaObject {
 
 /// A field definition within a schema object.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct SchemaProperty {
     #[serde(flatten)]
     pub element: SchemaElement,
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "is_false")]
     pub primary_key: bool,
-    #[serde(default = "default_negative_one")]
+    #[serde(
+        default = "default_negative_one",
+        skip_serializing_if = "is_default_position"
+    )]
     pub primary_key_position: i32,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub logical_type: Option<String>,
@@ -44,13 +47,16 @@ pub struct SchemaProperty {
     pub logical_type_options: Option<Value>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub physical_name: Option<String>,
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "is_false")]
     pub required: bool,
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "is_false")]
     pub unique: bool,
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "is_false")]
     pub partitioned: bool,
-    #[serde(default = "default_negative_one")]
+    #[serde(
+        default = "default_negative_one",
+        skip_serializing_if = "is_default_position"
+    )]
     pub partition_key_position: i32,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub classification: Option<String>,
@@ -64,7 +70,7 @@ pub struct SchemaProperty {
     pub transform_description: Option<String>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub examples: Vec<Value>,
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "is_false")]
     pub critical_data_element: bool,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub relationships: Vec<RelationshipPropertyLevel>,
@@ -72,10 +78,21 @@ pub struct SchemaProperty {
     pub quality: Option<DataQualityChecks>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub properties: Vec<SchemaProperty>,
+    /// Item schema for `logicalType: array` properties.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub items: Option<Box<SchemaProperty>>,
 }
 
 const fn default_negative_one() -> i32 {
     -1
+}
+
+fn is_false(value: &bool) -> bool {
+    !*value
+}
+
+fn is_default_position(value: &i32) -> bool {
+    *value == -1
 }
 
 impl SchemaObject {

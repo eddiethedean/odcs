@@ -1,0 +1,21 @@
+version: "3.1.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "custom-quality-contract"
+name: "custom_quality_contract"
+status: "active"
+
+schema:
+  - name: "customers"
+    logicalType: "object"
+    properties:
+      - name: "customer_id"
+        logicalType: "string"
+    quality:
+      - name: "soda_check"
+        type: "custom"
+        engine: "soda"
+        implementation:
+          checks:
+            - customers:
+                - row_count > 0

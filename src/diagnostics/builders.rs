@@ -25,12 +25,3 @@ pub(crate) fn validation_error(
 ) -> Diagnostic {
     stage_error(id, DiagnosticStage::Validation, category, message)
 }
-
-/// Convenience builder for Canonical Object Model stage errors.
-pub(crate) fn com_error(
-    id: &str,
-    category: DiagnosticCategory,
-    message: impl Into<String>,
-) -> Diagnostic {
-    stage_error(id, DiagnosticStage::CanonicalObjectModel, category, message)
-}

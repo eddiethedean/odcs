@@ -102,8 +102,12 @@ pub fn run(cli: Cli) -> i32 {
                 }
                 return 2;
             }
-            let mut report = result.report;
-            if let Some(ref contract) = result.contract {
+            let ParseResult {
+                contract,
+                report: parse_report,
+            } = result;
+            let mut report = parse_report;
+            if let Some(ref contract) = contract {
                 report.merge(crate::validate(contract));
             }
             if !report.is_valid() {
@@ -113,7 +117,7 @@ pub fn run(cli: Cli) -> i32 {
                 }
                 return 1;
             }
-            let Some(contract) = result.contract else {
+            let Some(contract) = contract else {
                 if let Err(error) = render_report(&report, json, ReportMode::Diagnostics) {
                     eprintln!("{error}");
                     return 2;
@@ -276,6 +280,12 @@ fn render_report(report: &DiagnosticReport, json: bool, mode: ReportMode) -> io:
             diagnostic.id,
             diagnostic.message
         )?;
+        if let Some(object_ref) = &diagnostic.object_ref {
+            writeln!(io::stdout(), "  at: {object_ref}")?;
+        }
+        if let Some(remediation) = &diagnostic.remediation {
+            writeln!(io::stdout(), "  hint: {remediation}")?;
+        }
     }
     Ok(())
 }

@@ -21,10 +21,19 @@ pub struct ParseResult {
 }
 
 impl ParseResult {
-    /// Returns the parsed contract when parsing succeeded without parse errors.
+    /// Returns the parsed contract when parsing and validation succeeded.
     pub fn into_contract(self) -> Result<DataContract, DiagnosticReport> {
         match (self.contract, self.report.is_valid()) {
-            (Some(contract), true) => Ok(contract),
+            (Some(contract), true) => {
+                let validation_report = crate::validate(&contract);
+                if validation_report.is_valid() {
+                    Ok(contract)
+                } else {
+                    let mut report = self.report;
+                    report.merge(validation_report);
+                    Err(report)
+                }
+            }
             (_, false) => Err(self.report),
             (None, true) => Err(self.report),
         }
@@ -76,25 +85,6 @@ pub(crate) fn success(contract: DataContract) -> ParseResult {
     ParseResult {
         contract: Some(contract),
         report: DiagnosticReport::new(),
-    }
-}
-
-/// Build a failed parse result with a diagnostic.
-#[allow(dead_code)]
-pub(crate) fn failure(code: &str, message: String) -> ParseResult {
-    let mut report = DiagnosticReport::new();
-    emit(
-        &mut report,
-        crate::diagnostics::Diagnostic::error(
-            code,
-            crate::diagnostics::DiagnosticCategory::Syntax,
-            crate::diagnostics::DiagnosticStage::Parse,
-            message,
-        ),
-    );
-    ParseResult {
-        contract: None,
-        report,
     }
 }
 

@@ -8,6 +8,8 @@ pub const PARSE_JSON: &str = "odcs:parse-json";
 pub const UNSUPPORTED_VERSION: &str = "odcs:unsupported-version";
 /// Missing required field.
 pub const MISSING_REQUIRED_FIELD: &str = "odcs:missing-required-field";
+/// Invalid document kind.
+pub const INVALID_KIND: &str = "odcs:invalid-kind";
 /// Invalid schema object.
 pub const INVALID_SCHEMA: &str = "odcs:invalid-schema";
 /// Invalid quality rule.

@@ -20,4 +20,5 @@ schema:
     quality:
       - name: "customer_id_not_null"
         type: "library"
-        metric: "not_null"
+        metric: "nullValues"
+        mustBe: 0

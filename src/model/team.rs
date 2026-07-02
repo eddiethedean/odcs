@@ -6,7 +6,7 @@ use super::shared::{AuthoritativeDefinitions, CustomProperties, StableId, Tags};
 
 /// Team member information.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct TeamMember {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub id: Option<StableId>,
@@ -33,7 +33,7 @@ pub struct TeamMember {
 
 /// Team information object (v3.1.0+).
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct Team {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub id: Option<StableId>,

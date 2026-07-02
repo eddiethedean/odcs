@@ -1,8 +1,8 @@
 # Diagnostics Guide
 
-Diagnostics should mirror DTCS style.
+Diagnostics mirror DTCS style.
 
-Suggested Rust types:
+Implemented Rust types in [`src/diagnostics/`](../../src/diagnostics/):
 
 ```rust
 pub enum Severity {
@@ -15,18 +15,35 @@ pub enum DiagnosticStage {
     Parse,
     CanonicalObjectModel,
     Validation,
+    Analysis,
+    Planning,
+    Compilation,
+    Runtime,
+}
+
+pub enum DiagnosticCategory {
+    Syntax,
+    Structure,
+    Type,
+    Reference,
+    Semantic,
     Compatibility,
+    Capability,
+    Runtime,
+    Extension,
 }
 
 pub struct Diagnostic {
     pub id: String,
     pub severity: Severity,
     pub stage: DiagnosticStage,
-    pub category: String,
+    pub category: DiagnosticCategory,
     pub message: String,
     pub object_ref: Option<String>,
     pub remediation: Option<String>,
 }
 ```
 
-Diagnostics should be stable enough for tests and CLI output.
+Standard diagnostic identifiers live in [`src/diagnostics/codes.rs`](../../src/diagnostics/codes.rs).
+
+Diagnostics are stable enough for tests and CLI output. The Rust and Python CLIs include `object_ref` and `remediation` in text output when present.

@@ -13,6 +13,8 @@ Phase 6 CLI polish (`--strict`, schema export) continues in later milestones.
 
 ## Phase 2 — Canonical Object Model
 
+**Status:** Complete (`0.3.0`).
+
 Model ODCS sections:
 
 - fundamentals
@@ -28,12 +30,16 @@ Model ODCS sections:
 
 ## Phase 3 — Parsing
 
+**Status:** Complete (`0.3.0`).
+
 - Parse YAML.
 - Parse JSON.
-- Preserve unknown extension fields.
+- Reject unknown fields at root and nested document objects.
 - Return structured errors and diagnostics.
 
 ## Phase 4 — Diagnostics
+
+**Status:** Largely complete (`0.3.0`).
 
 Mirror DTCS diagnostic style:
 
@@ -47,17 +53,22 @@ Mirror DTCS diagnostic style:
 
 ## Phase 5 — Validation
 
-Implement validation phases:
+**Status:** In progress (`0.3.0`).
+
+Implemented validation phases:
 
 1. Document validation
-2. Canonical Object Model validation
-3. Structural validation
-4. Schema validation
-5. Quality validation
-6. Reference validation
-7. Extension validation
+2. Structural validation
+3. Schema validation
+4. Quality validation
+5. Reference validation
+6. Extension validation
+
+Remaining: deeper semantic checks, `--strict` mode, and additional conformance coverage.
 
 ## Phase 6 — CLI
+
+**Status:** Largely complete (`0.3.0`).
 
 Commands:
 
@@ -69,10 +80,16 @@ odcs schema
 odcs version
 ```
 
-## Phase 7 — JSON Schema Parity
+`pyodcs` provides a matching Python CLI.
 
-Compare behavior against official ODCS JSON Schema examples.
+## Phase 7 — JSON Schema parity
 
-## Phase 8 — Python Bindings
+**Status:** Baseline started (`0.3.0`).
 
-Add PyO3 bindings after Rust API stabilizes.
+Conformance tests in [`tests/json_schema_conformance.rs`](../../tests/json_schema_conformance.rs) validate pinned fixtures against `tests/fixtures/odcs-json-schema-v3.1.0.json`.
+
+## Phase 8 — Python bindings
+
+**Status:** Largely complete (`0.3.0`).
+
+PyO3 bindings and the `pyodcs` package expose parse, validate, inspect, and CLI helpers.

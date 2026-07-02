@@ -42,6 +42,9 @@ name = "odcs"
 path = "src/bin/odcs.rs"
 required-features = ["cli"]
 
+[dev-dependencies]
+jsonschema = "0.29"
+
 [lints.rust]
 missing_docs = "warn"
 

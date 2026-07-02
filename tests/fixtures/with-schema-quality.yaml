@@ -15,7 +15,8 @@ schema:
         quality:
           - name: "customer_id_unique"
             type: "library"
-            metric: "unique"
+            metric: "duplicateValues"
+            mustBe: 0
             severity: "high"
       - name: "email"
         logicalType: "string"

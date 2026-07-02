@@ -7,7 +7,7 @@ use super::shared::StableId;
 
 /// A service level agreement property.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct ServiceLevelAgreementProperty {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub id: Option<StableId>,

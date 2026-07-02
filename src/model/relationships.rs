@@ -6,9 +6,9 @@ use super::shared::CustomProperties;
 
 /// Shared relationship fields.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct RelationshipBase {
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "type", default, skip_serializing_if = "Option::is_none")]
     pub relationship_type: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub custom_properties: Option<CustomProperties>,
@@ -16,7 +16,7 @@ pub struct RelationshipBase {
 
 /// Relationship at schema-object level.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct RelationshipSchemaLevel {
     #[serde(flatten)]
     pub base: RelationshipBase,
@@ -26,7 +26,7 @@ pub struct RelationshipSchemaLevel {
 
 /// Relationship at property level.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct RelationshipPropertyLevel {
     #[serde(flatten)]
     pub base: RelationshipBase,

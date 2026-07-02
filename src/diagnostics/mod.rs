@@ -16,7 +16,7 @@ pub use stage::DiagnosticStage;
 
 use crate::model::DataContract;
 
-pub(crate) use builders::{com_error, emit, validation_error};
+pub(crate) use builders::{emit, validation_error};
 
 /// Returns a short human-readable contract summary.
 #[must_use]

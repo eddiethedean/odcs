@@ -1,0 +1,10 @@
+version: "3.1.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "invalid-team-contract"
+name: "invalid_team_contract"
+status: "draft"
+
+team:
+  username: "asmith"
+  name: "Alex Smith"
