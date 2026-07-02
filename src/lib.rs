@@ -42,8 +42,8 @@ pub mod cli;
 mod python;
 
 pub use diagnostics::{
-    inspect_contract, Diagnostic, DiagnosticCategory, DiagnosticReport, DiagnosticStage, Severity,
-    ValidationReport,
+    codes, inspect_contract, Diagnostic, DiagnosticCategory, DiagnosticReport, DiagnosticStage,
+    Severity, ValidationReport,
 };
 pub use model::DataContract;
 pub use parser::{parse, parse_file, parse_json, parse_yaml, DocumentFormat, ParseResult};

@@ -5,19 +5,12 @@ from pathlib import Path
 import pyodcs
 
 PACKAGE_ROOT = Path(__file__).resolve().parent
-FIXTURES = PACKAGE_ROOT / "fixtures"
-REPO_FIXTURES = Path(__file__).resolve().parents[2] / "tests" / "fixtures"
+FIXTURES = Path(__file__).resolve().parents[2] / "tests" / "fixtures"
 EXAMPLE = Path(__file__).resolve().parents[2] / "examples" / "minimal.odcs.yaml"
 
 
-def _fixture_dir() -> Path:
-    if FIXTURES.exists():
-        return FIXTURES
-    return REPO_FIXTURES
-
-
 def _fixture(name: str) -> bytes:
-    return _fixture_dir().joinpath(name).read_bytes()
+    return FIXTURES.joinpath(name).read_bytes()
 
 
 def test_upstream_spec_version() -> None:

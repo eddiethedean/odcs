@@ -1,0 +1,4 @@
+version: "3.1.0"
+kind: "WrongKind"
+name: "invalid_kind_contract"
+status: "draft"

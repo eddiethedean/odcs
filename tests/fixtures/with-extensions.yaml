@@ -1,0 +1,7 @@
+version: "3.1.0"
+kind: "DataContract"
+name: "extended_contract"
+status: "draft"
+customDomain: "sales"
+metadata:
+  owner: "data-platform"

@@ -1,6 +1,12 @@
 //! ODCS validation pipeline.
 
+mod document;
+mod extensions;
 mod phases;
+mod quality;
+mod references;
+mod schema;
+mod structural;
 
 pub use phases::ValidationPhase;
 

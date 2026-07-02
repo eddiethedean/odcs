@@ -5,8 +5,8 @@ use std::path::PathBuf;
 
 use clap::{Parser, Subcommand};
 
-use crate::diagnostics::{inspect_contract, DiagnosticReport};
-use crate::parser::parse_file;
+use crate::diagnostics::{inspect_contract, DiagnosticReport, DiagnosticStage};
+use crate::parser::{parse_file, ParseResult};
 use crate::UPSTREAM_SPEC_VERSION;
 
 /// ODCS command-line tool.
@@ -32,7 +32,7 @@ pub enum Command {
         /// Emit JSON output.
         #[arg(long)]
         json: bool,
-        /// Enable strict validation (reserved).
+        /// Enable strict validation (reserved for Phase 5/6).
         #[arg(long)]
         strict: bool,
     },
@@ -67,34 +67,58 @@ pub enum Command {
 }
 
 /// Run the CLI application.
-pub fn run(cli: Cli) -> miette::Result<i32> {
+pub fn run(cli: Cli) -> i32 {
     match cli.command {
-        Command::Validate {
-            path,
-            json,
-            strict: _,
-        } => {
-            let result = parse_file(&path)?;
+        Command::Validate { path, json, strict } => {
+            if strict {
+                eprintln!("note: --strict validation is reserved for a future release");
+            }
+            let result = match parse_file(&path) {
+                Ok(result) => result,
+                Err(error) => {
+                    eprintln!("{error}");
+                    return 2;
+                }
+            };
             let report = result.validate();
-            render_report(&report, json, ReportMode::Validate)
-                .map_err(|e| miette::miette!("{e}"))?;
-            Ok(if report.is_valid() { 0 } else { 1 })
+            if let Err(error) = render_report(&report, json, ReportMode::Validate) {
+                eprintln!("{error}");
+                return 2;
+            }
+            exit_code_for_report(&report)
         }
         Command::Inspect { path, json } => {
-            let result = parse_file(&path)?;
+            let result = match parse_file(&path) {
+                Ok(result) => result,
+                Err(error) => {
+                    eprintln!("{error}");
+                    return 2;
+                }
+            };
+            if has_parse_failure(&result) {
+                if let Err(error) = render_report(&result.report, json, ReportMode::Diagnostics) {
+                    eprintln!("{error}");
+                    return 2;
+                }
+                return 2;
+            }
             let mut report = result.report;
             if let Some(ref contract) = result.contract {
                 report.merge(crate::validate(contract));
             }
             if !report.is_valid() {
-                render_report(&report, json, ReportMode::Diagnostics)
-                    .map_err(|e| miette::miette!("{e}"))?;
-                return Ok(1);
+                if let Err(error) = render_report(&report, json, ReportMode::Diagnostics) {
+                    eprintln!("{error}");
+                    return 2;
+                }
+                return 1;
             }
             let Some(contract) = result.contract else {
-                render_report(&report, json, ReportMode::Diagnostics)
-                    .map_err(|e| miette::miette!("{e}"))?;
-                return Ok(2);
+                if let Err(error) = render_report(&report, json, ReportMode::Diagnostics) {
+                    eprintln!("{error}");
+                    return 2;
+                }
+                return 2;
             };
             if json {
                 let summary = serde_json::json!({
@@ -105,28 +129,38 @@ pub fn run(cli: Cli) -> miette::Result<i32> {
                     "schemaCount": contract.schema.len(),
                     "qualityCount": contract.quality.len(),
                 });
-                writeln!(
+                if let Err(error) = writeln!(
                     io::stdout(),
                     "{}",
-                    serde_json::to_string_pretty(&summary).map_err(|e| miette::miette!("{e}"))?
-                )
-                .map_err(|e| miette::miette!("{e}"))?;
-            } else {
-                writeln!(io::stdout(), "{}", inspect_contract(&contract))
-                    .map_err(|e| miette::miette!("{e}"))?;
+                    serde_json::to_string_pretty(&summary).unwrap_or_else(|e| e.to_string())
+                ) {
+                    eprintln!("{error}");
+                    return 2;
+                }
+            } else if let Err(error) = writeln!(io::stdout(), "{}", inspect_contract(&contract)) {
+                eprintln!("{error}");
+                return 2;
             }
-            Ok(0)
+            0
         }
         Command::Diagnostics { path, json } => {
-            let result = parse_file(&path)?;
+            let result = match parse_file(&path) {
+                Ok(result) => result,
+                Err(error) => {
+                    eprintln!("{error}");
+                    return 2;
+                }
+            };
             let report = result.validate();
-            render_report(&report, json, ReportMode::Diagnostics)
-                .map_err(|e| miette::miette!("{e}"))?;
-            Ok(if report.is_valid() { 0 } else { 1 })
+            if let Err(error) = render_report(&report, json, ReportMode::Diagnostics) {
+                eprintln!("{error}");
+                return 2;
+            }
+            exit_code_for_report(&report)
         }
         Command::Schema { json } => {
             let schema_url = "https://github.com/bitol-io/open-data-contract-standard";
-            if json {
+            let write_result = if json {
                 let payload = serde_json::json!({
                     "upstreamRepository": schema_url,
                     "note": "JSON Schema export is planned for a future release",
@@ -134,20 +168,21 @@ pub fn run(cli: Cli) -> miette::Result<i32> {
                 writeln!(
                     io::stdout(),
                     "{}",
-                    serde_json::to_string_pretty(&payload).map_err(|e| miette::miette!("{e}"))?
+                    serde_json::to_string_pretty(&payload).unwrap_or_else(|e| e.to_string())
                 )
-                .map_err(|e| miette::miette!("{e}"))?;
             } else {
                 writeln!(
                     io::stdout(),
                     "Upstream ODCS JSON Schema: {schema_url}\n(JSON Schema export planned)"
                 )
-                .map_err(|e| miette::miette!("{e}"))?;
+            };
+            if write_result.is_err() {
+                return 2;
             }
-            Ok(0)
+            0
         }
         Command::Version { json } => {
-            if json {
+            let write_result = if json {
                 let payload = serde_json::json!({
                     "crateVersion": env!("CARGO_PKG_VERSION"),
                     "upstreamSpecVersion": UPSTREAM_SPEC_VERSION,
@@ -155,9 +190,8 @@ pub fn run(cli: Cli) -> miette::Result<i32> {
                 writeln!(
                     io::stdout(),
                     "{}",
-                    serde_json::to_string_pretty(&payload).map_err(|e| miette::miette!("{e}"))?
+                    serde_json::to_string_pretty(&payload).unwrap_or_else(|e| e.to_string())
                 )
-                .map_err(|e| miette::miette!("{e}"))?;
             } else {
                 writeln!(
                     io::stdout(),
@@ -165,9 +199,11 @@ pub fn run(cli: Cli) -> miette::Result<i32> {
                     env!("CARGO_PKG_VERSION"),
                     UPSTREAM_SPEC_VERSION
                 )
-                .map_err(|e| miette::miette!("{e}"))?;
+            };
+            if write_result.is_err() {
+                return 2;
             }
-            Ok(0)
+            0
         }
     }
 }
@@ -176,6 +212,30 @@ pub fn run(cli: Cli) -> miette::Result<i32> {
 enum ReportMode {
     Validate,
     Diagnostics,
+}
+
+fn has_parse_failure(result: &ParseResult) -> bool {
+    result.contract.is_none()
+        || result
+            .report
+            .diagnostics
+            .iter()
+            .any(|d| d.stage == DiagnosticStage::Parse)
+}
+
+fn exit_code_for_report(report: &DiagnosticReport) -> i32 {
+    if report
+        .diagnostics
+        .iter()
+        .any(|d| d.stage == DiagnosticStage::Parse)
+    {
+        return 2;
+    }
+    if report.is_valid() {
+        0
+    } else {
+        1
+    }
 }
 
 fn render_report(report: &DiagnosticReport, json: bool, mode: ReportMode) -> io::Result<()> {

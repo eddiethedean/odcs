@@ -10,7 +10,7 @@ The [upstream ODCS specification](https://github.com/bitol-io/open-data-contract
 
 | Phase | Name | Focus | Status |
 |-------|------|-------|--------|
-| **1** | [Skeleton](#phase-1--skeleton) | Crate layout, CLI entry point, examples, tests | **In progress** (`0.1.0`) |
+| **1** | [Skeleton](#phase-1--skeleton) | Crate layout, CLI entry point, examples, tests | **Complete** (`0.1.0`) |
 | **2** | [Canonical Object Model](#phase-2--canonical-object-model) | ODCS sections as Rust types | Planned |
 | **3** | [Parsing](#phase-3--parsing) | YAML and JSON parsing with extension preservation | Planned |
 | **4** | [Diagnostics](#phase-4--diagnostics) | Structured diagnostics aligned with DTCS style | Planned |
@@ -43,13 +43,15 @@ Phase 1  Skeleton
 
 ## Phase 1 — Skeleton
 
-**Target:** `0.1.0`
+**Target:** `0.1.0` — **Complete**
 
 - [x] Repository layout aligned with DTCS conventions
-- [x] Rust crate with module skeleton
-- [x] CLI entry point (`odcs version`)
-- [x] Basic YAML parsing for minimal contracts
-- [x] Examples and test fixtures
+- [x] Rust crate with full module skeleton per `crate-layout.md`
+- [x] CLI entry point with `validate`, `inspect`, `diagnostics`, `schema`, and `version`
+- [x] Basic YAML and JSON parsing for minimal contracts
+- [x] Examples and expanded test fixtures (valid, invalid, malformed, extensions)
+- [x] Integration and CLI test coverage
+- [x] CLI exit codes aligned with `cli-spec.md` (0 valid, 1 validation, 2 parse/IO)
 - [x] CI pipeline (fmt, clippy, test)
 
 ## Phase 2 — Canonical Object Model

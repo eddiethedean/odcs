@@ -2,10 +2,14 @@
 
 ## Phase 1 — Skeleton
 
+**Status:** Complete (`0.1.0`).
+
 - Create Rust crate.
-- Add `src` module layout.
+- Add `src` module layout (including stubs for Phase 2+ modules).
 - Add CLI entry point.
 - Add examples and tests folders.
+
+Phase 6 CLI polish (`--strict`, schema export) continues in later milestones.
 
 ## Phase 2 — Canonical Object Model
 

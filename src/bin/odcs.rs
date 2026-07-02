@@ -3,10 +3,9 @@
 use clap::Parser;
 use odcs::cli::{run, Cli};
 
-fn main() -> miette::Result<()> {
-    let code = run(Cli::parse())?;
+fn main() {
+    let code = run(Cli::parse());
     if code != 0 {
         std::process::exit(code);
     }
-    Ok(())
 }

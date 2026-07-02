@@ -1,0 +1,33 @@
+{
+  "version": "3.1.0",
+  "kind": "DataContract",
+  "name": "customer_data_contract",
+  "status": "draft",
+  "schema": [
+    {
+      "name": "customers",
+      "physicalName": "customers",
+      "properties": [
+        {
+          "name": "customer_id",
+          "logicalType": "string",
+          "required": true,
+          "unique": true
+        },
+        {
+          "name": "email",
+          "logicalType": "string",
+          "required": false
+        }
+      ]
+    }
+  ],
+  "quality": [
+    {
+      "name": "customer_id_not_null",
+      "type": "library",
+      "rule": "not_null",
+      "field": "customer_id"
+    }
+  ]
+}
