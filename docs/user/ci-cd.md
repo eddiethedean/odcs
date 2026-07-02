@@ -102,5 +102,5 @@ Requires `odcs` on `PATH` (`cargo install odcs`).
 ## Notes
 
 - Since 0.4.0, `--strict` is a deprecated no-op — JSON Schema validation always runs in `validate()`.
-- Pin the tool version in CI for reproducibility: `cargo install odcs --version 0.4.0 --locked`.
+- Pin the tool version in CI for reproducibility: `cargo install odcs --version 0.5.0 --locked`.
 - See [diagnostics.md](diagnostics.md) for routing on `odcs:*` error codes.

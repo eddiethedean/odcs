@@ -139,7 +139,7 @@ pub(crate) fn failure_from_serde(code: &str, error: impl std::fmt::Display) -> P
     }
 }
 
-pub(crate) fn failure_duplicate_key(key: String) -> ParseResult {
+pub(crate) fn failure_duplicate_key(finding: duplicate_keys::DuplicateKeyFinding) -> ParseResult {
     let mut report = DiagnosticReport::new();
     emit(
         &mut report,
@@ -147,9 +147,9 @@ pub(crate) fn failure_duplicate_key(key: String) -> ParseResult {
             codes::DUPLICATE_KEY,
             DiagnosticCategory::Syntax,
             DiagnosticStage::Parse,
-            format!("duplicate key '{key}' in document"),
+            format!("duplicate key '{}' in document", finding.key),
         )
-        .with_object_ref(key)
+        .with_object_ref(finding.object_ref)
         .with_remediation("remove duplicate keys so each field appears once"),
     );
     ParseResult {

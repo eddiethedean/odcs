@@ -22,7 +22,7 @@ CODES = _diagnostic_codes()
 try:
     __version__ = version("pyodcs")
 except PackageNotFoundError:
-    __version__ = "0.4.0"
+    __version__ = "0.5.0"
 
 
 def parse(content: str | bytes, format: str = "yaml") -> dict:

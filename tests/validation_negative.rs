@@ -147,20 +147,48 @@ fn rejects_invalid_stable_id() {
 fn rejects_yaml_duplicate_root_key() {
     let report = parse_fixture("invalid-duplicate-key.yaml").report;
     assert!(!report.is_valid());
-    assert!(report
+    let diagnostic = report
         .diagnostics
         .iter()
-        .any(|d| d.id == codes::DUPLICATE_KEY));
+        .find(|d| d.id == codes::DUPLICATE_KEY)
+        .expect("duplicate key diagnostic");
+    assert_eq!(diagnostic.object_ref.as_deref(), Some("id"));
 }
 
 #[test]
 fn rejects_json_duplicate_key() {
     let report = parse_fixture("invalid-duplicate-key.json").report;
     assert!(!report.is_valid());
-    assert!(report
+    let diagnostic = report
         .diagnostics
         .iter()
-        .any(|d| d.id == codes::DUPLICATE_KEY));
+        .find(|d| d.id == codes::DUPLICATE_KEY)
+        .expect("duplicate key diagnostic");
+    assert_eq!(diagnostic.object_ref.as_deref(), Some("id"));
+}
+
+#[test]
+fn rejects_yaml_nested_duplicate_key() {
+    let report = parse_fixture("invalid-nested-duplicate-key.yaml").report;
+    assert!(!report.is_valid());
+    let diagnostic = report
+        .diagnostics
+        .iter()
+        .find(|d| d.id == codes::DUPLICATE_KEY)
+        .expect("duplicate key diagnostic");
+    assert_eq!(diagnostic.object_ref.as_deref(), Some("schema[0].name"));
+}
+
+#[test]
+fn rejects_json_nested_duplicate_key() {
+    let report = parse_fixture("invalid-nested-duplicate-key.json").report;
+    assert!(!report.is_valid());
+    let diagnostic = report
+        .diagnostics
+        .iter()
+        .find(|d| d.id == codes::DUPLICATE_KEY)
+        .expect("duplicate key diagnostic");
+    assert_eq!(diagnostic.object_ref.as_deref(), Some("schema[0].name"));
 }
 
 #[test]

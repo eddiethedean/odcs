@@ -71,6 +71,21 @@ fn cli_validate_parse_failure_exits_2() {
 }
 
 #[test]
+fn cli_validate_duplicate_key_exits_2() {
+    let path = fixture("invalid-nested-duplicate-key.yaml");
+    let output = odcs_bin()
+        .arg("validate")
+        .arg(&path)
+        .output()
+        .expect("run cli");
+    assert_eq!(output.status.code(), Some(2));
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let combined = format!("{stderr}{stdout}");
+    assert!(combined.contains("duplicate key"));
+}
+
+#[test]
 fn cli_inspect_parse_failure_exits_2() {
     let path = fixture("malformed.yaml");
     let output = odcs_bin()

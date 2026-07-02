@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.5.0 — 2026-07-02
+
+Parser hardening release — nested duplicate-key detection for YAML and JSON.
+
+**Added:**
+
+- Nested YAML duplicate-key detection via `unsafe-libyaml` event walk before `serde_yaml` deserialization
+- `DuplicateKeyFinding` with path-aware `object_ref` (e.g. `schema[0].name`) for JSON and YAML parse errors
+- Explicit `unsafe-libyaml = "0.2.11"` dependency
+- Fixtures and tests: `invalid-nested-duplicate-key.yaml` / `.json`; CLI exit code `2` for duplicate-key parse failures
+
+**Changed:**
+
+- `odcs:duplicate-key` diagnostics now use dotted paths for nested duplicates (root keys unchanged, e.g. `id`)
+- JSON duplicate-key detection reports path-aware `object_ref` (aligned with YAML)
+
 ## 0.4.0 — 2026-07-02
 
 Spec parity and validation maturity release — default validation is schema-complete for ODCS v3.1.0.

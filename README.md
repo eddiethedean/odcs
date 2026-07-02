@@ -14,7 +14,7 @@ Use this repository if you want to:
 - parse contracts into a typed object model (Rust or Python)
 - get structured diagnostics with stable `odcs:*` error codes
 
-**Status:** Alpha pre-1.0 (`0.4.0`) — schema-complete default validation for ODCS v3.1.0; see [ROADMAP.md](ROADMAP.md) and the [documentation](https://odcs.readthedocs.io/).
+**Status:** Alpha pre-1.0 (`0.5.0`) — schema-complete default validation for ODCS v3.1.0; see [ROADMAP.md](ROADMAP.md) and the [documentation](https://odcs.readthedocs.io/).
 
 > This repository implements the standard; it is not the ODCS specification itself.
 

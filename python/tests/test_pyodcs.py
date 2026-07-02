@@ -18,7 +18,7 @@ def _fixture(name: str) -> bytes:
 
 def test_upstream_spec_version() -> None:
     assert pyodcs.UPSTREAM_SPEC_VERSION == "3.1.0"
-    assert pyodcs.__version__ == "0.4.0"
+    assert pyodcs.__version__ == "0.5.0"
     assert pyodcs.CODES["INVALID_KIND"] == "odcs:invalid-kind"
 
 
@@ -195,6 +195,15 @@ def test_invalid_json_schema_fixture_fails_default_validation() -> None:
     assert contract is not None
     report = pyodcs.validate(contract)
     assert not pyodcs.is_valid(report)
+
+
+def test_parse_rejects_nested_yaml_duplicate_key() -> None:
+    result = pyodcs.parse(_fixture("invalid-nested-duplicate-key.yaml"), "yaml")
+    assert not pyodcs.is_valid(result["report"])
+    assert any(
+        diagnostic.get("id") == pyodcs.CODES["DUPLICATE_KEY"]
+        for diagnostic in result["report"]["diagnostics"]
+    )
 
 
 def test_pinned_schema_export() -> None:

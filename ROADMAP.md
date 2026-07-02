@@ -18,7 +18,7 @@ The [upstream ODCS specification](https://github.com/bitol-io/open-data-contract
 | **6** | [CLI](#phase-6--cli) | `validate`, `inspect`, `diagnostics`, `schema`, `version` | **Complete** (`0.4.0`) |
 | **7** | [JSON Schema parity](#phase-7--json-schema-parity) | Conformance against official ODCS JSON Schema | **Complete** (`0.4.0`) |
 | **8** | [Python bindings](#phase-8--python-bindings) | PyO3 bindings after Rust API stabilizes | **Complete** (`0.4.0`) |
-| **9** | [Parser hardening](#phase-9--parser-hardening) | Nested YAML duplicate-key detection | Planned (`0.5.0`) |
+| **9** | [Parser hardening](#phase-9--parser-hardening) | Nested YAML duplicate-key detection | **Complete** (`0.5.0`) |
 | **10** | [Diagnostics metadata](#phase-10--diagnostics-metadata) | `validationPhase` on validation diagnostics | Planned (`0.5.0`) |
 | **11** | [Structural validation](#phase-11--structural-validation) | Cross-field rules in `structural.rs` | Planned (`0.5.0`) |
 | **12** | [Section semantics](#phase-12--section-semantics) | Roles, SLA, pricing, support validators | Planned (`0.6.0`) |
@@ -179,11 +179,11 @@ odcs version
 
 ## Future milestones (0.5+)
 
-Phases 1–8 deliver schema-complete ODCS v3.1.0 document parsing and validation. Phases 9–16 deepen correctness, observability, multi-document workflows, and ecosystem tooling on the path to `1.0.0`.
+Phases 1–9 deliver schema-complete ODCS v3.1.0 document parsing and validation, including nested duplicate-key detection. Phases 10–16 deepen observability, multi-document workflows, and ecosystem tooling on the path to `1.0.0`.
 
 | Release | Phases | Theme |
 |---------|--------|-------|
-| `0.5.0` | 9, 10, 11 | Parser correctness, diagnostic metadata, cross-field validation |
+| `0.5.0` | 9 ✓, 10, 11 | Parser correctness, diagnostic metadata, cross-field validation |
 | `0.6.0` | 12, 13 | Section semantics, multi-document reference resolution |
 | `0.7.0` | 14 | Contract evolution and compatibility reporting |
 | `0.8.0` | 15 | Local registry and discovery |
@@ -195,24 +195,24 @@ Out of scope for this repository (see [docs/implementation/non-goals.md](docs/im
 
 ## Phase 9 — Parser hardening
 
-**Target:** `0.5.0` — **Planned**
+**Target:** `0.5.0` — **Complete**
 
 **Goal:** Detect duplicate keys at any YAML nesting depth before serde deserialization, matching JSON behavior in [`src/parser/duplicate_keys.rs`](src/parser/duplicate_keys.rs).
 
-**Context:** [`src/parser/yaml.rs`](src/parser/yaml.rs) calls `find_yaml_root_duplicate_key` only. Nested duplicates are silently overwritten by `serde_yaml` and never reported. JSON already uses a recursive `DupeDetectVisitor`.
+**Context:** Implemented via `find_yaml_duplicate_key` using an `unsafe-libyaml` event walk (pre-`serde_yaml` deserialize). JSON uses `DupeDetectVisitor` with a path stack. Both return `DuplicateKeyFinding { key, object_ref }` (e.g. `schema[0].name`). Flow-style mappings and YAML anchors/aliases remain out of scope.
 
 **Deliverables:**
 
-- [ ] Extend [`src/parser/duplicate_keys.rs`](src/parser/duplicate_keys.rs) with nested YAML duplicate-key detection (pre-parse pass; path-aware, not root-line heuristic)
-- [ ] Invoke nested check from [`src/parser/yaml.rs`](src/parser/yaml.rs) before `serde_path_to_error::deserialize`
-- [ ] Emit `odcs:duplicate-key` via existing `failure_duplicate_key` helper with dotted `object_ref` paths (e.g. `schema[0].properties[1].name`)
-- [ ] Fixtures: `tests/fixtures/invalid-nested-duplicate-key.yaml` (+ JSON control fixture proving parity)
-- [ ] Tests in [`tests/skeleton.rs`](tests/skeleton.rs) or dedicated parser tests; exit code `2` via CLI
-- [ ] Python/CLI parity (no binding changes expected — parse errors surface through existing path)
+- [x] Extend [`src/parser/duplicate_keys.rs`](src/parser/duplicate_keys.rs) with nested YAML duplicate-key detection (`unsafe-libyaml` event walk; path-aware)
+- [x] Invoke nested check from [`src/parser/yaml.rs`](src/parser/yaml.rs) before `serde_path_to_error::deserialize`
+- [x] Emit `odcs:duplicate-key` via `failure_duplicate_key` with dotted `object_ref` paths (e.g. `schema[0].name`)
+- [x] Fixtures: [`tests/fixtures/invalid-nested-duplicate-key.yaml`](tests/fixtures/invalid-nested-duplicate-key.yaml) and [`.json`](tests/fixtures/invalid-nested-duplicate-key.json)
+- [x] Tests in [`tests/validation_negative.rs`](tests/validation_negative.rs); CLI exit code `2` in [`tests/cli.rs`](tests/cli.rs)
+- [x] Python parse test in [`python/tests/test_pyodcs.py`](python/tests/test_pyodcs.py); explicit `unsafe-libyaml = "0.2.11"` in [`Cargo.toml`](Cargo.toml)
 
-**Out of scope:** Duplicate keys inside YAML flow scalars or anchors/aliases (document if unsupported).
+**Out of scope:** Duplicate keys inside YAML flow scalars or anchors/aliases (documented in module).
 
-**Done when:** Nested YAML duplicate keys fail parse with `odcs:duplicate-key` and a non-root `object_ref`; CI green.
+**Done when:** Nested YAML duplicate keys fail parse with `odcs:duplicate-key` and a non-root `object_ref`; CI green. ✓
 
 ---
 

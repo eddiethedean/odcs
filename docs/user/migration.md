@@ -2,6 +2,18 @@
 
 This guide covers breaking changes between major pre-1.0 releases of `odcs` and `pyodcs`.
 
+## 0.4.x → 0.5.0
+
+### Nested duplicate keys fail parse
+
+**Before (0.4.x):** Duplicate YAML keys at nested depths were silently overwritten by `serde_yaml` and never reported. JSON duplicate keys reported `object_ref` as the bare key name only.
+
+**After (0.5.0):** Duplicate mapping keys at any depth fail parse with `odcs:duplicate-key` and a path-style `object_ref` (e.g. `schema[0].name`). JSON nested duplicates use the same path format.
+
+**Action:** If CI previously accepted YAML contracts with nested duplicate keys, fix those contracts or expect parse failures (exit code `2`).
+
+No API removals or changes to validation semantics for well-formed documents.
+
 ## 0.3.x → 0.4.0
 
 ### JSON Schema validation is always on

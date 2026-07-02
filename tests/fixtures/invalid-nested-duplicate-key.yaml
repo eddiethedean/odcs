@@ -1,0 +1,11 @@
+version: "1.0.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "nested-dup"
+status: "draft"
+schema:
+  - name: customers
+    name: duplicate
+    properties:
+      - name: customer_id
+        logicalType: string
