@@ -5,7 +5,9 @@ use std::sync::OnceLock;
 
 use regex::Regex;
 
-use crate::diagnostics::{codes, emit, validation_error, DiagnosticCategory, DiagnosticReport};
+use crate::diagnostics::{
+    codes, emit, validation_error, DiagnosticCategory, DiagnosticReport, ValidationPhase,
+};
 use crate::model::{DataContract, RelationshipEndpoint, RelationshipSchemaLevel, SchemaProperty};
 
 fn shorthand_reference_regex() -> &'static Regex {
@@ -117,6 +119,7 @@ fn validate_endpoint(
         emit(
             report,
             validation_error(
+                ValidationPhase::References,
                 codes::UNRESOLVED_REFERENCE,
                 DiagnosticCategory::Reference,
                 "relationship endpoint must not be empty",
@@ -131,6 +134,7 @@ fn validate_endpoint(
             emit(
                 report,
                 validation_error(
+                    ValidationPhase::References,
                     codes::UNRESOLVED_REFERENCE,
                     DiagnosticCategory::Reference,
                     format!("relationship endpoint '{value}' is not a valid reference format"),
@@ -144,6 +148,7 @@ fn validate_endpoint(
             emit(
                 report,
                 validation_error(
+                    ValidationPhase::References,
                     codes::UNRESOLVED_REFERENCE,
                     DiagnosticCategory::Reference,
                     format!("relationship endpoint '{value}' does not resolve to a known schema object and property"),
@@ -171,6 +176,7 @@ fn validate_relationship_type(
         emit(
             report,
             validation_error(
+                ValidationPhase::References,
                 codes::UNRESOLVED_REFERENCE,
                 DiagnosticCategory::Reference,
                 format!(
@@ -196,6 +202,7 @@ fn validate_composite_parity(
             emit(
                 report,
                 validation_error(
+                    ValidationPhase::References,
                     codes::UNRESOLVED_REFERENCE,
                     DiagnosticCategory::Reference,
                     format!(

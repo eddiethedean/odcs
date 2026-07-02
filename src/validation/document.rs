@@ -1,6 +1,8 @@
 //! Document-level validation.
 
-use crate::diagnostics::{codes, emit, validation_error, DiagnosticCategory, DiagnosticReport};
+use crate::diagnostics::{
+    codes, emit, validation_error, DiagnosticCategory, DiagnosticReport, ValidationPhase,
+};
 use crate::model::DataContract;
 
 /// Validate document-level constraints.
@@ -12,6 +14,7 @@ pub fn validate(contract: &DataContract) -> DiagnosticReport {
         emit(
             &mut report,
             validation_error(
+                ValidationPhase::Document,
                 codes::MISSING_REQUIRED_FIELD,
                 DiagnosticCategory::Structure,
                 "contract version must not be empty",
@@ -24,6 +27,7 @@ pub fn validate(contract: &DataContract) -> DiagnosticReport {
         emit(
             &mut report,
             validation_error(
+                ValidationPhase::Document,
                 codes::MISSING_REQUIRED_FIELD,
                 DiagnosticCategory::Structure,
                 "contract apiVersion must not be empty",
@@ -34,6 +38,7 @@ pub fn validate(contract: &DataContract) -> DiagnosticReport {
         emit(
             &mut report,
             validation_error(
+                ValidationPhase::Document,
                 codes::UNSUPPORTED_VERSION,
                 DiagnosticCategory::Compatibility,
                 format!(
@@ -51,6 +56,7 @@ pub fn validate(contract: &DataContract) -> DiagnosticReport {
         emit(
             &mut report,
             validation_error(
+                ValidationPhase::Document,
                 codes::MISSING_REQUIRED_FIELD,
                 DiagnosticCategory::Structure,
                 "contract id must not be empty",
@@ -63,6 +69,7 @@ pub fn validate(contract: &DataContract) -> DiagnosticReport {
         emit(
             &mut report,
             validation_error(
+                ValidationPhase::Document,
                 codes::MISSING_REQUIRED_FIELD,
                 DiagnosticCategory::Structure,
                 "contract status must not be empty",
@@ -75,6 +82,7 @@ pub fn validate(contract: &DataContract) -> DiagnosticReport {
         emit(
             &mut report,
             validation_error(
+                ValidationPhase::Document,
                 codes::MISSING_REQUIRED_FIELD,
                 DiagnosticCategory::Structure,
                 "contract kind must not be empty",
@@ -85,6 +93,7 @@ pub fn validate(contract: &DataContract) -> DiagnosticReport {
         emit(
             &mut report,
             validation_error(
+                ValidationPhase::Document,
                 codes::INVALID_KIND,
                 DiagnosticCategory::Structure,
                 format!("expected kind 'DataContract', got '{}'", contract.kind),

@@ -5,7 +5,9 @@ use std::sync::OnceLock;
 use jsonschema::Validator;
 use serde_json::Value;
 
-use crate::diagnostics::{codes, emit, validation_error, DiagnosticCategory, DiagnosticReport};
+use crate::diagnostics::{
+    codes, emit, validation_error, DiagnosticCategory, DiagnosticReport, ValidationPhase,
+};
 use crate::model::DataContract;
 use crate::schema;
 
@@ -27,6 +29,7 @@ pub fn validate(contract: &DataContract) -> DiagnosticReport {
             emit(
                 &mut report,
                 validation_error(
+                    ValidationPhase::JsonSchema,
                     codes::JSON_SCHEMA_VIOLATION,
                     DiagnosticCategory::Structure,
                     format!("failed to serialize contract for JSON Schema validation: {error}"),
@@ -49,6 +52,7 @@ fn validate_instance(report: &mut DiagnosticReport, instance: &Value) {
             Some(object_ref)
         };
         let mut diagnostic = validation_error(
+            ValidationPhase::JsonSchema,
             codes::JSON_SCHEMA_VIOLATION,
             DiagnosticCategory::Structure,
             error.to_string(),

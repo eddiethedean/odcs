@@ -13,7 +13,7 @@ use crate::diagnostics::inspect_contract;
 use crate::model::DataContract;
 use crate::parser::{parse, parse_file, DocumentFormat, ParseResult};
 use crate::schema;
-use crate::validation::{validate_with_options, ValidationOptions};
+use crate::validation::{validate_with_options, ValidationOptions, ValidationPhase};
 
 fn value_to_py(py: Python<'_>, value: &impl Serialize) -> PyResult<Py<PyAny>> {
     let json = serde_json::to_string(value)
@@ -236,6 +236,23 @@ fn diagnostic_codes(py: Python<'_>) -> PyResult<Py<PyAny>> {
     Ok(dict.into())
 }
 
+/// Return validation pipeline phase name constants.
+#[pyfunction]
+fn validation_phases(py: Python<'_>) -> PyResult<Py<PyAny>> {
+    let dict = PyDict::new(py);
+    dict.set_item("DOCUMENT", ValidationPhase::Document.as_str())?;
+    dict.set_item("STRUCTURAL", ValidationPhase::Structural.as_str())?;
+    dict.set_item("SCHEMA", ValidationPhase::Schema.as_str())?;
+    dict.set_item("QUALITY", ValidationPhase::Quality.as_str())?;
+    dict.set_item("REFERENCES", ValidationPhase::References.as_str())?;
+    dict.set_item("EXTENSIONS", ValidationPhase::Extensions.as_str())?;
+    dict.set_item("SERVERS", ValidationPhase::Servers.as_str())?;
+    dict.set_item("SECTIONS", ValidationPhase::Sections.as_str())?;
+    dict.set_item("IDS", ValidationPhase::Ids.as_str())?;
+    dict.set_item("JSON_SCHEMA", ValidationPhase::JsonSchema.as_str())?;
+    Ok(dict.into())
+}
+
 /// Native extension module for the Python `pyodcs` package.
 #[pymodule]
 fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
@@ -246,6 +263,7 @@ fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(validate_document, m)?)?;
     m.add_function(wrap_pyfunction!(pinned_schema, m)?)?;
     m.add_function(wrap_pyfunction!(diagnostic_codes, m)?)?;
+    m.add_function(wrap_pyfunction!(validation_phases, m)?)?;
     m.add_function(wrap_pyfunction!(inspect, m)?)?;
     m.add_function(wrap_pyfunction!(quality_rules_count, m)?)?;
     m.add_function(wrap_pyfunction!(inspect_summary, m)?)?;

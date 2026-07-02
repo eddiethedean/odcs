@@ -5,6 +5,7 @@ from __future__ import annotations
 from importlib.metadata import PackageNotFoundError, version
 
 from pyodcs._native import diagnostic_codes as _diagnostic_codes
+from pyodcs._native import validation_phases as _validation_phases
 from pyodcs._native import inspect as _inspect
 from pyodcs._native import inspect_summary as _inspect_summary
 from pyodcs._native import parse_document as _parse_document
@@ -18,11 +19,12 @@ from pyodcs._native import validate_document as _validate_document
 UPSTREAM_SPEC_VERSION = _upstream_spec_version()
 UPSTREAM_REPOSITORY_URL = "https://github.com/bitol-io/open-data-contract-standard"
 CODES = _diagnostic_codes()
+VALIDATION_PHASES = _validation_phases()
 
 try:
     __version__ = version("pyodcs")
 except PackageNotFoundError:
-    __version__ = "0.5.0"
+    __version__ = "0.6.0"
 
 
 def parse(content: str | bytes, format: str = "yaml") -> dict:

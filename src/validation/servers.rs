@@ -3,7 +3,9 @@
 use indexmap::IndexMap;
 use serde_json::Value;
 
-use crate::diagnostics::{codes, emit, validation_error, DiagnosticCategory, DiagnosticReport};
+use crate::diagnostics::{
+    codes, emit, validation_error, DiagnosticCategory, DiagnosticReport, ValidationPhase,
+};
 use crate::model::{DataContract, Server};
 
 const SERVER_TYPES: &[&str] = &[
@@ -80,6 +82,7 @@ fn validate_server_entry(report: &mut DiagnosticReport, server: &Server, object_
         emit(
             report,
             validation_error(
+                ValidationPhase::Servers,
                 codes::MISSING_REQUIRED_FIELD,
                 DiagnosticCategory::Structure,
                 "server entry requires a non-empty server name",
@@ -92,6 +95,7 @@ fn validate_server_entry(report: &mut DiagnosticReport, server: &Server, object_
         emit(
             report,
             validation_error(
+                ValidationPhase::Servers,
                 codes::MISSING_REQUIRED_FIELD,
                 DiagnosticCategory::Structure,
                 "server entry requires a type",
@@ -106,6 +110,7 @@ fn validate_server_entry(report: &mut DiagnosticReport, server: &Server, object_
         emit(
             report,
             validation_error(
+                ValidationPhase::Servers,
                 codes::MISSING_REQUIRED_FIELD,
                 DiagnosticCategory::Structure,
                 "server entry requires a non-empty type",
@@ -116,6 +121,7 @@ fn validate_server_entry(report: &mut DiagnosticReport, server: &Server, object_
         emit(
             report,
             validation_error(
+                ValidationPhase::Servers,
                 codes::INVALID_SCHEMA,
                 DiagnosticCategory::Structure,
                 format!(
@@ -171,6 +177,7 @@ fn require_fields(
             emit(
                 report,
                 validation_error(
+                    ValidationPhase::Servers,
                     codes::MISSING_REQUIRED_FIELD,
                     DiagnosticCategory::Structure,
                     format!("{object_ref} requires field '{field}' for this server type"),
@@ -197,6 +204,7 @@ fn validate_details_keys(
             emit(
                 report,
                 validation_error(
+                    ValidationPhase::Servers,
                     codes::UNKNOWN_FIELD,
                     DiagnosticCategory::Structure,
                     format!(
@@ -214,6 +222,7 @@ fn validate_details_keys(
                 emit(
                     report,
                     validation_error(
+                        ValidationPhase::Servers,
                         codes::UNKNOWN_FIELD,
                         DiagnosticCategory::Structure,
                         format!("unknown server property '{key}' for this server type"),

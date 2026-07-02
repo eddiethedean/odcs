@@ -1,7 +1,7 @@
 # Installation
 
 !!! tip "Version"
-    Current release is **0.5.0** on `main`. Published registries update when tag `v0.5.0` is pushed. See [Release status](../project/release-status.md).
+    Current release is **0.6.0** on `main`. Published registries update when tag `v0.6.0` is pushed. See [Release status](../project/release-status.md).
 
 ## Prerequisites
 
@@ -110,7 +110,7 @@ Only `.yaml`, `.yml`, and `.json` are supported. Rename your file or convert the
 
 ### Validation fails on a contract that worked in 0.2.x
 
-Version 0.5.0 adds nested YAML duplicate-key detection. Version 0.4.0 makes default validation schema-complete. Version 0.3.0 enforces stricter parsing (`deny_unknown_fields`, nested quality). See [migration.md](migration.md), [CHANGELOG.md](../../CHANGELOG.md), and [Troubleshooting](troubleshooting.md).
+Version 0.6.0 adds `validationPhase` metadata on validation diagnostics. Version 0.5.0 adds nested YAML duplicate-key detection. Version 0.4.0 makes default validation schema-complete. Version 0.3.0 enforces stricter parsing (`deny_unknown_fields`, nested quality). See [migration.md](migration.md), [CHANGELOG.md](../../CHANGELOG.md), and [Troubleshooting](troubleshooting.md).
 
 ### `~/.cargo/bin` not on PATH (WSL, macOS, Linux)
 

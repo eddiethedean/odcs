@@ -6,13 +6,13 @@ Diagnostics are structured error and warning records emitted during parsing and 
 
 ```json
 {
-  "id": "odcs:missing-required-field",
+  "id": "odcs:invalid-kind",
   "severity": "error",
-  "stage": "parse",
+  "stage": "validation",
   "category": "structure",
-  "message": "contract id must not be empty",
-  "object_ref": "id",
-  "remediation": null
+  "message": "expected kind 'DataContract', got 'WrongKind'",
+  "object_ref": "kind",
+  "validationPhase": "document"
 }
 ```
 
@@ -25,6 +25,7 @@ Diagnostics are structured error and warning records emitted during parsing and 
 | `message` | Human-readable description |
 | `object_ref` | JSON-path-style reference to the affected field (when known) |
 | `remediation` | Suggested fix (when practical) |
+| `validationPhase` | Validation pipeline phase (since 0.6.0); present on validation-stage diagnostics only |
 
 A report is **valid** when it contains no `error`-severity diagnostics.
 
@@ -66,6 +67,29 @@ A report is **valid** when it contains no `error`-severity diagnostics.
 | `reference` | Relationship and reference integrity |
 | `extension` | Custom property validation |
 
+## Validation phases (0.6.0+)
+
+When `stage` is `validation`, diagnostics include `validationPhase` identifying which validator produced the error. Parse-stage diagnostics omit this field.
+
+| `validationPhase` | Validator module | Typical checks |
+|-------------------|------------------|----------------|
+| `document` | Document | Required root fields, `apiVersion`, `kind` |
+| `structural` | Structural | Cross-field rules (reserved) |
+| `schema` | Schema | Schema names, `logicalType`, array/object shape |
+| `quality` | Quality | Rule types, metrics, dimensions |
+| `references` | References | Relationship endpoints |
+| `extensions` | Extensions | Custom properties, authoritative definitions |
+| `servers` | Servers | Server name, `type`, detail fields |
+| `sections` | Sections | Team, roles, support, SLA |
+| `ids` | IDs | StableId patterns |
+| `jsonSchema` | JSON Schema | Pinned ODCS v3.1.0 schema |
+
+Filter in CI:
+
+```bash
+odcs validate contract.yaml --json | jq '.diagnostics[] | select(.validationPhase == "quality")'
+```
+
 ## Examples
 
 ### Unknown nested field
@@ -76,11 +100,20 @@ A report is **valid** when it contains no `error`-severity diagnostics.
   hint: remove the unknown field or use customProperties for extensions
 ```
 
+### Invalid kind
+
+```text
+[error] odcs:invalid-kind: expected kind 'DataContract', got 'WrongKind'
+  at: kind
+  phase: document
+```
+
 ### Unsupported apiVersion
 
 ```text
 [error] odcs:unsupported-version: unsupported ODCS apiVersion 'v9.9.9'; supported: ["v3.1.0"]
   at: apiVersion
+  phase: document
   hint: set apiVersion to a supported ODCS release
 ```
 
@@ -110,7 +143,8 @@ odcs validate contract.yaml --json
       "stage": "validation",
       "category": "structure",
       "message": "expected kind 'DataContract', got 'WrongKind'",
-      "object_ref": "kind"
+      "object_ref": "kind",
+      "validationPhase": "document"
     }
   ]
 }

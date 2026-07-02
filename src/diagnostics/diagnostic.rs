@@ -1,6 +1,6 @@
 //! A single diagnostic message.
 
-use super::{DiagnosticCategory, DiagnosticStage, Severity};
+use super::{DiagnosticCategory, DiagnosticStage, Severity, ValidationPhase};
 
 /// A spec-level diagnostic record.
 #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
@@ -21,6 +21,9 @@ pub struct Diagnostic {
     /// Suggested remediation, when practical.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub remediation: Option<String>,
+    /// Validation pipeline phase that produced this diagnostic.
+    #[serde(rename = "validationPhase", skip_serializing_if = "Option::is_none")]
+    pub validation_phase: Option<ValidationPhase>,
 }
 
 impl Diagnostic {
@@ -41,6 +44,7 @@ impl Diagnostic {
             message: message.into(),
             object_ref: None,
             remediation: None,
+            validation_phase: None,
         }
     }
 
@@ -66,6 +70,13 @@ impl Diagnostic {
     #[must_use]
     pub fn with_remediation(mut self, remediation: impl Into<String>) -> Self {
         self.remediation = Some(remediation.into());
+        self
+    }
+
+    /// Sets the validation pipeline phase.
+    #[must_use]
+    pub fn with_validation_phase(mut self, phase: ValidationPhase) -> Self {
+        self.validation_phase = Some(phase);
         self
     }
 }

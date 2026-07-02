@@ -2,6 +2,16 @@
 
 This guide covers breaking changes between major pre-1.0 releases of `odcs` and `pyodcs`.
 
+## 0.5.x → 0.6.0
+
+### `validationPhase` on validation diagnostics
+
+**Before (0.5.x):** Validation diagnostics included `stage: validation` but no pipeline phase metadata.
+
+**After (0.6.0):** Every validation-stage diagnostic includes `validationPhase` (camelCase JSON) identifying the validator module (`document`, `schema`, `quality`, `jsonSchema`, …). Parse-stage diagnostics omit the field. CLI text output adds a `phase:` line when set.
+
+**Action:** CI filters that relied on parsing `message` text can use `validationPhase` instead. Python consumers can use `pyodcs.VALIDATION_PHASES`. No changes required for well-formed contracts; diagnostic `id` values are unchanged.
+
 ## 0.4.x → 0.5.0
 
 ### Nested duplicate keys fail parse

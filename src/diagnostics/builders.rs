@@ -1,6 +1,8 @@
 //! Convenience builders for diagnostics at specific processing stages.
 
-use super::{Diagnostic, DiagnosticCategory, DiagnosticReport, DiagnosticStage, Severity};
+use super::{
+    Diagnostic, DiagnosticCategory, DiagnosticReport, DiagnosticStage, Severity, ValidationPhase,
+};
 
 /// Emit a diagnostic into a report.
 pub(crate) fn emit(report: &mut DiagnosticReport, diagnostic: Diagnostic) {
@@ -19,9 +21,10 @@ pub(crate) fn stage_error(
 
 /// Convenience builder for validation-stage errors.
 pub(crate) fn validation_error(
+    phase: ValidationPhase,
     id: &str,
     category: DiagnosticCategory,
     message: impl Into<String>,
 ) -> Diagnostic {
-    stage_error(id, DiagnosticStage::Validation, category, message)
+    stage_error(id, DiagnosticStage::Validation, category, message).with_validation_phase(phase)
 }

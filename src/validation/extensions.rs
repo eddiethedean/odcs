@@ -2,7 +2,9 @@
 
 use std::collections::HashSet;
 
-use crate::diagnostics::{codes, emit, validation_error, DiagnosticCategory, DiagnosticReport};
+use crate::diagnostics::{
+    codes, emit, validation_error, DiagnosticCategory, DiagnosticReport, ValidationPhase,
+};
 use crate::model::{CustomProperties, DataContract, DataQuality, SchemaProperty, Server};
 
 /// Validate extension and custom property constraints.
@@ -30,6 +32,7 @@ pub fn validate(contract: &DataContract) -> DiagnosticReport {
                 emit(
                     &mut report,
                     validation_error(
+                        ValidationPhase::Extensions,
                         codes::MISSING_REQUIRED_FIELD,
                         DiagnosticCategory::Structure,
                         "authoritative definition url must not be empty",
@@ -41,6 +44,7 @@ pub fn validate(contract: &DataContract) -> DiagnosticReport {
                 emit(
                     &mut report,
                     validation_error(
+                        ValidationPhase::Extensions,
                         codes::MISSING_REQUIRED_FIELD,
                         DiagnosticCategory::Structure,
                         "authoritative definition type must not be empty",
@@ -85,6 +89,7 @@ pub fn validate(contract: &DataContract) -> DiagnosticReport {
             emit(
                 &mut report,
                 validation_error(
+                    ValidationPhase::Extensions,
                     codes::MISSING_REQUIRED_FIELD,
                     DiagnosticCategory::Structure,
                     "role name must not be empty",
@@ -133,6 +138,7 @@ pub fn validate(contract: &DataContract) -> DiagnosticReport {
                 emit(
                     &mut report,
                     validation_error(
+                        ValidationPhase::Extensions,
                         codes::MISSING_REQUIRED_FIELD,
                         DiagnosticCategory::Structure,
                         "support channel must not be empty",
@@ -148,6 +154,7 @@ pub fn validate(contract: &DataContract) -> DiagnosticReport {
             emit(
                 &mut report,
                 validation_error(
+                    ValidationPhase::Extensions,
                     codes::MISSING_REQUIRED_FIELD,
                     DiagnosticCategory::Structure,
                     "sla property name must not be empty",
@@ -235,6 +242,7 @@ fn validate_custom_properties(
             emit(
                 report,
                 validation_error(
+                    ValidationPhase::Extensions,
                     codes::INVALID_EXTENSION,
                     DiagnosticCategory::Extension,
                     "custom property key must not be empty",
@@ -247,6 +255,7 @@ fn validate_custom_properties(
             emit(
                 report,
                 validation_error(
+                    ValidationPhase::Extensions,
                     codes::INVALID_EXTENSION,
                     DiagnosticCategory::Extension,
                     format!("duplicate custom property key '{}'", property.property),

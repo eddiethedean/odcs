@@ -1,7 +1,9 @@
 //! Quality rule validation.
 
 use super::helpers::{is_blank, is_empty_value, is_known_rule_type, normalized_rule_type};
-use crate::diagnostics::{codes, emit, validation_error, DiagnosticCategory, DiagnosticReport};
+use crate::diagnostics::{
+    codes, emit, validation_error, DiagnosticCategory, DiagnosticReport, ValidationPhase,
+};
 use crate::model::{DataContract, DataQuality, SchemaProperty};
 
 const LIBRARY_METRICS: &[&str] = &[
@@ -75,6 +77,7 @@ fn validate_rule(report: &mut DiagnosticReport, rule: &DataQuality, object_ref: 
             emit(
                 report,
                 validation_error(
+                    ValidationPhase::Quality,
                     codes::INVALID_QUALITY,
                     DiagnosticCategory::Semantic,
                     format!(
@@ -92,6 +95,7 @@ fn validate_rule(report: &mut DiagnosticReport, rule: &DataQuality, object_ref: 
             emit(
                 report,
                 validation_error(
+                ValidationPhase::Quality,
                     codes::INVALID_QUALITY,
                     DiagnosticCategory::Semantic,
                     format!(
@@ -125,6 +129,7 @@ fn validate_library_rule(report: &mut DiagnosticReport, rule: &DataQuality, obje
             emit(
                 report,
                 validation_error(
+                    ValidationPhase::Quality,
                     codes::INVALID_QUALITY,
                     DiagnosticCategory::Semantic,
                     format!(
@@ -141,6 +146,7 @@ fn validate_library_rule(report: &mut DiagnosticReport, rule: &DataQuality, obje
             emit(
                 report,
                 validation_error(
+                ValidationPhase::Quality,
                     codes::INVALID_QUALITY,
                     DiagnosticCategory::Semantic,
                     format!(
@@ -154,6 +160,7 @@ fn validate_library_rule(report: &mut DiagnosticReport, rule: &DataQuality, obje
             emit(
                 report,
                 validation_error(
+                    ValidationPhase::Quality,
                     codes::INVALID_QUALITY,
                     DiagnosticCategory::Semantic,
                     "library quality rules require metric; deprecated rule field is not sufficient",
@@ -166,6 +173,7 @@ fn validate_library_rule(report: &mut DiagnosticReport, rule: &DataQuality, obje
         emit(
             report,
             validation_error(
+                ValidationPhase::Quality,
                 codes::INVALID_QUALITY,
                 DiagnosticCategory::Semantic,
                 "library quality rules require metric",
@@ -178,6 +186,7 @@ fn validate_library_rule(report: &mut DiagnosticReport, rule: &DataQuality, obje
         emit(
             report,
             validation_error(
+                ValidationPhase::Quality,
                 codes::INVALID_QUALITY,
                 DiagnosticCategory::Semantic,
                 "library quality rules require a comparison operator (mustBe, mustBeGreaterThan, mustBeBetween, etc.)",
@@ -203,6 +212,7 @@ fn validate_custom_rule(report: &mut DiagnosticReport, rule: &DataQuality, objec
         emit(
             report,
             validation_error(
+                ValidationPhase::Quality,
                 codes::INVALID_QUALITY,
                 DiagnosticCategory::Semantic,
                 "custom quality rules require a non-empty engine",
@@ -214,6 +224,7 @@ fn validate_custom_rule(report: &mut DiagnosticReport, rule: &DataQuality, objec
         emit(
             report,
             validation_error(
+                ValidationPhase::Quality,
                 codes::INVALID_QUALITY,
                 DiagnosticCategory::Semantic,
                 "custom quality rules require a non-empty implementation",
@@ -228,6 +239,7 @@ fn validate_sql_rule(report: &mut DiagnosticReport, rule: &DataQuality, object_r
         emit(
             report,
             validation_error(
+                ValidationPhase::Quality,
                 codes::INVALID_QUALITY,
                 DiagnosticCategory::Semantic,
                 "sql quality rules require a non-empty query",
@@ -262,6 +274,7 @@ fn validate_between_range(report: &mut DiagnosticReport, values: Option<&[f64]>,
         emit(
             report,
             validation_error(
+                ValidationPhase::Quality,
                 codes::INVALID_QUALITY,
                 DiagnosticCategory::Semantic,
                 format!(
@@ -277,6 +290,7 @@ fn validate_between_range(report: &mut DiagnosticReport, values: Option<&[f64]>,
         emit(
             report,
             validation_error(
+                ValidationPhase::Quality,
                 codes::INVALID_QUALITY,
                 DiagnosticCategory::Semantic,
                 "range constraint minimum must be less than or equal to maximum",

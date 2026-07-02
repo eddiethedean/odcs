@@ -1,6 +1,8 @@
 //! Schema object and property validation.
 
-use crate::diagnostics::{codes, emit, validation_error, DiagnosticCategory, DiagnosticReport};
+use crate::diagnostics::{
+    codes, emit, validation_error, DiagnosticCategory, DiagnosticReport, ValidationPhase,
+};
 use crate::model::{DataContract, SchemaObject, SchemaProperty};
 
 const SCHEMA_OBJECT_LOGICAL_TYPES: &[&str] = &["object"];
@@ -40,6 +42,7 @@ fn validate_schema_object(report: &mut DiagnosticReport, schema: &SchemaObject, 
         emit(
             report,
             validation_error(
+                ValidationPhase::Schema,
                 codes::INVALID_SCHEMA,
                 DiagnosticCategory::Structure,
                 "schema object name must not be empty",
@@ -53,6 +56,7 @@ fn validate_schema_object(report: &mut DiagnosticReport, schema: &SchemaObject, 
             emit(
                 report,
                 validation_error(
+                    ValidationPhase::Schema,
                     codes::INVALID_SCHEMA,
                     DiagnosticCategory::Structure,
                     format!(
@@ -80,6 +84,7 @@ fn validate_properties(report: &mut DiagnosticReport, properties: &[SchemaProper
             emit(
                 report,
                 validation_error(
+                    ValidationPhase::Schema,
                     codes::INVALID_SCHEMA,
                     DiagnosticCategory::Structure,
                     "schema property name must not be empty",
@@ -93,6 +98,7 @@ fn validate_properties(report: &mut DiagnosticReport, properties: &[SchemaProper
                 emit(
                     report,
                     validation_error(
+                ValidationPhase::Schema,
                         codes::INVALID_SCHEMA,
                         DiagnosticCategory::Structure,
                         format!(
@@ -109,6 +115,7 @@ fn validate_properties(report: &mut DiagnosticReport, properties: &[SchemaProper
             emit(
                 report,
                 validation_error(
+                    ValidationPhase::Schema,
                     codes::INVALID_SCHEMA,
                     DiagnosticCategory::Structure,
                     "array properties require an items schema",
@@ -121,6 +128,7 @@ fn validate_properties(report: &mut DiagnosticReport, properties: &[SchemaProper
             emit(
                 report,
                 validation_error(
+                    ValidationPhase::Schema,
                     codes::INVALID_SCHEMA,
                     DiagnosticCategory::Structure,
                     "object properties require at least one nested property",

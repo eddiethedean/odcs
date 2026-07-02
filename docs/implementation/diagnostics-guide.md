@@ -41,8 +41,11 @@ pub struct Diagnostic {
     pub message: String,
     pub object_ref: Option<String>,
     pub remediation: Option<String>,
+    pub validation_phase: Option<ValidationPhase>, // JSON: validationPhase
 }
 ```
+
+Validation-stage diagnostics are built with `validation_error(phase, id, category, message)`, which sets `stage: Validation` and `validation_phase: Some(phase)`. Parse-stage diagnostics omit `validationPhase`.
 
 Standard diagnostic identifiers live in [`src/diagnostics/codes.rs`](../../src/diagnostics/codes.rs).
 

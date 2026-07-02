@@ -292,6 +292,9 @@ fn render_report(report: &DiagnosticReport, json: bool, mode: ReportMode) -> io:
         if let Some(object_ref) = &diagnostic.object_ref {
             writeln!(io::stdout(), "  at: {object_ref}")?;
         }
+        if let Some(phase) = diagnostic.validation_phase {
+            writeln!(io::stdout(), "  phase: {phase}")?;
+        }
         if let Some(remediation) = &diagnostic.remediation {
             writeln!(io::stdout(), "  hint: {remediation}")?;
         }

@@ -1,6 +1,8 @@
 //! Section-level validation for team, roles, and related structures.
 
-use crate::diagnostics::{codes, emit, validation_error, DiagnosticCategory, DiagnosticReport};
+use crate::diagnostics::{
+    codes, emit, validation_error, DiagnosticCategory, DiagnosticReport, ValidationPhase,
+};
 use crate::model::{DataContract, TeamDeclaration};
 
 /// Validate non-root document sections.
@@ -23,6 +25,7 @@ fn validate_team(report: &mut DiagnosticReport, team: &TeamDeclaration) {
                     emit(
                         report,
                         validation_error(
+                            ValidationPhase::Sections,
                             codes::MISSING_REQUIRED_FIELD,
                             DiagnosticCategory::Structure,
                             "team member username must not be empty",
@@ -38,6 +41,7 @@ fn validate_team(report: &mut DiagnosticReport, team: &TeamDeclaration) {
                     emit(
                         report,
                         validation_error(
+                            ValidationPhase::Sections,
                             codes::MISSING_REQUIRED_FIELD,
                             DiagnosticCategory::Structure,
                             "team member username must not be empty",

@@ -18,8 +18,8 @@ See [Non-goals](../implementation/non-goals.md).
 | Attribute | Status |
 |-----------|--------|
 | Release stage | **Pre-1.0 Alpha** |
-| Current tree version | 0.5.0 on `main` |
-| Latest published (crates.io / PyPI) | 0.4.0 until `v0.5.0` tag — see [Release status](../project/release-status.md) |
+| Current tree version | 0.6.0 on `main` |
+| Latest published (crates.io / PyPI) | 0.5.0 until `v0.6.0` tag — see [Release status](../project/release-status.md) |
 | ODCS spec target | v3.1.0 (`apiVersion: "v3.1.0"`) |
 | Default validation | Schema-complete for ODCS v3.1.0 (JSON Schema + Rust validators) |
 
@@ -61,8 +61,8 @@ Pin versions in CI for reproducibility. See [CI/CD integration](ci-cd.md).
 
 | Planned (not yet shipped) | Target |
 |---------------------------|--------|
-| `validationPhase` on diagnostics | 0.6.0 |
-| Cross-field structural validation | 0.6.0 |
+| `validationPhase` on diagnostics | 0.6.0 ✓ |
+| Cross-field structural validation | 0.7.0 |
 | Contract registry module | 0.8.0+ |
 | Compatibility analysis | 0.7.0 |
 

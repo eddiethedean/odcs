@@ -17,6 +17,7 @@ pyodcs.__version__                # package version
 pyodcs.UPSTREAM_SPEC_VERSION      # "3.1.0"
 pyodcs.UPSTREAM_REPOSITORY_URL    # upstream ODCS GitHub URL
 pyodcs.CODES                      # dict of diagnostic code constants
+pyodcs.VALIDATION_PHASES          # dict of validation phase name constants (since 0.6.0)
 ```
 
 ### `CODES`
@@ -28,6 +29,17 @@ pyodcs.CODES["INVALID_KIND"]  # "odcs:invalid-kind"
 ```
 
 See [diagnostics.md](diagnostics.md) for when each code fires.
+
+### `VALIDATION_PHASES`
+
+Maps short names to `validationPhase` JSON values (metadata, not error codes):
+
+```python
+pyodcs.VALIDATION_PHASES["DOCUMENT"]     # "document"
+pyodcs.VALIDATION_PHASES["JSON_SCHEMA"]  # "jsonSchema"
+```
+
+Validation reports include `validationPhase` on each validation-stage diagnostic. Parse-stage diagnostics omit the field.
 
 For choosing between `parse_and_validate`, `parse`, and `validate_result`, see [API decision guide](api-guide.md).
 
@@ -214,6 +226,7 @@ if not pyodcs.is_valid(report):
 | `parse_and_validate()` | `parse_and_validate()` |
 | `validate(strict=True)` | `validate_strict()` (deprecated no-op since 0.4.0) |
 | `diagnostic_codes()` / `CODES` | Diagnostic code constants |
+| `validation_phases()` / `VALIDATION_PHASES` | Validation phase name constants (since 0.6.0) |
 | `pinned_schema()` | `odcs schema` |
 
 See also [cli.md](cli.md) and [diagnostics.md](diagnostics.md).

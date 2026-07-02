@@ -1,6 +1,6 @@
 # Crate Layout
 
-Current layout (as of 0.5.0):
+Current layout (as of 0.6.0):
 
 ```text
 odcs/
@@ -58,6 +58,7 @@ odcs/
       report.rs
       codes.rs
       builders.rs
+      validation_phase.rs
 
     compatibility/
       mod.rs             # stub

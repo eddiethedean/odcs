@@ -15,7 +15,7 @@ Validation is deterministic and phase-based. The `validate()` function in [`src/
 | IDs | `ids.rs` | StableId patterns |
 | JSON Schema | `json_schema.rs` | Pinned ODCS v3.1.0 schema (always runs in 0.4.0+) |
 
-`ValidationPhase` in [`src/validation/phases.rs`](../../src/validation/phases.rs) identifies phases for future extension.
+`ValidationPhase` in [`src/diagnostics/validation_phase.rs`](../../src/diagnostics/validation_phase.rs) identifies the validator that produced each validation diagnostic. Since 0.6.0, every validation-stage diagnostic includes `validationPhase` in JSON and CLI output.
 
 ## Return type
 

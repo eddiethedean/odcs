@@ -66,7 +66,7 @@ Validation failures use stage `validation` (CLI exit code `1`).
 | `diagnostics/codes.rs` | Stable `odcs:*` identifiers |
 | `diagnostics/inspect.rs` | Contract summary for CLI/API |
 
-Each diagnostic may include `object_ref` (dotted path or JSON pointer) and `remediation`.
+Each diagnostic may include `object_ref` (dotted path or JSON pointer), `remediation`, and since 0.6.0 `validationPhase` (validation-stage only).
 
 ## Python binding boundary
 

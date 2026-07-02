@@ -19,8 +19,34 @@ def _fixture(name: str) -> bytes:
 
 def test_upstream_spec_version() -> None:
     assert pyodcs.UPSTREAM_SPEC_VERSION == "3.1.0"
-    assert pyodcs.__version__ == "0.5.0"
+    assert pyodcs.__version__ == "0.6.0"
     assert pyodcs.CODES["INVALID_KIND"] == "odcs:invalid-kind"
+
+
+def test_validation_phases_constants() -> None:
+    assert pyodcs.VALIDATION_PHASES["DOCUMENT"] == "document"
+    assert pyodcs.VALIDATION_PHASES["JSON_SCHEMA"] == "jsonSchema"
+
+
+def test_validation_diagnostics_include_validation_phase() -> None:
+    report = pyodcs.parse_and_validate(_fixture("invalid-kind.yaml"), "yaml")
+    validation_diagnostics = [
+        diagnostic
+        for diagnostic in report["diagnostics"]
+        if diagnostic.get("stage") == "validation"
+    ]
+    assert validation_diagnostics
+    assert all("validationPhase" in diagnostic for diagnostic in validation_diagnostics)
+    assert any(
+        diagnostic.get("validationPhase") == pyodcs.VALIDATION_PHASES["DOCUMENT"]
+        for diagnostic in validation_diagnostics
+    )
+
+
+def test_parse_diagnostics_omit_validation_phase() -> None:
+    result = pyodcs.parse(_fixture("invalid-nested-duplicate-key.yaml"), "yaml")
+    for diagnostic in result["report"]["diagnostics"]:
+        assert "validationPhase" not in diagnostic
 
 
 def test_parse_valid_yaml_fixture() -> None:

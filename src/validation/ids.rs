@@ -1,6 +1,8 @@
 //! Stable identifier validation.
 
-use crate::diagnostics::{codes, emit, validation_error, DiagnosticCategory, DiagnosticReport};
+use crate::diagnostics::{
+    codes, emit, validation_error, DiagnosticCategory, DiagnosticReport, ValidationPhase,
+};
 use crate::model::{DataContract, SchemaProperty, StableId, TeamDeclaration};
 
 fn is_valid_stable_id(value: &str) -> bool {
@@ -15,6 +17,7 @@ fn validate_stable_id(report: &mut DiagnosticReport, id: &StableId, object_ref: 
         emit(
             report,
             validation_error(
+                ValidationPhase::Ids,
                 codes::INVALID_EXTENSION,
                 DiagnosticCategory::Extension,
                 format!("stable id '{}' contains invalid characters", id.0),
@@ -44,6 +47,7 @@ pub fn validate(contract: &DataContract) -> DiagnosticReport {
         emit(
             &mut report,
             validation_error(
+                ValidationPhase::Ids,
                 codes::INVALID_EXTENSION,
                 DiagnosticCategory::Extension,
                 format!("contract id '{}' contains invalid characters", contract.id),

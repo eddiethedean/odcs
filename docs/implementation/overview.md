@@ -9,7 +9,7 @@ See the canonical documentation index at [Home](../index.md).
 
 **User documentation** (install, CLI, Rust, Python API) lives in [User guides](../user/getting-started.md).
 
-*Last reviewed for release 0.5.0.*
+*Last reviewed for release 0.6.0.*
 
 Treat [Upstream sync policy](../upstream-sync-policy.md) as the authoritative upstream policy. The normative ODCS specification lives in the [upstream repository](https://github.com/bitol-io/open-data-contract-standard).
 

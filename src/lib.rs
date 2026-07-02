@@ -45,16 +45,14 @@ mod python;
 
 pub use diagnostics::{
     codes, inspect_contract, Diagnostic, DiagnosticCategory, DiagnosticReport, DiagnosticStage,
-    Severity, ValidationReport,
+    Severity, ValidationPhase, ValidationReport,
 };
 pub use model::DataContract;
 pub use parser::{
     parse, parse_file, parse_json, parse_strict, parse_yaml, DocumentFormat, ParseResult,
     MAX_PARSE_BYTES,
 };
-pub use validation::{
-    validate, validate_strict, validate_with_options, ValidationOptions, ValidationPhase,
-};
+pub use validation::{validate, validate_strict, validate_with_options, ValidationOptions};
 
 /// Parse and validate an ODCS document in one step.
 #[must_use]

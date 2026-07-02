@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.6.0 — 2026-07-02
+
+Diagnostics metadata release — validation pipeline phase on every validation diagnostic.
+
+**Added:**
+
+- Optional `validationPhase` field on validation-stage diagnostics (JSON camelCase; omitted for parse-stage diagnostics)
+- `ValidationPhase` enum with variants matching the validation pipeline (`document`, `schema`, `quality`, `jsonSchema`, …)
+- CLI text output includes `phase:` line when `validationPhase` is set
+- Python `VALIDATION_PHASES` constants and `validation_phases()` native helper
+- Fixture-wide tests asserting `validationPhase` coverage on validation diagnostics
+
+**Changed:**
+
+- `validation_error` builder now requires a `ValidationPhase` argument (compile-time enforcement)
+- `ValidationPhase` moved to `src/diagnostics/validation_phase.rs` (re-exported from `validation::phases`)
+
 ## 0.5.0 — 2026-07-02
 
 Parser hardening release — nested duplicate-key detection for YAML and JSON.

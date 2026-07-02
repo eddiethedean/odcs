@@ -7,12 +7,14 @@ mod diagnostic;
 mod report;
 mod severity;
 mod stage;
+mod validation_phase;
 
 pub use category::DiagnosticCategory;
 pub use diagnostic::Diagnostic;
 pub use report::{DiagnosticReport, ValidationReport};
 pub use severity::Severity;
 pub use stage::DiagnosticStage;
+pub use validation_phase::ValidationPhase;
 
 use crate::model::DataContract;
 

@@ -219,6 +219,46 @@ fn cli_validate_strict_fails_on_json_schema_violation() {
 }
 
 #[test]
+fn cli_validate_json_includes_validation_phase() {
+    let path = fixture("invalid-kind.yaml");
+    let output = odcs_bin()
+        .args(["validate", "--json"])
+        .arg(&path)
+        .output()
+        .expect("run cli");
+    assert_eq!(output.status.code(), Some(1));
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(stdout.contains("\"validationPhase\""));
+    assert!(stdout.contains("\"document\""));
+}
+
+#[test]
+fn cli_validate_parse_failure_omits_validation_phase() {
+    let path = fixture("invalid-nested-duplicate-key.yaml");
+    let output = odcs_bin()
+        .args(["validate", "--json"])
+        .arg(&path)
+        .output()
+        .expect("run cli");
+    assert_eq!(output.status.code(), Some(2));
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(!stdout.contains("\"validationPhase\""));
+}
+
+#[test]
+fn cli_validate_text_includes_phase_for_validation_errors() {
+    let path = fixture("invalid-kind.yaml");
+    let output = odcs_bin()
+        .arg("validate")
+        .arg(&path)
+        .output()
+        .expect("run cli");
+    assert_eq!(output.status.code(), Some(1));
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(stdout.contains("phase: document"));
+}
+
+#[test]
 fn cli_validate_strict_passes_on_minimal() {
     let path = fixture("minimal.odcs.yaml");
     let output = odcs_bin()
