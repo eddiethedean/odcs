@@ -107,5 +107,8 @@ fn collect_property_quality<'a>(
         if !property.properties.is_empty() {
             collect_property_quality(&property.properties, out);
         }
+        if let Some(items) = &property.items {
+            collect_property_quality(std::slice::from_ref(items), out);
+        }
     }
 }

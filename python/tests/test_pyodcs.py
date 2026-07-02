@@ -52,6 +52,44 @@ def test_validate_result_merges_parse_and_validation_diagnostics() -> None:
     assert not pyodcs.is_valid(report)
 
 
+def test_validate_result_accepts_validation_report_shape() -> None:
+    invalid = pyodcs.parse_and_validate(
+        b"version: '3.1.0'\napiVersion: v3.1.0\nkind: wrong\nid: x\nstatus: draft\n",
+        "yaml",
+    )
+    wrapped = pyodcs.validate_result(invalid)
+    assert wrapped["diagnostics"] == invalid["diagnostics"]
+    assert not pyodcs.is_valid(wrapped)
+
+
+def test_validate_result_is_idempotent() -> None:
+    result = pyodcs.parse(_fixture("invalid-kind.yaml"), "yaml")
+    first = pyodcs.validate_result(result)
+    second = pyodcs.validate_result(result)
+    assert first["diagnostics"] == second["diagnostics"]
+
+
+def test_validate_result_rejects_wrong_shape() -> None:
+    import pytest
+
+    with pytest.raises(TypeError):
+        pyodcs.validate_result({"unexpected": True})
+
+
+def test_parse_file_missing_raises_file_not_found() -> None:
+    import pytest
+
+    with pytest.raises(FileNotFoundError):
+        pyodcs.parse_file(str(FIXTURES / "does-not-exist.yaml"))
+
+
+def test_quality_rules_count_includes_items() -> None:
+    result = pyodcs.parse(_fixture("with-schema-quality-items.yaml"), "yaml")
+    contract = result["contract"]
+    assert contract is not None
+    assert pyodcs.quality_rules_count(contract) == 1
+
+
 def test_inspect_contract() -> None:
     result = pyodcs.parse(_fixture("minimal.odcs.yaml"), "yaml")
     contract = result["contract"]

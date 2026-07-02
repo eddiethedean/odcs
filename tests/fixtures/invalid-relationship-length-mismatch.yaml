@@ -1,0 +1,17 @@
+version: "3.1.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "invalid-relationship-length-mismatch"
+status: "active"
+
+schema:
+  - name: "orders"
+    logicalType: "object"
+    properties:
+      - name: "customer_id"
+        logicalType: "string"
+      - name: "order_id"
+        logicalType: "string"
+    relationships:
+      - from: ["orders.customer_id", "orders.order_id"]
+        to: ["orders.customer_id"]

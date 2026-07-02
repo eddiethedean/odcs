@@ -1,0 +1,20 @@
+version: "3.1.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "quality-items-contract"
+name: "quality_items_contract"
+status: "active"
+
+schema:
+  - name: "customers"
+    logicalType: "object"
+    properties:
+      - name: "tags"
+        logicalType: "array"
+        items:
+          name: "tag"
+          logicalType: "string"
+          quality:
+            - type: "library"
+              metric: "rowCount"
+              mustBeGreaterThan: 0

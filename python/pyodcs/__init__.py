@@ -38,12 +38,31 @@ def validate(contract: dict) -> dict:
 
 def validate_result(result: dict) -> dict:
     """Merge parse-time and validation diagnostics from a parse result."""
-    diagnostics = list(result.get("report", {}).get("diagnostics", []))
-    contract = result.get("contract")
-    if contract is not None:
-        validation = _validate_contract(contract)
-        diagnostics.extend(validation.get("diagnostics", []))
-    return {"diagnostics": diagnostics}
+    if not isinstance(result, dict):
+        raise TypeError("validate_result expects a dict")
+
+    if result.get("_odcs_validated"):
+        return {"diagnostics": list(result.get("diagnostics", []))}
+
+    if "report" in result:
+        report = result.get("report") or {}
+        diagnostics = list(report.get("diagnostics", []))
+        contract = result.get("contract")
+        if contract is not None:
+            validation = _validate_contract(contract)
+            diagnostics.extend(validation.get("diagnostics", []))
+        merged = {"diagnostics": diagnostics, "_odcs_validated": True}
+        return merged
+
+    if "diagnostics" in result and "contract" not in result:
+        return {
+            "diagnostics": list(result.get("diagnostics", [])),
+            "_odcs_validated": True,
+        }
+
+    raise TypeError(
+        "validate_result expects a parse result with 'report' or a validation report with 'diagnostics'"
+    )
 
 
 def parse_and_validate(content: str | bytes, format: str = "yaml") -> dict:
@@ -69,7 +88,7 @@ def quality_rules_count(contract: dict) -> int:
 def is_valid(report: dict) -> bool:
     """Return True when a diagnostic report contains no error-level diagnostics."""
     return not any(
-        diagnostic.get("severity") == "error"
+        diagnostic.get("severity", "error") == "error"
         for diagnostic in report.get("diagnostics", [])
     )
 

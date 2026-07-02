@@ -1,0 +1,16 @@
+version: "3.1.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "invalid-server-typo"
+status: "active"
+
+servers:
+  - sever: "prod-dw"
+    type: "snowflake"
+
+schema:
+  - name: "customers"
+    logicalType: "object"
+    properties:
+      - name: "customer_id"
+        logicalType: "string"

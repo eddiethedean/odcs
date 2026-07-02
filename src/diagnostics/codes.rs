@@ -20,3 +20,7 @@ pub const UNKNOWN_FIELD: &str = "odcs:unknown-field";
 pub const UNRESOLVED_REFERENCE: &str = "odcs:unresolved-reference";
 /// Invalid extension key.
 pub const INVALID_EXTENSION: &str = "odcs:invalid-extension";
+/// Duplicate key in document.
+pub const DUPLICATE_KEY: &str = "odcs:duplicate-key";
+/// Document exceeds size limit.
+pub const DOCUMENT_TOO_LARGE: &str = "odcs:document-too-large";

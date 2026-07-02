@@ -47,7 +47,10 @@ pub use diagnostics::{
     Severity, ValidationReport,
 };
 pub use model::DataContract;
-pub use parser::{parse, parse_file, parse_json, parse_yaml, DocumentFormat, ParseResult};
+pub use parser::{
+    parse, parse_file, parse_json, parse_strict, parse_yaml, DocumentFormat, ParseResult,
+    MAX_PARSE_BYTES,
+};
 pub use validation::{validate, ValidationPhase};
 
 /// Parse and validate an ODCS document in one step.

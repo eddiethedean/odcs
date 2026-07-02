@@ -30,8 +30,8 @@ pub struct ServiceLevelAgreementProperty {
 #[serde(untagged)]
 pub enum SlaValue {
     String(String),
-    Number(f64),
     Integer(i64),
+    Number(f64),
     Boolean(bool),
     Null,
 }

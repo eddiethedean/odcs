@@ -1,9 +1,13 @@
 //! Python bindings exposed through maturin as `pyodcs._native`.
 
-use pyo3::exceptions::{PyTypeError, PyValueError};
+use pyo3::exceptions::{
+    PyFileNotFoundError, PyOSError, PyPermissionError, PyTypeError, PyValueError,
+};
 use pyo3::prelude::*;
 use pyo3::types::{PyByteArray, PyDict};
 use serde::Serialize;
+use std::io::ErrorKind;
+use std::path::Path;
 
 use crate::diagnostics::inspect_contract;
 use crate::model::DataContract;
@@ -84,8 +88,21 @@ fn parse_document(py: Python<'_>, content: &Bound<'_, PyAny>, format: &str) -> P
 /// Parse an ODCS document from a file path.
 #[pyfunction]
 fn parse_path(py: Python<'_>, path: &str) -> PyResult<Py<PyAny>> {
-    let result = parse_file(path).map_err(|e| PyValueError::new_err(e.to_string()))?;
+    let path_obj = Path::new(path);
+    if let Err(error) = std::fs::metadata(path_obj) {
+        return Err(map_io_error(error, path));
+    }
+    let result = parse_file(path_obj).map_err(|error| PyValueError::new_err(error.to_string()))?;
     parse_result_to_py(py, result)
+}
+
+fn map_io_error(error: std::io::Error, path: &str) -> PyErr {
+    let message = format!("failed to read {path}: {error}");
+    match error.kind() {
+        ErrorKind::NotFound => PyFileNotFoundError::new_err(message),
+        ErrorKind::PermissionDenied => PyPermissionError::new_err(message),
+        _ => PyOSError::new_err(message),
+    }
 }
 
 /// Validate a parsed data contract.

@@ -2,10 +2,14 @@
 
 mod document;
 mod extensions;
+mod helpers;
+mod ids;
 mod phases;
 mod quality;
 mod references;
 mod schema;
+mod sections;
+mod servers;
 mod structural;
 
 pub use phases::ValidationPhase;
@@ -23,5 +27,8 @@ pub fn validate(contract: &DataContract) -> DiagnosticReport {
     report.merge(quality::validate(contract));
     report.merge(references::validate(contract));
     report.merge(extensions::validate(contract));
+    report.merge(servers::validate(contract));
+    report.merge(sections::validate(contract));
+    report.merge(ids::validate(contract));
     report
 }

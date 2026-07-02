@@ -34,6 +34,8 @@ A report is **valid** when it contains no `error`-severity diagnostics.
 |------|---------------|----------------------|
 | `odcs:parse-yaml` | YAML syntax or structure cannot be parsed | — |
 | `odcs:parse-json` | JSON syntax or structure cannot be parsed | — |
+| `odcs:duplicate-key` | Duplicate key in document | key name |
+| `odcs:document-too-large` | Document exceeds maximum parse size | — |
 | `odcs:unknown-field` | Unknown field at root or nested object (deny_unknown_fields) | field name |
 | `odcs:unsupported-version` | `version` or `apiVersion` not supported | `version`, `apiVersion` |
 | `odcs:missing-required-field` | Required field missing or empty | field path |

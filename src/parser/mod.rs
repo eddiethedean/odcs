@@ -1,5 +1,6 @@
 //! ODCS document parsers.
 
+mod duplicate_keys;
 mod json;
 mod yaml;
 
@@ -8,8 +9,13 @@ use std::path::Path;
 pub use json::parse_json;
 pub use yaml::parse_yaml;
 
-use crate::diagnostics::{emit, DiagnosticReport};
+use crate::diagnostics::{
+    codes, emit, Diagnostic, DiagnosticCategory, DiagnosticReport, DiagnosticStage,
+};
 use crate::model::DataContract;
+
+/// Maximum document size accepted by [`parse_file`] (16 MiB).
+pub const MAX_PARSE_BYTES: u64 = 16 * 1024 * 1024;
 
 /// Result of parsing an ODCS document.
 #[derive(Debug, Clone)]
@@ -74,10 +80,21 @@ impl DocumentFormat {
 /// Parse an ODCS document from bytes.
 #[must_use]
 pub fn parse(content: &[u8], format: DocumentFormat) -> ParseResult {
+    if content.len() as u64 > MAX_PARSE_BYTES {
+        return failure_document_too_large();
+    }
     match format {
         DocumentFormat::Yaml => parse_yaml(content),
         DocumentFormat::Json => parse_json(content),
     }
+}
+
+/// Parse and validate an ODCS document, returning an error report on failure.
+pub fn parse_strict(
+    content: &[u8],
+    format: DocumentFormat,
+) -> Result<DataContract, DiagnosticReport> {
+    parse(content, format).into_contract()
 }
 
 /// Build a successful parse result.
@@ -91,10 +108,10 @@ pub(crate) fn success(contract: DataContract) -> ParseResult {
 /// Build a failed parse result with an enriched serde diagnostic.
 pub(crate) fn failure_from_serde(code: &str, error: impl std::fmt::Display) -> ParseResult {
     let message = error.to_string();
-    let mut diagnostic = crate::diagnostics::Diagnostic::error(
+    let mut diagnostic = Diagnostic::error(
         code,
-        crate::diagnostics::DiagnosticCategory::Syntax,
-        crate::diagnostics::DiagnosticStage::Parse,
+        DiagnosticCategory::Syntax,
+        DiagnosticStage::Parse,
         format!("failed to parse document: {message}"),
     );
 
@@ -102,13 +119,50 @@ pub(crate) fn failure_from_serde(code: &str, error: impl std::fmt::Display) -> P
         diagnostic = diagnostic
             .with_object_ref(object_ref)
             .with_remediation("remove the unknown field or use customProperties for extensions");
-        diagnostic.id = crate::diagnostics::codes::UNKNOWN_FIELD.to_string();
+        diagnostic.id = codes::UNKNOWN_FIELD.to_string();
     } else if let Some(object_ref) = extract_serde_path(&message) {
         diagnostic = diagnostic.with_object_ref(object_ref);
     }
 
     let mut report = DiagnosticReport::new();
     emit(&mut report, diagnostic);
+    ParseResult {
+        contract: None,
+        report,
+    }
+}
+
+pub(crate) fn failure_duplicate_key(key: String) -> ParseResult {
+    let mut report = DiagnosticReport::new();
+    emit(
+        &mut report,
+        Diagnostic::error(
+            codes::DUPLICATE_KEY,
+            DiagnosticCategory::Syntax,
+            DiagnosticStage::Parse,
+            format!("duplicate key '{key}' in document"),
+        )
+        .with_object_ref(key)
+        .with_remediation("remove duplicate keys so each field appears once"),
+    );
+    ParseResult {
+        contract: None,
+        report,
+    }
+}
+
+fn failure_document_too_large() -> ParseResult {
+    let mut report = DiagnosticReport::new();
+    emit(
+        &mut report,
+        Diagnostic::error(
+            codes::DOCUMENT_TOO_LARGE,
+            DiagnosticCategory::Syntax,
+            DiagnosticStage::Parse,
+            format!("document exceeds maximum size of {MAX_PARSE_BYTES} bytes"),
+        )
+        .with_remediation("split the contract or reduce document size"),
+    );
     ParseResult {
         contract: None,
         report,
@@ -124,6 +178,9 @@ fn extract_unknown_field_ref(message: &str) -> Option<String> {
 }
 
 fn extract_serde_path(message: &str) -> Option<String> {
+    if let Some(path) = message.strip_prefix("at ") {
+        return Some(path.trim().to_string());
+    }
     let marker = " at line ";
     if !message.contains(marker) {
         return None;
@@ -137,6 +194,11 @@ fn extract_serde_path(message: &str) -> Option<String> {
 /// Parse an ODCS document from a file path.
 pub fn parse_file(path: impl AsRef<Path>) -> miette::Result<ParseResult> {
     let path = path.as_ref();
+    let metadata = std::fs::metadata(path)
+        .map_err(|e| miette::miette!("failed to read {}: {e}", path.display()))?;
+    if metadata.len() > MAX_PARSE_BYTES {
+        return Ok(failure_document_too_large());
+    }
     let content = std::fs::read(path)
         .map_err(|e| miette::miette!("failed to read {}: {e}", path.display()))?;
     let format = DocumentFormat::from_path(path).ok_or_else(|| {

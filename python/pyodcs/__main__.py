@@ -22,15 +22,17 @@ def _package_version() -> str:
         return PACKAGE_VERSION
 
 
-def _has_parse_failure(report: dict) -> bool:
+def _has_parse_failure(result: dict, report: dict) -> bool:
+    if result.get("contract") is None:
+        return True
     return any(
         diagnostic.get("stage") == "parse"
         for diagnostic in report.get("diagnostics", [])
     )
 
 
-def _exit_code_for_report(report: dict) -> int:
-    if _has_parse_failure(report):
+def _exit_code_for_report(result: dict, report: dict) -> int:
+    if _has_parse_failure(result, report):
         return 2
     return 0 if is_valid(report) else 1
 
@@ -44,11 +46,11 @@ def _render_report(report: dict, *, json_output: bool, mode: str) -> None:
         print(json.dumps(payload, indent=2))
         return
 
-    diagnostics = report.get("diagnostics", [])
-    if not diagnostics:
+    if is_valid(report):
         print("valid" if mode == "validate" else "no diagnostics")
         return
 
+    diagnostics = report.get("diagnostics", [])
     for diagnostic in diagnostics:
         severity = diagnostic.get("severity", "error")
         code = diagnostic.get("id", "odcs:unknown")
@@ -58,9 +60,6 @@ def _render_report(report: dict, *, json_output: bool, mode: str) -> None:
             print(f"  at: {object_ref}")
         if remediation := diagnostic.get("remediation"):
             print(f"  hint: {remediation}")
-
-    if mode == "validate" and is_valid(report):
-        print("valid")
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -100,6 +99,13 @@ def _build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> int:
+    try:
+        return _main_impl(argv)
+    except BrokenPipeError:
+        return 2
+
+
+def _main_impl(argv: list[str] | None = None) -> int:
     parser = _build_parser()
     args = parser.parse_args(argv)
 
@@ -115,8 +121,9 @@ def main(argv: list[str] | None = None) -> int:
                 )
             )
         else:
-            print(f"pyodcs {_package_version()}")
-            print(f"upstream ODCS {UPSTREAM_SPEC_VERSION}")
+            print(
+                f"pyodcs {_package_version()} (upstream ODCS {UPSTREAM_SPEC_VERSION})"
+            )
         return 0
 
     if args.command == "schema":
@@ -153,15 +160,15 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "validate":
         _render_report(report, json_output=args.json, mode="validate")
-        return _exit_code_for_report(report)
+        return _exit_code_for_report(result, report)
 
     if args.command == "diagnostics":
         _render_report(report, json_output=args.json, mode="diagnostics")
-        return _exit_code_for_report(report)
+        return _exit_code_for_report(result, report)
 
-    if _has_parse_failure(report) or not is_valid(report):
+    if _has_parse_failure(result, report) or not is_valid(report):
         _render_report(report, json_output=args.json, mode="diagnostics")
-        return _exit_code_for_report(report)
+        return _exit_code_for_report(result, report)
 
     contract = result.get("contract")
     if contract is None:

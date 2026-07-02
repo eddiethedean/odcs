@@ -28,6 +28,18 @@ Phase 2 and Phase 3 milestone — full v3.1.0 Canonical Object Model and hardene
 - Python CLI exit codes, inspect JSON parity, and `schema` subcommand
 - JSON Schema conformance tests for valid fixtures
 - Documentation aligned with the `0.3.0` API and milestone status
+- Quality validation bypasses (omitted `type`, deprecated `rule`, empty strings, unknown types, invalid ranges)
+- `quality_rules()` traversal into array `items` schemas
+- Reference validation (empty composite members, format patterns, length parity, dangling refs)
+- Server validation for missing canonical fields and misplaced `details` keys
+- Extension validation across all `customProperties` sites with duplicate-key detection
+- Schema cross-field rules (`array` requires `items`, `INVALID_SCHEMA` diagnostics, primary key positions)
+- Section validators for team, roles, support, SLA, and authoritative definitions
+- `StableId` pattern validation
+- Parser hardening: `parse_strict`, file size limits, duplicate-key detection, `serde_path_to_error`
+- Versioning fixes: narrowed `SUPPORTED_API_VERSIONS`, exact `apiVersion` coupling, `SlaValue` integer precedence
+- Python `validate_result` shape handling and idempotency, proper I/O exceptions, `BrokenPipeError` handling
+- Rust CLI JSON output error propagation
 
 ## 0.2.0
 

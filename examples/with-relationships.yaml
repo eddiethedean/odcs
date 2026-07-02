@@ -19,3 +19,9 @@ schema:
       - type: "foreignKey"
         from: "orders.customer_id"
         to: "customers.customer_id"
+  - name: "customers"
+    logicalType: "object"
+    properties:
+      - name: "customer_id"
+        logicalType: "string"
+        required: true

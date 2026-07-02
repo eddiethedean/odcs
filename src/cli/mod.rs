@@ -135,13 +135,9 @@ pub fn run(cli: Cli) -> i32 {
                     "schemaCount": contract.schema.len(),
                     "qualityCount": contract.quality_rules().len(),
                 });
-                if let Err(error) = writeln!(
-                    io::stdout(),
-                    "{}",
-                    serde_json::to_string_pretty(&summary).unwrap_or_else(|e| e.to_string())
-                ) {
-                    eprintln!("{error}");
-                    return 2;
+                if let Err(code) = write_json_stdout(&summary) {
+                    eprintln!("failed to write JSON output");
+                    return code;
                 }
             } else if let Err(error) = writeln!(io::stdout(), "{}", inspect_contract(&contract)) {
                 eprintln!("{error}");
@@ -166,52 +162,51 @@ pub fn run(cli: Cli) -> i32 {
         }
         Command::Schema { json } => {
             let schema_url = "https://github.com/bitol-io/open-data-contract-standard";
-            let write_result = if json {
+            if json {
                 let payload = serde_json::json!({
                     "upstreamRepository": schema_url,
                     "note": "JSON Schema export is planned for a future release",
                 });
-                writeln!(
-                    io::stdout(),
-                    "{}",
-                    serde_json::to_string_pretty(&payload).unwrap_or_else(|e| e.to_string())
-                )
-            } else {
-                writeln!(
-                    io::stdout(),
-                    "Upstream ODCS JSON Schema: {schema_url}\n(JSON Schema export planned)"
-                )
-            };
-            if write_result.is_err() {
+                if let Err(code) = write_json_stdout(&payload) {
+                    eprintln!("failed to write JSON output");
+                    return code;
+                }
+            } else if let Err(error) = writeln!(
+                io::stdout(),
+                "Upstream ODCS JSON Schema: {schema_url}\n(JSON Schema export planned)"
+            ) {
+                eprintln!("{error}");
                 return 2;
             }
             0
         }
         Command::Version { json } => {
-            let write_result = if json {
+            if json {
                 let payload = serde_json::json!({
                     "crateVersion": env!("CARGO_PKG_VERSION"),
                     "upstreamSpecVersion": UPSTREAM_SPEC_VERSION,
                 });
-                writeln!(
-                    io::stdout(),
-                    "{}",
-                    serde_json::to_string_pretty(&payload).unwrap_or_else(|e| e.to_string())
-                )
-            } else {
-                writeln!(
-                    io::stdout(),
-                    "odcs {} (upstream ODCS {})",
-                    env!("CARGO_PKG_VERSION"),
-                    UPSTREAM_SPEC_VERSION
-                )
-            };
-            if write_result.is_err() {
+                if let Err(code) = write_json_stdout(&payload) {
+                    eprintln!("failed to write JSON output");
+                    return code;
+                }
+            } else if let Err(error) = writeln!(
+                io::stdout(),
+                "odcs {} (upstream ODCS {})",
+                env!("CARGO_PKG_VERSION"),
+                UPSTREAM_SPEC_VERSION
+            ) {
+                eprintln!("{error}");
                 return 2;
             }
             0
         }
     }
+}
+
+fn write_json_stdout(payload: &serde_json::Value) -> Result<(), i32> {
+    let rendered = serde_json::to_string_pretty(payload).map_err(|_| 2)?;
+    writeln!(io::stdout(), "{rendered}").map_err(|_| 2)
 }
 
 #[derive(Debug, Clone, Copy)]

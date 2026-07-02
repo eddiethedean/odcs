@@ -10,7 +10,7 @@ pub fn validate(contract: &DataContract) -> DiagnosticReport {
 
     if contract.version == "3.1.0"
         && !contract.api_version.is_empty()
-        && !contract.api_version.starts_with("v3.1")
+        && contract.api_version != "v3.1.0"
     {
         emit(
             &mut report,
