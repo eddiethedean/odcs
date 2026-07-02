@@ -50,7 +50,7 @@ Mirror DTCS diagnostic style:
 - message
 - object reference
 - remediation
-- stable `odcs:` codes including strict-mode JSON Schema violations
+- stable `odcs:` codes including JSON Schema violations (`odcs:json-schema-violation`)
 
 ## Phase 5 — Validation
 
@@ -64,7 +64,7 @@ Implemented validation phases:
 4. Quality validation
 5. Reference validation
 6. Extension validation
-7. JSON Schema validation (strict mode)
+7. JSON Schema validation (default since 0.4.0)
 
 ## Phase 6 — CLI
 
@@ -80,7 +80,7 @@ odcs schema
 odcs version
 ```
 
-`--strict` on `validate` enables JSON Schema checks. `odcs schema` exports the pinned schema.
+Since 0.4.0, JSON Schema validation always runs in default `validate()`. `--strict` is a deprecated no-op alias. `odcs schema` exports the pinned schema.
 
 ## Phase 7 — JSON Schema parity
 
@@ -92,4 +92,4 @@ Conformance tests in [`tests/json_schema_conformance.rs`](../../tests/json_schem
 
 **Status:** Complete (`0.4.0`).
 
-PyO3 bindings and the `pyodcs` package expose parse, validate (with `strict`), inspect, schema export, and CLI helpers with parity to the Rust `odcs` CLI.
+PyO3 bindings and the `pyodcs` package expose parse, validate, inspect, schema export, and CLI helpers with parity to the Rust `odcs` CLI.

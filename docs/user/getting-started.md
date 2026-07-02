@@ -22,7 +22,33 @@ pip install pyodcs
 
 See [installation.md](installation.md) for prerequisites, from-source setup, and troubleshooting.
 
-## Step 2 — Validate an example contract
+## Step 2 — Validate a contract
+
+### If you installed from crates.io or PyPI
+
+Save this minimal contract as `contract.yaml`:
+
+```yaml
+version: "1.0.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "hello-contract"
+status: "draft"
+schema:
+  - name: customers
+    properties:
+      - name: customer_id
+        logicalType: string
+        required: true
+```
+
+Then validate:
+
+```bash
+odcs validate contract.yaml
+```
+
+### If you cloned this repository
 
 ```bash
 odcs validate examples/minimal.odcs.yaml
@@ -46,6 +72,9 @@ Exit codes: `0` = valid, `1` = validation error, `2` = parse or I/O failure.
 ## Step 3 — Inspect a contract
 
 ```bash
+# Use the same path you validated in Step 2
+odcs inspect contract.yaml
+# or, from a repo checkout:
 odcs inspect examples/minimal.odcs.yaml
 ```
 
@@ -56,10 +85,24 @@ Prints a short summary: id, name, version, schema count, quality rule count.
 ### Rust
 
 ```rust
-use odcs::{parse_file, DocumentFormat};
+use odcs::{parse, DocumentFormat};
 
-let result = parse_file("examples/minimal.odcs.yaml")?;
-let contract = result.into_contract()?;
+let yaml = br#"
+version: "1.0.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "hello-contract"
+status: "draft"
+schema:
+  - name: customers
+    properties:
+      - name: customer_id
+        logicalType: string
+        required: true
+"#;
+
+let result = parse(yaml, DocumentFormat::Yaml);
+let contract = result.into_contract().expect("valid contract");
 println!("contract id: {}", contract.id);
 ```
 
@@ -68,7 +111,8 @@ println!("contract id: {}", contract.id);
 ```python
 import pyodcs
 
-result = pyodcs.parse_file("examples/minimal.odcs.yaml")
+content = open("contract.yaml", "rb").read()  # or examples/minimal.odcs.yaml from a checkout
+result = pyodcs.parse(content, format="yaml")
 report = pyodcs.validate_result(result)
 assert pyodcs.is_valid(report)
 print(pyodcs.inspect(result["contract"]))
@@ -83,8 +127,12 @@ The [examples catalog](../upstream/examples.md) includes contracts with SLA, tea
 | Goal | Document |
 |------|----------|
 | CLI flags and JSON output | [cli.md](cli.md) |
+| Rust API reference | [rust.md](rust.md) |
 | Python API reference | [python.md](python.md) |
+| Author a contract | [authoring.md](authoring.md) |
 | Error codes and remediation | [diagnostics.md](diagnostics.md) |
+| CI/CD integration | [ci-cd.md](ci-cd.md) |
+| Upgrade guide | [migration.md](migration.md) |
 | Common questions | [faq.md](faq.md) |
 
 ## What this tool does not do

@@ -2,7 +2,7 @@
 
 Rust API reference for the `odcs` crate. Generated API docs: [docs.rs/odcs](https://docs.rs/odcs).
 
-User guides: [../user/getting-started.md](../user/getting-started.md).
+User guides: [../user/rust.md](../user/rust.md).
 
 ## Parse and validate
 
@@ -88,7 +88,7 @@ use odcs::UPSTREAM_SPEC_VERSION; // "3.1.0"
 | `python` | no | PyO3 bindings (used by maturin) |
 
 ```toml
-odcs = { version = "0.3", default-features = false }
+odcs = { version = "0.4", default-features = false }
 ```
 
 ## Python equivalent

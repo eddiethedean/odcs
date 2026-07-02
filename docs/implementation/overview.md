@@ -4,7 +4,9 @@ Guides for building and maintaining the Rust reference implementation of the Ope
 
 See the canonical documentation index at [Home](../index.md).
 
-**User documentation** (install, CLI, Python API) lives in [User guides](../user/getting-started.md).
+**User documentation** (install, CLI, Rust, Python API) lives in [User guides](../user/getting-started.md).
+
+*Last reviewed for release 0.4.0.*
 
 Treat [Specification](../upstream/spec.md) as the authoritative upstream policy. The normative ODCS specification lives in the [upstream repository](https://github.com/bitol-io/open-data-contract-standard).
 

@@ -38,3 +38,47 @@ Spec parity and validation maturity release — default validation is schema-com
 - `odcs schema` default output is full JSON Schema JSON (use `--url-only` for URL-only output)
 
 ## 0.3.0
+
+ODCS v3.1.0 canonical object model and parsing release.
+
+**Breaking changes:**
+
+- Full ODCS v3.1.0 canonical object model replaces minimal skeleton types
+- Unknown fields rejected at root and nested objects (`deny_unknown_fields`, `odcs:unknown-field`)
+- Quality rules must be nested under `schema[]` (root-level `quality` no longer supported)
+- Library quality metrics use v3.1.0 names (`nullValues`, not `not_null`)
+
+**Added:**
+
+- YAML and JSON parsing with structured parse diagnostics
+- Section modules: SLA, servers, team, roles, pricing, support, relationships
+- Parse helpers: `ParseResult`, `into_contract()`, `parse_strict()`
+- Expanded examples and integration test fixtures
+- Pinned upstream JSON Schema reference fixture under `tests/fixtures/`
+
+**Changed:**
+
+- `version` field semantics aligned with upstream (contract revision, not spec version)
+
+## 0.2.0
+
+Early validation and Python bindings release.
+
+**Added:**
+
+- CI and release workflows (crates.io, PyPI)
+- PyO3 bindings and `pyodcs` package
+- CLI commands: `validate`, `inspect`, `diagnostics`, `schema`, `version`
+- Standardized exit codes (0 valid, 1 validation, 2 parse/IO)
+- Basic YAML and JSON parsing for minimal contracts
+
+## 0.1.0
+
+Initial skeleton release.
+
+**Added:**
+
+- Rust crate layout and module skeleton
+- CLI entry point
+- Examples and test fixture directories
+- Apache 2.0 license

@@ -55,14 +55,18 @@ nav:
       - Getting started: user/getting-started.md
       - Installation: user/installation.md
       - CLI: user/cli.md
+      - Rust: user/rust.md
       - Python: user/python.md
+      - Authoring contracts: user/authoring.md
       - Diagnostics: user/diagnostics.md
+      - CI/CD integration: user/ci-cd.md
+      - Migration: user/migration.md
       - FAQ: user/faq.md
-  - Upstream:
+  - Examples: upstream/examples.md
+  - Project:
       - Specification: upstream/spec.md
       - Roadmap: upstream/roadmap.md
       - Changelog: upstream/changelog.md
-  - Examples: upstream/examples.md
   - Implementation:
       - Overview: implementation/overview.md
       - Project goal: implementation/project-goal.md

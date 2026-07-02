@@ -12,7 +12,16 @@ It lets you parse ODCS v3.1.0 contracts into a typed object model and validate t
 
 ### Is it production-ready?
 
-**Pre-release** (`0.4.0`, Pre-Alpha on PyPI). Default validation is schema-complete for ODCS v3.1.0. See [Roadmap](../upstream/roadmap.md).
+**Pre-release** (`0.4.0`, Alpha on PyPI). Default validation is schema-complete for ODCS v3.1.0.
+
+| Area | Status in 0.4.0 |
+|------|-----------------|
+| Parse and validate ODCS v3.1.0 documents | Supported |
+| CLI and library APIs | Supported |
+| Registry server (`src/registry/`) | Not implemented |
+| Compatibility analysis (`src/compatibility/`) | Not implemented |
+
+See [Roadmap](../upstream/roadmap.md) and [non-goals](../implementation/non-goals.md).
 
 ## Installation and usage
 
@@ -85,6 +94,14 @@ This implementation targets ODCS **apiVersion v3.1.0**. Upstream examples common
 
 See [../implementation/relationship-to-dtcs.md](../implementation/relationship-to-dtcs.md).
 
+### How do I author a new contract from scratch?
+
+See [Authoring contracts](authoring.md) for a minimal template. The normative ODCS specification is at [bitol-io/open-data-contract-standard](https://github.com/bitol-io/open-data-contract-standard).
+
+### How do I upgrade from an older release?
+
+See [Migration](migration.md).
+
 ## Contributing
 
 ### Where do I start as a contributor?
@@ -94,3 +111,7 @@ Read [Contributing](../upstream/contributing.md) and [Implementation overview](.
 ### The upstream spec and this repo disagree — which wins?
 
 The upstream ODCS specification always wins. See [Specification](../upstream/spec.md).
+
+### Where is the security policy?
+
+See [SECURITY.md](../../SECURITY.md).

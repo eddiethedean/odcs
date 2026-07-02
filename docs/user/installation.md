@@ -64,11 +64,14 @@ pytest python/tests -v
 
 ## Verify installation
 
-```bash
-# Rust
-odcs validate examples/minimal.odcs.yaml
+Create a minimal contract or clone this repository, then validate:
 
-# Python
+```bash
+# After saving contract.yaml (see Getting started)
+odcs validate contract.yaml
+
+# Or, from a repository checkout:
+odcs validate examples/minimal.odcs.yaml
 pyodcs validate examples/minimal.odcs.yaml
 ```
 
@@ -104,7 +107,25 @@ Only `.yaml`, `.yml`, and `.json` are supported. Rename your file or convert the
 
 ### Validation fails on a contract that worked in 0.2.x
 
-Version 0.4.0 makes default validation schema-complete. Version 0.3.0 enforces stricter parsing (`deny_unknown_fields`, nested quality). See [CHANGELOG.md](../../CHANGELOG.md) for release notes.
+Version 0.4.0 makes default validation schema-complete. Version 0.3.0 enforces stricter parsing (`deny_unknown_fields`, nested quality). See [migration.md](migration.md) and [CHANGELOG.md](../../CHANGELOG.md).
+
+### `~/.cargo/bin` not on PATH (WSL, macOS, Linux)
+
+Add to your shell profile:
+
+```bash
+export PATH="$HOME/.cargo/bin:$PATH"
+```
+
+### Corporate proxy or air-gapped installs
+
+- **Rust:** Pre-download with `cargo install odcs --locked` on a networked machine, or vendor the crate.
+- **Python:** Install wheels from PyPI mirror or use `pip download pyodcs` offline.
+- **From source:** Clone the repository and build locally; no network required after dependencies are cached.
+
+### musl / Alpine Linux
+
+Use the musllinux wheel on PyPI, or build from source with `maturin develop --features python --locked`.
 
 ### macOS / Linux build errors with Python feature
 

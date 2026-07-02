@@ -13,9 +13,56 @@ pip install pyodcs
 ```python
 import pyodcs
 
-pyodcs.__version__           # package version
-pyodcs.UPSTREAM_SPEC_VERSION # "3.1.0"
+pyodcs.__version__                # package version
+pyodcs.UPSTREAM_SPEC_VERSION      # "3.1.0"
+pyodcs.UPSTREAM_REPOSITORY_URL    # upstream ODCS GitHub URL
+pyodcs.CODES                      # dict of diagnostic code constants
 ```
+
+### `CODES`
+
+Maps short names to stable `odcs:*` identifiers:
+
+```python
+pyodcs.CODES["INVALID_KIND"]  # "odcs:invalid-kind"
+```
+
+See [diagnostics.md](diagnostics.md) for when each code fires.
+
+## Data shapes
+
+### Parse result (`parse()`, `parse_file()`)
+
+```python
+{
+    "contract": {...} | None,   # parsed contract dict when parse succeeded
+    "report": {
+        "diagnostics": [...]
+    }
+}
+```
+
+### Validation report (`validate()`, `parse_and_validate()`, `validate_result()`)
+
+```python
+{
+    "diagnostics": [
+        {
+            "id": "odcs:missing-required-field",
+            "severity": "error",
+            "stage": "validation",
+            "category": "structure",
+            "message": "...",
+            "object_ref": "id",
+            "remediation": None
+        }
+    ]
+}
+```
+
+`validate_result()` may add internal cache keys (`_odcs_validated`, `_odcs_strict`) — do not rely on them in application code.
+
+A report is valid when `is_valid(report)` is `True` (no `error`-severity diagnostics).
 
 ## Parsing
 

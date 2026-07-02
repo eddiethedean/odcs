@@ -39,7 +39,7 @@ Default `validate` runs the Rust pipeline plus pinned ODCS v3.1.0 JSON Schema va
 
 `--strict` is retained for backward compatibility but has no additional effect since 0.4.0.
 
-`parse_strict()` (library API) rejects unknown fields at parse time — separate from CLI `--strict`.
+`parse_strict()` (library API) parses and validates in one step, returning `Result<DataContract, DiagnosticReport>`. Unknown fields are rejected during serde deserialization at parse time — this is separate from the deprecated CLI `--strict` flag.
 
 ## `odcs schema`
 

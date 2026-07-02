@@ -4,7 +4,9 @@
 [![Documentation](https://readthedocs.org/projects/odcs/badge/?version=latest)](https://odcs.readthedocs.io/)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
-**Validate [Open Data Contract Standard (ODCS)](https://github.com/bitol-io/open-data-contract-standard) documents** with a deterministic parser, validator, and CLI.
+**Validate [Open Data Contract Standard (ODCS)](https://github.com/bitol-io/open-data-contract-standard) documents** — machine-readable contracts that describe datasets (schemas, quality rules, SLAs, ownership, and server metadata) — with a deterministic parser, validator, and CLI.
+
+This tool checks that your contract *document* is well-formed and conforms to ODCS v3.1.0. It does **not** execute quality checks against live data.
 
 Use this repository if you want to:
 
@@ -62,20 +64,37 @@ See the [installation guide](https://odcs.readthedocs.io/en/latest/user/installa
 
 ## Quick start
 
+Save a minimal contract as `contract.yaml`:
+
+```yaml
+version: "1.0.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "hello-contract"
+status: "draft"
+schema:
+  - name: customers
+    properties:
+      - name: customer_id
+        logicalType: string
+        required: true
+```
+
 ### Rust CLI
 
 ```bash
-odcs validate examples/minimal.odcs.yaml
+odcs validate contract.yaml
 # valid
 
-odcs validate examples/minimal.odcs.yaml --json
-odcs inspect examples/minimal.odcs.yaml
-odcs diagnostics examples/minimal.odcs.yaml
+odcs validate contract.yaml --json
+odcs inspect contract.yaml
+odcs diagnostics contract.yaml
 ```
 
-From a checkout without installing the binary:
+From a repository checkout (includes `examples/`):
 
 ```bash
+odcs validate examples/minimal.odcs.yaml
 cargo run -- validate examples/minimal.odcs.yaml
 ```
 
@@ -84,7 +103,20 @@ cargo run -- validate examples/minimal.odcs.yaml
 ```rust
 use odcs::{parse, validate, DocumentFormat};
 
-let yaml = include_bytes!("examples/minimal.odcs.yaml");
+let yaml = br#"
+version: "1.0.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "hello-contract"
+status: "draft"
+schema:
+  - name: customers
+    properties:
+      - name: customer_id
+        logicalType: string
+        required: true
+"#;
+
 let result = parse(yaml, DocumentFormat::Yaml);
 let contract = result.into_contract().expect("valid contract");
 let report = validate(&contract);
@@ -96,10 +128,11 @@ assert!(report.is_valid());
 ```python
 import pyodcs
 
-report = pyodcs.parse_and_validate(open("examples/minimal.odcs.yaml", "rb").read())
+content = open("contract.yaml", "rb").read()
+report = pyodcs.parse_and_validate(content, format="yaml")
 assert pyodcs.is_valid(report)
 
-result = pyodcs.parse_file("examples/minimal.odcs.yaml")
+result = pyodcs.parse(content, format="yaml")
 print(pyodcs.inspect(result["contract"]))
 ```
 
@@ -112,10 +145,15 @@ print(pyodcs.inspect(result["contract"]))
 | Get started in 5 minutes | [Getting started](https://odcs.readthedocs.io/en/latest/user/getting-started/) · [source](docs/user/getting-started.md) |
 | Install Rust or Python | [Installation](https://odcs.readthedocs.io/en/latest/user/installation/) · [source](docs/user/installation.md) |
 | Use the CLI | [CLI](https://odcs.readthedocs.io/en/latest/user/cli/) · [source](docs/user/cli.md) |
+| Use from Rust | [Rust](https://odcs.readthedocs.io/en/latest/user/rust/) · [source](docs/user/rust.md) |
 | Use from Python | [Python](https://odcs.readthedocs.io/en/latest/user/python/) · [source](docs/user/python.md) |
+| Author a contract | [Authoring](https://odcs.readthedocs.io/en/latest/user/authoring/) · [source](docs/user/authoring.md) |
+| Integrate in CI/CD | [CI/CD](https://odcs.readthedocs.io/en/latest/user/ci-cd/) · [source](docs/user/ci-cd.md) |
 | Understand error codes | [Diagnostics](https://odcs.readthedocs.io/en/latest/user/diagnostics/) · [source](docs/user/diagnostics.md) |
+| Upgrade between versions | [Migration](https://odcs.readthedocs.io/en/latest/user/migration/) · [source](docs/user/migration.md) |
 | Browse examples | [Examples](https://odcs.readthedocs.io/en/latest/upstream/examples/) · [source](examples/README.md) |
 | Contribute | [Contributing](https://odcs.readthedocs.io/en/latest/upstream/contributing/) · [source](CONTRIBUTING.md) |
+| Report a security issue | [SECURITY.md](SECURITY.md) |
 | Implementation guides | [Implementation](https://odcs.readthedocs.io/en/latest/implementation/overview/) · [source](docs/implementation/overview.md) |
 | Rust API reference | [docs.rs/odcs](https://docs.rs/odcs) |
 
@@ -141,7 +179,7 @@ See [Relationship to DTCS](https://odcs.readthedocs.io/en/latest/implementation/
 
 ```text
 odcs/
-├── docs/user/              # User guides (install, CLI, Python, diagnostics)
+├── docs/user/              # User guides (install, CLI, Rust, Python, diagnostics)
 ├── docs/implementation/    # Maintainer / implementation guides
 ├── examples/               # Sample data contracts
 ├── python/pyodcs/          # Python package source

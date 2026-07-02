@@ -91,6 +91,18 @@ The crate targets parsing, the canonical object model, validation, and diagnosti
 3. Include or update tests for behavioral changes.
 4. Ensure `cargo test --locked` passes (and Python tests if touching bindings).
 
+## CI workflows
+
+| Workflow | Purpose |
+|----------|---------|
+| [`.github/workflows/ci.yml`](.github/workflows/ci.yml) | Primary CI badge on README |
+| [`.github/workflows/checks.yml`](.github/workflows/checks.yml) | Full checks (fmt, clippy, doc, test, MkDocs) |
+| [`.github/workflows/release.yml`](.github/workflows/release.yml) | crates.io and PyPI publish on tags |
+
+## Security
+
+Report security vulnerabilities per [SECURITY.md](SECURITY.md). Do not open public issues for security-sensitive reports.
+
 ## Releases
 
 Maintainers: see [docs/maintainer/releasing.md](docs/maintainer/releasing.md).

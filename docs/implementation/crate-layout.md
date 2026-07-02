@@ -1,6 +1,6 @@
 # Crate Layout
 
-Current layout (as of 0.3.0):
+Current layout (as of 0.4.0):
 
 ```text
 odcs/

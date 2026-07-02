@@ -40,8 +40,9 @@ Additional valid and invalid fixtures used in integration tests live under [`tes
 ## Authoring tips
 
 - Required root fields: `version`, `apiVersion`, `kind`, `id`, `status`
+- `version` is your contract revision (e.g. `1.0.0`); `apiVersion` is the ODCS spec release (`v3.1.0`)
 - Quality rules belong under `schema[]` (not at the contract root)
 - Use `customProperties` for extensions; unknown fields are rejected
 - Library metrics must use v3.1.0 names: `nullValues`, `missingValues`, `invalidValues`, `duplicateValues`, `rowCount`
 
-See [../docs/user/faq.md](../docs/user/faq.md).
+See [../docs/user/authoring.md](../docs/user/authoring.md) and [../docs/user/faq.md](../docs/user/faq.md).
