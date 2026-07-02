@@ -2,7 +2,7 @@
 
 Rust API reference for the `odcs` crate. Generated API docs: [docs.rs/odcs](https://docs.rs/odcs).
 
-User guides: [../user/rust.md](../user/rust.md).
+User guides: [../user/rust.md](../user/rust.md) · [API decision guide](../user/api-guide.md).
 
 ## Parse and validate
 

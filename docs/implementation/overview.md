@@ -1,5 +1,8 @@
 # ODCS Implementation Guide
 
+!!! info "Contributor documentation"
+    These guides are for contributors and maintainers. End users should start with [What is ODCS?](../user/what-is-odcs.md) and [Getting started](../user/getting-started.md).
+
 Guides for building and maintaining the Rust reference implementation of the Open Data Contract Standard (ODCS).
 
 See the canonical documentation index at [Home](../index.md).
@@ -8,7 +11,7 @@ See the canonical documentation index at [Home](../index.md).
 
 *Last reviewed for release 0.5.0.*
 
-Treat [Specification](../upstream/spec.md) as the authoritative upstream policy. The normative ODCS specification lives in the [upstream repository](https://github.com/bitol-io/open-data-contract-standard).
+Treat [Upstream sync policy](../upstream-sync-policy.md) as the authoritative upstream policy. The normative ODCS specification lives in the [upstream repository](https://github.com/bitol-io/open-data-contract-standard).
 
 The implementation pipeline:
 

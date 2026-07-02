@@ -98,4 +98,4 @@ v3.1.0 library metrics: `nullValues`, `missingValues`, `invalidValues`, `duplica
 
 - [FAQ](faq.md) — common validation errors
 - [Diagnostics](diagnostics.md) — error code reference
-- [CHANGELOG](../upstream/changelog.md) — full release notes
+- [CHANGELOG](../changelog.md) — full release notes

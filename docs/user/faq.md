@@ -18,10 +18,10 @@ It lets you parse ODCS v3.1.0 contracts into a typed object model and validate t
 |------|-----------------|
 | Parse and validate ODCS v3.1.0 documents | Supported |
 | CLI and library APIs | Supported |
-| Registry server (`src/registry/`) | Not implemented |
-| Compatibility analysis (`src/compatibility/`) | Not implemented |
+| Registry server | Not implemented (see [Roadmap](../roadmap.md) Phase 15) |
+| Compatibility analysis | Not implemented (see [Roadmap](../roadmap.md) Phase 14) |
 
-See [Roadmap](../upstream/roadmap.md) and [non-goals](../implementation/non-goals.md).
+See [Roadmap](../roadmap.md) and [non-goals](../implementation/non-goals.md).
 
 ## Installation and usage
 
@@ -110,11 +110,11 @@ See [Migration](migration.md).
 
 ### Where do I start as a contributor?
 
-Read [Contributing](../upstream/contributing.md) and [Implementation overview](../implementation/overview.md).
+Read [Contributing](../contributing.md) and [Implementation overview](../implementation/overview.md).
 
 ### The upstream spec and this repo disagree — which wins?
 
-The upstream ODCS specification always wins. See [Specification](../upstream/spec.md).
+The upstream ODCS specification always wins. See [Upstream sync policy](../upstream-sync-policy.md).
 
 ### Where is the security policy?
 

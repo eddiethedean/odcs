@@ -52,21 +52,30 @@ markdown_extensions:
 nav:
   - Home: index.md
   - User guides:
+      - What is ODCS?: user/what-is-odcs.md
       - Getting started: user/getting-started.md
       - Installation: user/installation.md
       - CLI: user/cli.md
       - Rust: user/rust.md
       - Python: user/python.md
+      - API decision guide: user/api-guide.md
       - Authoring contracts: user/authoring.md
       - Diagnostics: user/diagnostics.md
       - CI/CD integration: user/ci-cd.md
       - Migration: user/migration.md
       - FAQ: user/faq.md
-  - Examples: upstream/examples.md
+      - Troubleshooting: user/troubleshooting.md
+      - Glossary: user/glossary.md
+      - Enterprise evaluation: user/enterprise-evaluation.md
+  - Tutorials:
+      - Fix your first invalid contract: user/tutorials/fix-invalid-contract.md
+  - Examples: examples.md
   - Project:
-      - Specification: upstream/spec.md
-      - Roadmap: upstream/roadmap.md
-      - Changelog: upstream/changelog.md
+      - Release status: project/release-status.md
+      - Changelog: changelog.md
+      - Roadmap: roadmap.md
+      - Upstream sync policy: upstream-sync-policy.md
+      - ODCS standard (bitol-io): https://bitol-io.github.io/open-data-contract-standard/
   - Implementation:
       - Overview: implementation/overview.md
       - Project goal: implementation/project-goal.md
@@ -83,7 +92,7 @@ nav:
       - Spec usage: implementation/spec-usage.md
       - Non-goals: implementation/non-goals.md
       - Relationship to DTCS: implementation/relationship-to-dtcs.md
-  - Contributing: upstream/contributing.md
+  - Contributing: contributing.md
   - Maintainer:
       - Releasing: maintainer/releasing.md
 

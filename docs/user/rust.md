@@ -19,6 +19,8 @@ odcs = { version = "0.5", default-features = false }
 
 See [installation.md](installation.md) for `cargo install` and from-source setup.
 
+For choosing between `parse`, `into_contract`, and `parse_strict`, see [API decision guide](api-guide.md).
+
 ## Quick start
 
 ```rust
@@ -40,9 +42,9 @@ schema:
 
 let result = parse(yaml, DocumentFormat::Yaml);
 let contract = result.into_contract().expect("valid contract");
-let report = validate(&contract);
-assert!(report.is_valid());
 ```
+
+`into_contract()` parses and validates in one step. For other patterns see [API decision guide](api-guide.md).
 
 ## Parsing
 
@@ -58,7 +60,7 @@ let result = parse(yaml_bytes, DocumentFormat::Yaml);
 
 ### `parse_file(path)`
 
-Parse from a file path. Infers format from `.yaml`, `.yml`, or `.json` extension.
+Parse from a file path. Infers format from `.yaml`, `.yml`, or `.json` extension. Returns `miette::Result<ParseResult>` — add `miette` to your `Cargo.toml` if you use `?`, or read the file with `std::fs` and call `parse()`. See [API decision guide — File I/O](api-guide.md#file-io-and-miette).
 
 ```rust
 use odcs::parse_file;
@@ -174,26 +176,29 @@ See [diagnostics.md](diagnostics.md) for the full code table.
 ## Error handling pattern
 
 ```rust
-use odcs::{parse_file, validate};
+use odcs::{parse_file, DocumentFormat};
 
-fn main() -> miette::Result<()> {
-    let result = parse_file("contract.yaml")?;
-    let contract = match result.into_contract() {
-        Ok(c) => c,
+fn main() {
+    let result = match parse_file("contract.yaml") {
+        Ok(r) => r,
+        Err(e) => {
+            eprintln!("{e}");
+            std::process::exit(2);
+        }
+    };
+    match result.into_contract() {
+        Ok(_contract) => {}
         Err(report) => {
             for d in &report.diagnostics {
                 eprintln!("{}: {}", d.id, d.message);
             }
             std::process::exit(1);
         }
-    };
-    let report = validate(&contract);
-    if !report.is_valid() {
-        std::process::exit(1);
     }
-    Ok(())
 }
 ```
+
+Using `miette` for fancy errors is optional — `parse_file` returns `miette::Result` because `miette` is a crate dependency. Add `miette = { version = "7", features = ["fancy"] }` if you use `fn main() -> miette::Result<()>`.
 
 ## Limits
 

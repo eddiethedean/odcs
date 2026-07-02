@@ -1,5 +1,8 @@
 # Installation
 
+!!! tip "Published vs main"
+    Latest **published** releases are **0.4.0** on crates.io and PyPI. The `main` branch is **0.5.0**. See [Release status](../project/release-status.md).
+
 ## Prerequisites
 
 | Component | Requirement |
@@ -107,7 +110,7 @@ Only `.yaml`, `.yml`, and `.json` are supported. Rename your file or convert the
 
 ### Validation fails on a contract that worked in 0.2.x
 
-Version 0.5.0 adds nested YAML duplicate-key detection. Version 0.4.0 makes default validation schema-complete. Version 0.3.0 enforces stricter parsing (`deny_unknown_fields`, nested quality). See [migration.md](migration.md) and [CHANGELOG.md](../../CHANGELOG.md).
+Version 0.5.0 adds nested YAML duplicate-key detection. Version 0.4.0 makes default validation schema-complete. Version 0.3.0 enforces stricter parsing (`deny_unknown_fields`, nested quality). See [migration.md](migration.md), [CHANGELOG.md](../../CHANGELOG.md), and [Troubleshooting](troubleshooting.md).
 
 ### `~/.cargo/bin` not on PATH (WSL, macOS, Linux)
 

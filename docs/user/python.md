@@ -29,6 +29,17 @@ pyodcs.CODES["INVALID_KIND"]  # "odcs:invalid-kind"
 
 See [diagnostics.md](diagnostics.md) for when each code fires.
 
+For choosing between `parse_and_validate`, `parse`, and `validate_result`, see [API decision guide](api-guide.md).
+
+## Recommended quick start
+
+```python
+import pyodcs
+
+report = pyodcs.parse_and_validate(open("contract.yaml", "rb").read(), format="yaml")
+assert pyodcs.is_valid(report)
+```
+
 ## Data shapes
 
 ### Parse result (`parse()`, `parse_file()`)

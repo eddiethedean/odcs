@@ -37,7 +37,7 @@ A report is **valid** when it contains no `error`-severity diagnostics.
 | `odcs:duplicate-key` | Duplicate mapping key in JSON or YAML (since 0.5.0, nested paths use dotted `object_ref`) | `id` or `schema[0].name` |
 | `odcs:document-too-large` | Document exceeds maximum parse size | — |
 | `odcs:unknown-field` | Unknown field at root or nested object (deny_unknown_fields) | dotted path (e.g. `schema[0].properties[0].requred`) |
-| `odcs:unsupported-version` | `version` or `apiVersion` not supported | `version`, `apiVersion` |
+| `odcs:unsupported-version` | Unsupported `apiVersion` (or empty `version`) | `apiVersion`, `version` |
 | `odcs:missing-required-field` | Required field missing or empty | field path |
 | `odcs:invalid-kind` | `kind` is not `DataContract` | `kind` |
 | `odcs:invalid-schema` | Schema object structural error | `schema[n].…` |
@@ -72,16 +72,16 @@ A report is **valid** when it contains no `error`-severity diagnostics.
 
 ```text
 [error] odcs:unknown-field: failed to parse document: unknown field `requred`
-  at: requred
+  at: schema[0].properties[0].requred
   hint: remove the unknown field or use customProperties for extensions
 ```
 
-### Unsupported version
+### Unsupported apiVersion
 
 ```text
-[error] odcs:unsupported-version: unsupported ODCS version '2.0.0'; supported: ["3.1.0"]
-  at: version
-  hint: set version to a supported ODCS release
+[error] odcs:unsupported-version: unsupported ODCS apiVersion 'v9.9.9'; supported: ["v3.1.0"]
+  at: apiVersion
+  hint: set apiVersion to a supported ODCS release
 ```
 
 ### Invalid library metric

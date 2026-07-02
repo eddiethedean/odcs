@@ -2,6 +2,8 @@
 
 This guide gets you from zero to a validated ODCS contract in about five minutes.
 
+New to ODCS? Read [What is ODCS?](what-is-odcs.md) first.
+
 ## What you need to know
 
 - **ODCS** (Open Data Contract Standard) defines machine-readable **data contracts** — schemas, quality rules, SLAs, ownership, and more.
@@ -111,21 +113,23 @@ println!("contract id: {}", contract.id);
 ```python
 import pyodcs
 
-content = open("contract.yaml", "rb").read()  # or examples/minimal.odcs.yaml from a checkout
-result = pyodcs.parse(content, format="yaml")
-report = pyodcs.validate_result(result)
+content = open("contract.yaml", "rb").read()
+report = pyodcs.parse_and_validate(content, format="yaml")
 assert pyodcs.is_valid(report)
-print(pyodcs.inspect(result["contract"]))
+print(pyodcs.inspect(pyodcs.parse(content, format="yaml")["contract"]))
 ```
+
+For step-by-step parse then validate, see [API decision guide](api-guide.md).
 
 ## Step 5 — Explore more examples
 
-The [examples catalog](../upstream/examples.md) includes contracts with SLA, team, servers, relationships, and quality rules.
+The [examples catalog](../examples.md) includes contracts with SLA, team, servers, relationships, and quality rules.
 
 ## What to read next
 
 | Goal | Document |
 |------|----------|
+| Choose the right API | [api-guide.md](api-guide.md) |
 | CLI flags and JSON output | [cli.md](cli.md) |
 | Rust API reference | [rust.md](rust.md) |
 | Python API reference | [python.md](python.md) |
@@ -133,6 +137,8 @@ The [examples catalog](../upstream/examples.md) includes contracts with SLA, tea
 | Error codes and remediation | [diagnostics.md](diagnostics.md) |
 | CI/CD integration | [ci-cd.md](ci-cd.md) |
 | Upgrade guide | [migration.md](migration.md) |
+| Fix a broken contract | [tutorials/fix-invalid-contract.md](tutorials/fix-invalid-contract.md) |
+| Troubleshoot errors | [troubleshooting.md](troubleshooting.md) |
 | Common questions | [faq.md](faq.md) |
 
 ## What this tool does not do

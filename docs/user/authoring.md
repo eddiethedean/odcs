@@ -43,7 +43,7 @@ schema:
 | `roles` | Access roles |
 | `customProperties` | Extensions (use instead of unknown fields) |
 
-See the [examples catalog](../upstream/examples.md) for contracts with SLA, team, servers, relationships, and quality rules.
+See the [examples catalog](../examples.md) for contracts with SLA, team, servers, relationships, and quality rules.
 
 ## Authoring rules
 
