@@ -1,0 +1,217 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+  MATURIN_PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+
+jobs:
+  checks:
+    uses: ./.github/workflows/checks.yml
+
+  publish-crates-io:
+    needs: checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Verify tag matches crate and Python versions
+        run: |
+          crate_version=$(grep '^version' Cargo.toml | head -1 | cut -d'"' -f2)
+          py_version=$(grep '^version' pyproject.toml | head -1 | cut -d'"' -f2)
+          tag_version="${GITHUB_REF_NAME#v}"
+          if [ "$crate_version" != "$tag_version" ]; then
+            echo "Tag ${GITHUB_REF_NAME} (v${tag_version}) does not match Cargo.toml version ${crate_version}"
+            exit 1
+          fi
+          if [ "$py_version" != "$tag_version" ]; then
+            echo "Tag ${GITHUB_REF_NAME} (v${tag_version}) does not match pyproject.toml version ${py_version}"
+            exit 1
+          fi
+      - name: cargo publish
+        run: |
+          set +e
+          output="$(cargo publish --locked --token "$CARGO_REGISTRY_TOKEN" 2>&1)"
+          code=$?
+          echo "$output"
+          if [ "$code" -ne 0 ] && echo "$output" | grep -q "already exists on crates.io index"; then
+            echo "crate already published; skipping"
+            exit 0
+          fi
+          exit "$code"
+
+  build-python-linux:
+    needs: checks
+    runs-on: ${{ matrix.platform.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - runner: ubuntu-22.04
+            target: x86_64
+          - runner: ubuntu-22.04
+            target: x86
+          - runner: ubuntu-22.04
+            target: aarch64
+            manylinux: 2_28
+          - runner: ubuntu-22.04
+            target: armv7
+          - runner: ubuntu-22.04
+            target: s390x
+          - runner: ubuntu-22.04
+            target: ppc64le
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.platform.target }}
+          args: --release --out dist --features python --locked --compatibility pypi
+          sccache: "true"
+          manylinux: ${{ matrix.platform.manylinux || 'auto' }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: python-dist-linux-${{ matrix.platform.target }}
+          path: dist/*
+          if-no-files-found: error
+
+  build-python-musllinux:
+    needs: checks
+    runs-on: ${{ matrix.platform.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - runner: ubuntu-22.04
+            target: x86_64
+          - runner: ubuntu-22.04
+            target: x86
+          - runner: ubuntu-22.04
+            target: aarch64
+          - runner: ubuntu-22.04
+            target: armv7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.platform.target }}
+          args: --release --out dist --features python --locked --compatibility pypi
+          sccache: "true"
+          manylinux: musllinux_1_2
+      - uses: actions/upload-artifact@v4
+        with:
+          name: python-dist-musllinux-${{ matrix.platform.target }}
+          path: dist/*
+          if-no-files-found: error
+
+  build-python-windows:
+    needs: checks
+    runs-on: ${{ matrix.platform.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - runner: windows-latest
+            target: x64
+            python_arch: x64
+          - runner: windows-latest
+            target: x86
+            python_arch: x86
+          - runner: windows-11-arm
+            target: aarch64
+            python_arch: arm64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          architecture: ${{ matrix.platform.python_arch }}
+      - name: Build wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.platform.target }}
+          args: --release --out dist --features python --locked --compatibility pypi
+          sccache: "true"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: python-dist-windows-${{ matrix.platform.target }}
+          path: dist/*
+          if-no-files-found: error
+
+  build-python-macos:
+    needs: checks
+    runs-on: ${{ matrix.platform.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - runner: macos-15-intel
+            target: x86_64
+          - runner: macos-latest
+            target: aarch64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.platform.target }}
+          args: --release --out dist --features python --locked --compatibility pypi
+          sccache: "true"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: python-dist-macos-${{ matrix.platform.target }}
+          path: dist/*
+          if-no-files-found: error
+
+  build-python-sdist:
+    needs: checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build sdist
+        uses: PyO3/maturin-action@v1
+        with:
+          command: sdist
+          args: --out dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: python-dist-sdist
+          path: dist/*
+          if-no-files-found: error
+
+  publish-pypi:
+    needs:
+      - build-python-linux
+      - build-python-musllinux
+      - build-python-windows
+      - build-python-macos
+      - build-python-sdist
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: python-dist-*
+          merge-multiple: true
+          path: dist
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Publish Python package to PyPI
+        run: |
+          pip install maturin
+          maturin upload --username __token__ --password "$MATURIN_PYPI_TOKEN" dist/*

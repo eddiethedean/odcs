@@ -3,13 +3,13 @@ requires = ["maturin>=1.0,<2"]
 build-backend = "maturin"
 
 [project]
-name = "odcs"
+name = "pyodcs"
 version = "0.1.0"
 description = "Reference implementation of the Open Data Contract Standard (ODCS)"
 readme = "README.md"
 license = { text = "Apache-2.0" }
 requires-python = ">=3.9"
-keywords = ["odcs", "data-contract", "contracts", "validation"]
+keywords = ["odcs", "pyodcs", "data-contract", "contracts", "validation"]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
     "License :: OSI Approved :: Apache Software License",
@@ -32,9 +32,9 @@ Repository = "https://github.com/odcs/odcs"
 Documentation = "https://docs.rs/odcs"
 
 [project.scripts]
-odcs = "odcs.__main__:main"
+pyodcs = "pyodcs.__main__:main"
 
 [tool.maturin]
 features = ["python"]
 python-source = "python"
-module-name = "odcs._native"
+module-name = "pyodcs._native"

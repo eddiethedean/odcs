@@ -63,7 +63,7 @@ odcs/
       mod.rs
 
   python/
-    odcs/
+    pyodcs/
       __init__.py
 
   examples/

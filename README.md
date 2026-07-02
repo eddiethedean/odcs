@@ -20,7 +20,7 @@ This repository contains:
 | [docs/](docs/) | Documentation index |
 | [docs/implementation/](docs/implementation/) | Reference implementation design and build guides |
 | [src/](src/) | Rust crate source (`odcs`) |
-| [python/](python/) | Python package source (planned) |
+| [python/](python/) | Python package source (`pyodcs` on PyPI) |
 | [examples/](examples/) | Sample ODCS data contracts |
 | [tests/](tests/) | Integration tests and fixtures |
 | [ROADMAP.md](ROADMAP.md) | Reference implementation milestones |
@@ -69,7 +69,7 @@ Execution, pipeline composition, and transformation semantics remain out of scop
 odcs/
 ├── SPEC.md                 # Upstream specification policy
 ├── Cargo.toml              # Rust crate manifest
-├── pyproject.toml          # Python package manifest (maturin, planned)
+├── pyproject.toml          # Python package manifest (`pyodcs`, maturin)
 ├── README.md
 ├── CONTRIBUTING.md
 ├── LICENSE
@@ -77,7 +77,7 @@ odcs/
 │   ├── README.md           # Documentation index
 │   └── implementation/     # Reference implementation guides
 ├── examples/               # Example data contracts
-├── python/                 # Python package source (planned)
+├── python/                 # Python package source (`pyodcs`)
 ├── src/                    # Rust library, CLI binary, validation
 ├── tests/                  # Integration tests and fixtures
 └── .cursor/prompts/        # Cursor build prompt

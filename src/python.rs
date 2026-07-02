@@ -1,3 +1,128 @@
-//! Python bindings (stub).
+//! Python bindings exposed through maturin as `pyodcs._native`.
 
-//! PyO3 bindings are planned for Phase 8.
+use pyo3::exceptions::{PyTypeError, PyValueError};
+use pyo3::prelude::*;
+use pyo3::types::{PyByteArray, PyDict};
+use serde::Serialize;
+
+use crate::diagnostics::inspect_contract;
+use crate::model::DataContract;
+use crate::parser::{parse, parse_file, DocumentFormat, ParseResult};
+
+fn value_to_py(py: Python<'_>, value: &impl Serialize) -> PyResult<Py<PyAny>> {
+    let json = serde_json::to_string(value)
+        .map_err(|e| PyValueError::new_err(format!("serialization failed: {e}")))?;
+    let json_mod = py.import("json")?;
+    json_mod
+        .call_method1("loads", (json,))
+        .map(|obj| obj.unbind())
+}
+
+fn parse_format(format: &str) -> PyResult<DocumentFormat> {
+    match format.to_lowercase().as_str() {
+        "yaml" | "yml" => Ok(DocumentFormat::Yaml),
+        "json" => Ok(DocumentFormat::Json),
+        other => Err(PyValueError::new_err(format!(
+            "unsupported format '{other}'; use 'yaml' or 'json'"
+        ))),
+    }
+}
+
+fn content_to_bytes(content: &Bound<'_, PyAny>) -> PyResult<Vec<u8>> {
+    if content.is_none() {
+        return Err(PyTypeError::new_err("content must be str or bytes"));
+    }
+    if let Ok(text) = content.extract::<String>() {
+        return Ok(text.into_bytes());
+    }
+    if let Ok(data) = content.extract::<Vec<u8>>() {
+        return Ok(data);
+    }
+    if let Ok(byte_array) = content.downcast::<PyByteArray>() {
+        return Ok(unsafe { byte_array.as_bytes().to_vec() });
+    }
+    Err(PyTypeError::new_err(
+        "content must be str, bytes, or bytearray",
+    ))
+}
+
+fn contract_from_py(py: Python<'_>, contract: &Bound<'_, PyAny>) -> PyResult<DataContract> {
+    if contract.is_none() {
+        return Err(PyTypeError::new_err("contract must be a dict, not None"));
+    }
+    let json_mod = py.import("json")?;
+    let json_str: String = json_mod.call_method1("dumps", (contract,))?.extract()?;
+    serde_json::from_str(&json_str)
+        .map_err(|e| PyValueError::new_err(format!("invalid contract: {e}")))
+}
+
+fn parse_result_to_py(py: Python<'_>, result: ParseResult) -> PyResult<Py<PyAny>> {
+    let dict = PyDict::new(py);
+    match result.contract {
+        Some(contract) => dict.set_item("contract", value_to_py(py, &contract)?)?,
+        None => dict.set_item("contract", py.None())?,
+    }
+    dict.set_item("report", value_to_py(py, &result.report)?)?;
+    Ok(dict.into())
+}
+
+/// Upstream ODCS specification version this crate targets.
+#[pyfunction]
+fn upstream_spec_version() -> &'static str {
+    crate::UPSTREAM_SPEC_VERSION
+}
+
+/// Parse an ODCS document from text or bytes.
+#[pyfunction]
+#[pyo3(signature = (content, format="yaml"))]
+fn parse_document(py: Python<'_>, content: &Bound<'_, PyAny>, format: &str) -> PyResult<Py<PyAny>> {
+    let bytes = content_to_bytes(content)?;
+    let doc_format = parse_format(format)?;
+    parse_result_to_py(py, parse(&bytes, doc_format))
+}
+
+/// Parse an ODCS document from a file path.
+#[pyfunction]
+fn parse_path(py: Python<'_>, path: &str) -> PyResult<Py<PyAny>> {
+    let result = parse_file(path).map_err(|e| PyValueError::new_err(e.to_string()))?;
+    parse_result_to_py(py, result)
+}
+
+/// Validate a parsed data contract.
+#[pyfunction]
+fn validate_contract(py: Python<'_>, contract: &Bound<'_, PyAny>) -> PyResult<Py<PyAny>> {
+    let contract = contract_from_py(py, contract)?;
+    value_to_py(py, &crate::validate(&contract))
+}
+
+/// Parse and validate an ODCS document in one step.
+#[pyfunction]
+#[pyo3(signature = (content, format="yaml"))]
+fn validate_document(
+    py: Python<'_>,
+    content: &Bound<'_, PyAny>,
+    format: &str,
+) -> PyResult<Py<PyAny>> {
+    let bytes = content_to_bytes(content)?;
+    let doc_format = parse_format(format)?;
+    value_to_py(py, &crate::parse_and_validate(&bytes, doc_format))
+}
+
+/// Return a short human-readable contract summary.
+#[pyfunction]
+fn inspect(py: Python<'_>, contract: &Bound<'_, PyAny>) -> PyResult<String> {
+    let contract = contract_from_py(py, contract)?;
+    Ok(inspect_contract(&contract))
+}
+
+/// Native extension module for the Python `pyodcs` package.
+#[pymodule]
+fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_function(wrap_pyfunction!(upstream_spec_version, m)?)?;
+    m.add_function(wrap_pyfunction!(parse_document, m)?)?;
+    m.add_function(wrap_pyfunction!(parse_path, m)?)?;
+    m.add_function(wrap_pyfunction!(validate_contract, m)?)?;
+    m.add_function(wrap_pyfunction!(validate_document, m)?)?;
+    m.add_function(wrap_pyfunction!(inspect, m)?)?;
+    Ok(())
+}

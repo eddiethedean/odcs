@@ -7,6 +7,27 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build and test Python package
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          python -m pip install --upgrade pip
+          python -m pip install maturin pytest
+          maturin develop --features python --locked
+          pytest python/tests -v
+      - name: maturin build (dry run)
+        run: |
+          source .venv/bin/activate
+          maturin build --features python --locked
+
   rust:
     runs-on: ubuntu-latest
     steps:
