@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.4.0
+## 0.4.0 — 2026-07-02
 
 Spec parity and validation maturity release — default validation is schema-complete for ODCS v3.1.0.
 
@@ -30,12 +30,17 @@ Spec parity and validation maturity release — default validation is schema-com
 - Python `validate(strict=True)`, `parse_and_validate(strict=True)`, `pinned_schema()`, and CLI parity
 - Python `CODES` diagnostic constants export
 - Read the Docs site via MkDocs ([`mkdocs.yml`](mkdocs.yml), [`.readthedocs.yaml`](.readthedocs.yaml))
+- User guides: Rust API, contract authoring, migration, CI/CD integration
+- [`SECURITY.md`](SECURITY.md) vulnerability reporting policy
 
 **Changed:**
 
 - `validate_strict()` is an alias for `validate()`
 - Upstream sync script no longer rewrites `version: 1.0.0` to `3.1.0`
 - `odcs schema` default output is full JSON Schema JSON (use `--url-only` for URL-only output)
+- Minimal examples use `version: 1.0.0` with `apiVersion: v3.1.0` (contract revision vs spec version)
+- PyPI `pyodcs` development status classifier: Pre-Alpha → Alpha
+- Quick start and README examples work without a repository clone
 
 ## 0.3.0
 

@@ -10,6 +10,7 @@ from pathlib import Path
 from pyodcs import (
     UPSTREAM_REPOSITORY_URL,
     UPSTREAM_SPEC_VERSION,
+    __version__,
     inspect,
     is_valid,
     parse_file,
@@ -18,16 +19,9 @@ from pyodcs import (
 )
 from pyodcs._native import inspect_summary as _inspect_summary
 
-PACKAGE_VERSION = "0.4.0"
-
 
 def _package_version() -> str:
-    try:
-        from importlib.metadata import version
-
-        return version("pyodcs")
-    except Exception:
-        return PACKAGE_VERSION
+    return __version__
 
 
 def _has_parse_failure(result: dict, report: dict) -> bool:

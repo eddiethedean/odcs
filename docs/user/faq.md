@@ -12,7 +12,7 @@ It lets you parse ODCS v3.1.0 contracts into a typed object model and validate t
 
 ### Is it production-ready?
 
-**Pre-release** (`0.4.0`, Alpha on PyPI). Default validation is schema-complete for ODCS v3.1.0.
+**Pre-1.0 Alpha** (`0.4.0`, Alpha on PyPI). Default validation is schema-complete for ODCS v3.1.0.
 
 | Area | Status in 0.4.0 |
 |------|-----------------|

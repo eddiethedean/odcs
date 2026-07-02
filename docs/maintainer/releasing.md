@@ -20,6 +20,32 @@ These files must agree on the version number:
 
 The release workflow verifies tag ↔ Cargo.toml ↔ pyproject.toml alignment.
 
+## Pre-release checklist
+
+Before pushing a tag:
+
+```bash
+# Full CI parity (see CONTRIBUTING.md)
+cargo fmt --all -- --check
+cargo clippy --all-targets -- -D warnings
+RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --locked
+cargo test --locked
+maturin develop --features python --locked && pytest python/tests -v
+maturin build --features python --locked
+pip install -r docs/requirements.txt && mkdocs build --strict
+
+# Publish dry runs
+cargo publish --dry-run --locked
+```
+
+Confirm:
+
+- [ ] `CHANGELOG.md` has release notes for the target version
+- [ ] `Cargo.toml`, `pyproject.toml`, and tag name all match
+- [ ] `main` is green in CI
+- [ ] GitHub secrets `CARGO_REGISTRY_TOKEN` and `PYPI_API_TOKEN` are set
+- [ ] No existing `vX.Y.Z` tag on the remote (check with `git ls-remote --tags origin`)
+
 ## Steps
 
 1. Update `CHANGELOG.md` with release notes.
