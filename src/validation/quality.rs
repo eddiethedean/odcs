@@ -109,6 +109,19 @@ fn validate_rule(report: &mut DiagnosticReport, rule: &DataQuality, object_ref: 
     }
 
     let Some(normalized) = normalized_rule_type(rule) else {
+        emit(
+            report,
+            validation_error(
+                ValidationPhase::Quality,
+                codes::INVALID_QUALITY,
+                DiagnosticCategory::Semantic,
+                "quality rule requires a type or inferrable fields (metric, query, engine)",
+            )
+            .with_object_ref(format!("{object_ref}.type"))
+            .with_remediation(
+                "set type to text, library, sql, or custom, or add metric, query, or engine",
+            ),
+        );
         return;
     };
 

@@ -25,6 +25,10 @@ Symptom → cause → fix for common `odcs` / `pyodcs` issues. For installation-
 | Duplicate YAML/JSON key | `odcs:duplicate-key` | Remove duplicate; check path in `object_ref` (exit code `2`) |
 | JSON Schema constraint | `odcs:json-schema-violation` | Run `odcs diagnostics file.yaml --json`; compare with `odcs schema` |
 | Relationship endpoint invalid | `odcs:unresolved-reference` | Fix `from` / `to` under `schema[].relationships` |
+| Duplicate schema object name | `odcs:invalid-schema` | Use unique `schema[].name` values (`phase: structural`) |
+| Duplicate server identifier | `odcs:invalid-schema` | Use unique `servers[].server` values (`phase: structural`) |
+| SLA element references missing schema | `odcs:unresolved-reference` | Set `slaProperties[].element` / `slaDefaultElement` to existing `schema[].name` |
+| Quality rule missing type | `odcs:invalid-quality` | Set `type` or add `metric`, `query`, or `engine` |
 | Server typo (e.g. `sever`) | `odcs:unknown-field` | Fix field name; use `server` at object root |
 
 ## Exit codes

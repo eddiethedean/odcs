@@ -26,7 +26,7 @@ Add to `Cargo.toml`:
 
 ```toml
 [dependencies]
-odcs = "0.5"
+odcs = "0.7"
 ```
 
 Default features include the CLI. For library-only use:

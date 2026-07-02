@@ -70,8 +70,9 @@ Monitor [Release workflow](../../.github/workflows/release.yml). See [Releasing]
 See [Changelog](../changelog.md). Highlights:
 
 - Structural validation phase: unique `schema[].name` and `servers[].server` values
-- `slaProperties[].element` and `slaDefaultElement` must reference existing schema object names
+- `slaProperties[].element` and `slaDefaultElement` must reference existing schema object names (comma-separated tokens supported)
 - Diagnostics use `validationPhase: structural` with `odcs:invalid-schema` or `odcs:unresolved-reference`
+- Bug fixes: `slaDefaultElement` comma/trim parity, empty `id` dedup, quality no-type validation, Python CLI `phase:` output
 
 ## Previous release
 

@@ -87,7 +87,7 @@ If you use `?` with these functions, add `miette` to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-odcs = "0.5"
+odcs = "0.7"
 miette = { version = "7", features = ["fancy"] }
 ```
 

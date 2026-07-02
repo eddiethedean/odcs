@@ -49,7 +49,16 @@ Semantics and exit codes are aligned.
 
 ### Why does my contract fail with `odcs:duplicate-key`?
 
-Since 0.5.0, duplicate mapping keys at any depth fail parse with exit code `2`. The `object_ref` uses a dotted path (e.g. `schema[0].name`). Fix duplicate keys so each field appears once. See [Migration](migration.md#04x-050).
+Since 0.5.0, duplicate mapping keys at any depth fail parse with exit code `2`. The `object_ref` uses a dotted path (e.g. `schema[0].name`). Fix duplicate keys so each field appears once. See [Migration](migration.md#04x--050).
+
+### Why does my contract fail structural validation in 0.7.0?
+
+Since 0.7.0, cross-field rules run in the `structural` validation phase:
+
+- Duplicate `schema[].name` or `servers[].server` → `odcs:invalid-schema`
+- `slaProperties[].element` or `slaDefaultElement` referencing a missing schema object → `odcs:unresolved-reference`
+
+Filter diagnostics with `validationPhase: structural` or see [Migration](migration.md#06x--070).
 
 ### Why does my contract fail with `odcs:unknown-field`?
 

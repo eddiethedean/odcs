@@ -23,6 +23,7 @@ const VALID_FIXTURES: &[&str] = &[
     "with-sla.yaml",
     "with-sla-description.yaml",
     "with-sla-default-element.yaml",
+    "with-sla-default-element-multi.yaml",
     "with-team.yaml",
     "with-team-legacy-array.yaml",
     "with-roles.yaml",

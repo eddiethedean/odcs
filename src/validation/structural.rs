@@ -7,8 +7,6 @@ use crate::diagnostics::{
 };
 use crate::model::DataContract;
 
-use super::helpers::is_blank;
-
 /// Validate cross-field structural constraints.
 #[must_use]
 pub fn validate(contract: &DataContract) -> DiagnosticReport {
@@ -94,20 +92,13 @@ fn validate_sla_element_refs(
         let Some(element) = sla.element.as_deref() else {
             continue;
         };
-        if element.is_empty() {
-            continue;
-        }
 
-        let object_ref = format!("slaProperties[{index}].element");
-        for token in element
-            .split(',')
-            .map(str::trim)
-            .filter(|token| !token.is_empty())
-        {
-            if !schema_names.contains(token) {
-                emit_unresolved_schema_reference(report, token, &object_ref);
-            }
-        }
+        validate_sla_element_tokens(
+            report,
+            element,
+            &format!("slaProperties[{index}].element"),
+            schema_names,
+        );
     }
 }
 
@@ -116,16 +107,37 @@ fn validate_sla_default_element(
     contract: &DataContract,
     schema_names: &HashSet<String>,
 ) {
-    if is_blank(&contract.sla_default_element) {
+    let Some(element) = contract.sla_default_element.as_deref() else {
+        return;
+    };
+
+    validate_sla_element_tokens(report, element, "slaDefaultElement", schema_names);
+}
+
+fn validate_sla_element_tokens(
+    report: &mut DiagnosticReport,
+    value: &str,
+    object_ref: &str,
+    schema_names: &HashSet<String>,
+) {
+    for_each_sla_element_token(value, |token| {
+        if !schema_names.contains(token) {
+            emit_unresolved_schema_reference(report, token, object_ref);
+        }
+    });
+}
+
+fn for_each_sla_element_token(value: &str, mut f: impl FnMut(&str)) {
+    let trimmed = value.trim();
+    if trimmed.is_empty() {
         return;
     }
-
-    let element = contract
-        .sla_default_element
-        .as_deref()
-        .expect("checked non-blank");
-    if !schema_names.contains(element) {
-        emit_unresolved_schema_reference(report, element, "slaDefaultElement");
+    for token in trimmed
+        .split(',')
+        .map(str::trim)
+        .filter(|token| !token.is_empty())
+    {
+        f(token);
     }
 }
 

@@ -93,3 +93,29 @@ Conformance tests in [`tests/json_schema_conformance.rs`](../../tests/json_schem
 **Status:** Complete (`0.4.0`).
 
 PyO3 bindings and the `pyodcs` package expose parse, validate, inspect, schema export, and CLI helpers with parity to the Rust `odcs` CLI.
+
+## Phase 9 — Parser hardening
+
+**Status:** Complete (`0.5.0`).
+
+- Nested YAML duplicate-key detection via `unsafe-libyaml` event walk
+- Path-aware `object_ref` for nested JSON and YAML duplicate keys
+- Fail-closed behavior on libyaml scan errors
+
+## Phase 10 — Diagnostics metadata
+
+**Status:** Complete (`0.6.0`).
+
+- `validationPhase` on every validation-stage diagnostic (JSON + CLI text)
+- `ValidationPhase` enum aligned with validator modules
+- Compile-time phase wiring in `validation_error` builder
+
+## Phase 11 — Structural validation
+
+**Status:** Complete (`0.7.0`).
+
+Cross-field rules in [`structural.rs`](../../src/validation/structural.rs):
+
+- Unique non-empty `schema[].name` and `servers[].server` values
+- `slaProperties[].element` and `slaDefaultElement` must reference existing schema object names (comma-separated tokens supported)
+- Documented in [SPEC.md](../../SPEC.md) structural validation (0.7.0) policy

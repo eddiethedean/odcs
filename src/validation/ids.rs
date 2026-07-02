@@ -43,7 +43,7 @@ fn validate_optional_stable_id(
 pub fn validate(contract: &DataContract) -> DiagnosticReport {
     let mut report = DiagnosticReport::new();
 
-    if !is_valid_stable_id(&contract.id) {
+    if !contract.id.is_empty() && !is_valid_stable_id(&contract.id) {
         emit(
             &mut report,
             validation_error(

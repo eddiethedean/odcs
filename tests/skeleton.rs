@@ -32,6 +32,7 @@ const SECTION_FIXTURES: &[&str] = &[
     "with-sla.yaml",
     "with-sla-description.yaml",
     "with-sla-default-element.yaml",
+    "with-sla-default-element-multi.yaml",
     "with-team.yaml",
     "with-team-legacy-array.yaml",
     "with-roles.yaml",
@@ -131,6 +132,14 @@ fn rejects_empty_id() {
         .diagnostics
         .iter()
         .any(|d| d.id == codes::MISSING_REQUIRED_FIELD && d.object_ref.as_deref() == Some("id")));
+    assert!(
+        !report
+            .diagnostics
+            .iter()
+            .any(|d| d.id == codes::INVALID_EXTENSION && d.object_ref.as_deref() == Some("id")),
+        "empty id should not also emit invalid-extension: {:?}",
+        report.diagnostics
+    );
 }
 
 #[test]

@@ -7,13 +7,21 @@ Structural validation release — cross-field rules for schema, server, and SLA 
 **Added:**
 
 - Structural validation phase: unique `schema[].name` and `servers[].server` values
-- `slaProperties[].element` and `slaDefaultElement` must reference existing schema object names (comma-separated tokens supported for `element`)
+- `slaProperties[].element` and `slaDefaultElement` must reference existing schema object names (comma-separated tokens supported)
 - Negative fixtures and tests for each structural rule
 - SPEC.md structural validation (0.7.0) policy section
+
+**Fixed:**
+
+- `slaDefaultElement` now uses the same comma-split and trim semantics as `slaProperties[].element`
+- Empty contract `id` no longer emits a duplicate `odcs:invalid-extension` diagnostic from the IDs phase
+- Quality rules without an inferrable type now emit `odcs:invalid-quality` from Rust validation
+- Python CLI text output includes `phase:` when `validationPhase` is set (Rust parity)
 
 **Changed:**
 
 - `with-sla-default-element.yaml` fixture uses `slaDefaultElement: "customers"` to match schema object name semantics
+- ROADMAP rebaselined: Phases 12–14 target `0.8.0`; Phase 15 targets `0.9.0`
 
 ## 0.6.0 — 2026-07-02
 

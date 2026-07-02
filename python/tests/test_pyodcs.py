@@ -166,6 +166,14 @@ def test_cli_validate_invalid_contract_exits_1() -> None:
     assert result.returncode == 1
 
 
+def test_cli_validate_text_includes_validation_phase() -> None:
+    result = _run_pyodcs_cli(
+        "validate", str(FIXTURES / "invalid-structural-duplicate-schema-name.yaml")
+    )
+    assert result.returncode == 1
+    assert "phase: structural" in result.stdout
+
+
 def test_cli_validate_parse_failure_exits_2() -> None:
     result = _run_pyodcs_cli("validate", str(FIXTURES / "malformed.yaml"))
     assert result.returncode == 2

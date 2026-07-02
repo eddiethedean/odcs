@@ -41,9 +41,9 @@ A report is **valid** when it contains no `error`-severity diagnostics.
 | `odcs:unsupported-version` | Unsupported `apiVersion` (or empty `version`) | `apiVersion`, `version` |
 | `odcs:missing-required-field` | Required field missing or empty | field path |
 | `odcs:invalid-kind` | `kind` is not `DataContract` | `kind` |
-| `odcs:invalid-schema` | Schema object structural error | `schema[n].…` |
+| `odcs:invalid-schema` | Schema object structural error; duplicate `schema[].name` or `servers[].server` (since 0.7.0, `validationPhase: structural`) | `schema[n].name`, `servers[n].server` |
 | `odcs:invalid-quality` | Quality rule constraint violation | `schema[n].quality[m].…` |
-| `odcs:unresolved-reference` | Relationship endpoint empty or invalid | `schema[n].relationships[m].…` |
+| `odcs:unresolved-reference` | Relationship endpoint invalid; dangling `slaProperties[].element` or `slaDefaultElement` schema reference (since 0.7.0, `validationPhase: structural`) | `schema[n].relationships[m].…`, `slaProperties[n].element`, `slaDefaultElement` |
 | `odcs:invalid-extension` | Custom property key invalid | `customProperties[n].property` |
 | `odcs:json-schema-violation` | Document fails pinned ODCS v3.1.0 JSON Schema validation (default `validate()`) | JSON instance path |
 

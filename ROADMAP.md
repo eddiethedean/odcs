@@ -21,10 +21,10 @@ The [upstream ODCS specification](https://github.com/bitol-io/open-data-contract
 | **9** | [Parser hardening](#phase-9--parser-hardening) | Nested YAML duplicate-key detection | **Complete** (`0.5.0`) |
 | **10** | [Diagnostics metadata](#phase-10--diagnostics-metadata) | `validationPhase` on validation diagnostics | **Complete** (`0.6.0`) |
 | **11** | [Structural validation](#phase-11--structural-validation) | Cross-field rules in `structural.rs` | **Complete** (`0.7.0`) |
-| **12** | [Section semantics](#phase-12--section-semantics) | Roles, SLA, pricing, support validators | Planned (`0.7.0`) |
-| **13** | [Cross-file references](#phase-13--cross-file-references) | Multi-document FQN resolution | Planned (`0.7.0`) |
-| **14** | [Compatibility analysis](#phase-14--compatibility-analysis) | Contract diff and breaking-change report | Planned (`0.7.0`) |
-| **15** | [Registry](#phase-15--registry) | Local contract index and lookup | Planned (`0.8.0`) |
+| **12** | [Section semantics](#phase-12--section-semantics) | Roles, SLA, pricing, support validators | Planned (`0.8.0`) |
+| **13** | [Cross-file references](#phase-13--cross-file-references) | Multi-document FQN resolution | Planned (`0.8.0`) |
+| **14** | [Compatibility analysis](#phase-14--compatibility-analysis) | Contract diff and breaking-change report | Planned (`0.8.0`) |
+| **15** | [Registry](#phase-15--registry) | Local contract index and lookup | Planned (`0.9.0`) |
 | **16** | [1.0 release](#phase-16--10-release) | API stabilization and upstream sync | Planned (`1.0.0`) |
 
 ## Dependencies
@@ -118,8 +118,7 @@ Phase 1  Skeleton
 
 **Target:** `0.4.0` — **Complete**
 
-- [x] Document validation (required root fields, version checks)
-- [x] Structural validation (version/apiVersion consistency)
+- [x] Document validation (required root fields, `apiVersion` / `kind` checks)
 - [x] Schema validation (required schema/property names)
 - [x] Quality validation (library metrics, rule-type constraints)
 - [x] Reference validation (relationship endpoints)
@@ -185,8 +184,8 @@ Phases 1–9 deliver schema-complete ODCS v3.1.0 document parsing and validation
 |---------|--------|-------|
 | `0.5.0` | 9 ✓ | Parser hardening (nested duplicate-key detection) |
 | `0.6.0` | 10 ✓ | Diagnostics metadata (`validationPhase`) |
-| `0.7.0` | 11 ✓ | Structural validation (section semantics, cross-file refs planned) |
-| `0.8.0` | 14 | Contract evolution and compatibility reporting |
+| `0.7.0` | 11 ✓ | Structural validation |
+| `0.8.0` | 12, 13, 14 | Section semantics, cross-file references, compatibility analysis |
 | `0.9.0` | 15 | Local registry and discovery |
 | `1.0.0` | 16 | Stable public API, deprecation cleanup, upstream alignment |
 
@@ -272,20 +271,19 @@ Out of scope for this repository (see [docs/implementation/non-goals.md](docs/im
 
 ## Phase 12 — Section semantics
 
-**Target:** `0.7.0` — **Planned**
+**Target:** `0.8.0` — **Planned**
 
-**Goal:** Add Rust-side semantic validation for sections where JSON Schema coverage is thin and [`sections.rs`](src/validation/sections.rs) only checks team usernames today.
+**Goal:** Add Rust-side semantic validation for sections where JSON Schema coverage is thin and remaining business rules are not yet covered.
 
-**Context:** [`extensions.rs`](src/validation/extensions.rs) validates some support/SLA empty fields and custom properties; [`ids.rs`](src/validation/ids.rs) validates optional stable IDs. Phase 12 adds **business semantics** per section model.
+**Context:** [`extensions.rs`](src/validation/extensions.rs) already validates non-empty `roles[].role`, support `channel`, and SLA `property`; [`sections.rs`](src/validation/sections.rs) validates team member usernames. Phase 12 adds **remaining business semantics** per section model.
 
 **Deliverables:**
 
 | Section | Module | Rules |
 |---------|--------|-------|
-| Team | `sections.rs` | *(existing)* non-empty `team.members[].username` |
-| Roles | `sections.rs` or `roles.rs` | Non-empty `roles[].role`; unique `roles[].id` when present |
-| Support | `sections.rs` | Non-empty `channel` *(existing)*; require `url` when channel is URL-bearing per spec enum |
-| SLA | `sections.rs` or `sla.rs` | Non-empty `property` *(existing in extensions)*; validate `scheduler`/`schedule` pairing if spec defines constraints |
+| Roles | `sections.rs` or `roles.rs` | Unique `roles[].id` when present |
+| Support | `sections.rs` | Require `url` when channel is URL-bearing per spec enum |
+| SLA | `sections.rs` or `sla.rs` | Validate `scheduler`/`schedule` pairing if spec defines constraints |
 | Pricing | `sections.rs` or `pricing.rs` | When `priceAmount` is set, require `priceCurrency`; reject negative amounts if spec disallows |
 
 - [ ] Implement validators; prefer extending `sections.rs` unless a section grows large enough to split
@@ -301,7 +299,7 @@ Out of scope for this repository (see [docs/implementation/non-goals.md](docs/im
 
 ## Phase 13 — Cross-file references
 
-**Target:** `0.7.0` — **Planned**
+**Target:** `0.8.0` — **Planned**
 
 **Goal:** Resolve fully-qualified relationship endpoints across a loaded set of contracts; fail unresolved refs with actionable diagnostics.
 
@@ -325,7 +323,7 @@ Out of scope for this repository (see [docs/implementation/non-goals.md](docs/im
 
 ## Phase 14 — Compatibility analysis
 
-**Target:** `0.7.0` — **Planned**
+**Target:** `0.8.0` — **Planned**
 
 **Goal:** Compare two parsed contracts and produce a structured breaking-change report for contract evolution workflows.
 
@@ -352,9 +350,7 @@ Out of scope for this repository (see [docs/implementation/non-goals.md](docs/im
 
 ## Phase 15 — Registry
 
-**Target:** `0.8.0` — **Planned**
-
-**Goal:** Provide a local contract index for discovery and optional integration with Phase 13 cross-file resolution.
+**Target:** `0.9.0` — **Planned**
 
 **Context:** Stub [`src/registry/mod.rs`](src/registry/mod.rs). Deferred from the first-repo milestone per [non-goals](docs/implementation/non-goals.md).
 

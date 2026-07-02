@@ -73,6 +73,9 @@ const VALIDATION_FIXTURES: &[&str] = &[
     "invalid-structural-duplicate-server.yaml",
     "invalid-structural-sla-element-dangling.yaml",
     "invalid-structural-sla-default-element-dangling.yaml",
+    "invalid-structural-sla-default-element-partial.yaml",
+    "invalid-quality-empty-rule.yaml",
+    "invalid-quality-mustbe-only.yaml",
 ];
 
 /// Fixtures that fail during parse (validationPhase must be absent).

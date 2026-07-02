@@ -1,0 +1,18 @@
+version: "3.1.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "sla-default-element-multi-contract"
+status: "draft"
+slaDefaultElement: "customers,orders"
+
+schema:
+  - name: "customers"
+    logicalType: "object"
+    properties:
+      - name: "customer_id"
+        logicalType: "string"
+  - name: "orders"
+    logicalType: "object"
+    properties:
+      - name: "order_id"
+        logicalType: "string"

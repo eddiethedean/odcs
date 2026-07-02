@@ -48,6 +48,12 @@ odcs/
       quality.rs
       references.rs
       extensions.rs
+      servers.rs
+      sections.rs
+      ids.rs
+      json_schema.rs
+      dedup.rs
+      helpers.rs
 
     diagnostics/
       mod.rs

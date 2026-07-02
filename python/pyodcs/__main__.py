@@ -60,6 +60,8 @@ def _render_report(report: dict, *, json_output: bool, mode: str) -> None:
         print(f"[{severity}] {code}: {message}")
         if object_ref := diagnostic.get("object_ref"):
             print(f"  at: {object_ref}")
+        if phase := diagnostic.get("validationPhase"):
+            print(f"  phase: {phase}")
         if remediation := diagnostic.get("remediation"):
             print(f"  hint: {remediation}")
 

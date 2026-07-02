@@ -19,6 +19,8 @@ cargo install odcs   # or: pip install pyodcs
 odcs validate contract.yaml
 ```
 
+Until `v0.7.0` is published, unpinned installs from crates.io/PyPI may serve **0.6.0**. Pin `0.7.0` or install from source — see [Release status](https://odcs.readthedocs.io/en/latest/project/release-status/).
+
 New to ODCS? Read [What is ODCS?](https://odcs.readthedocs.io/en/latest/user/what-is-odcs/) first.
 
 | | |

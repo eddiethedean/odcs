@@ -51,6 +51,9 @@ See the [examples catalog](../examples.md) for contracts with SLA, team, servers
 2. **Extensions** go in `customProperties` — unknown fields are rejected (`odcs:unknown-field`).
 3. **Library metrics** use v3.1.0 names: `nullValues`, `missingValues`, `invalidValues`, `duplicateValues`, `rowCount`.
 4. **Relationships** use `type: foreignKey` with valid `from` / `to` endpoints.
+5. **Schema object names** must be unique within `schema[]` (since 0.7.0).
+6. **Server identifiers** (`servers[].server`) must be unique within `servers[]` (since 0.7.0).
+7. **SLA element references** — `slaProperties[].element` and deprecated `slaDefaultElement` must name existing `schema[].name` values (comma-separated tokens allowed).
 
 ## Validate while authoring
 

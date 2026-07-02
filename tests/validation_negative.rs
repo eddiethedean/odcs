@@ -436,3 +436,22 @@ fn rejects_dangling_sla_default_element() {
         "slaDefaultElement",
     );
 }
+
+#[test]
+fn rejects_partial_sla_default_element_list() {
+    assert_structural_error(
+        "invalid-structural-sla-default-element-partial.yaml",
+        codes::UNRESOLVED_REFERENCE,
+        "slaDefaultElement",
+    );
+}
+
+#[test]
+fn rejects_empty_quality_rule() {
+    assert_invalid_with_code("invalid-quality-empty-rule.yaml", codes::INVALID_QUALITY);
+}
+
+#[test]
+fn rejects_quality_with_mustbe_only() {
+    assert_invalid_with_code("invalid-quality-mustbe-only.yaml", codes::INVALID_QUALITY);
+}
