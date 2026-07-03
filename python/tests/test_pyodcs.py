@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -19,7 +20,7 @@ def _fixture(name: str) -> bytes:
 
 def test_upstream_spec_version() -> None:
     assert pyodcs.UPSTREAM_SPEC_VERSION == "3.1.0"
-    assert pyodcs.__version__ == "0.9.0"
+    assert re.fullmatch(r"\d+\.\d+\.\d+", pyodcs.__version__)
     assert pyodcs.CODES["INVALID_KIND"] == "odcs:invalid-kind"
 
 
@@ -111,13 +112,6 @@ def test_parse_file_missing_raises_file_not_found() -> None:
         pyodcs.parse_file(str(FIXTURES / "does-not-exist.yaml"))
 
 
-def test_quality_rules_count_includes_items() -> None:
-    result = pyodcs.parse(_fixture("with-schema-quality-items.yaml"), "yaml")
-    contract = result["contract"]
-    assert contract is not None
-    assert pyodcs.quality_rules_count(contract) == 1
-
-
 def test_inspect_contract() -> None:
     result = pyodcs.parse(_fixture("minimal.odcs.yaml"), "yaml")
     contract = result["contract"]
@@ -139,10 +133,35 @@ def test_inspect_summary_matches_rust_fields() -> None:
 
 
 def test_quality_rules_count() -> None:
-    result = pyodcs.parse(_fixture("minimal.odcs.yaml"), "yaml")
-    contract = result["contract"]
-    assert contract is not None
-    assert pyodcs.quality_rules_count(contract) == 1
+    minimal = pyodcs.parse(_fixture("minimal.odcs.yaml"), "yaml")["contract"]
+    with_items = pyodcs.parse(_fixture("with-schema-quality-items.yaml"), "yaml")["contract"]
+    assert minimal is not None
+    assert with_items is not None
+    assert pyodcs.quality_rules_count(minimal) == 1
+    assert pyodcs.quality_rules_count(with_items) == 1
+
+
+def test_diff_detects_breaking_property_removal() -> None:
+    base = pyodcs.parse_file(str(FIXTURES / "compatibility" / "base.yaml"))["contract"]
+    breaking = pyodcs.parse_file(
+        str(FIXTURES / "compatibility" / "breaking-removed-column.yaml")
+    )["contract"]
+    assert base is not None
+    assert breaking is not None
+    report = pyodcs.diff(base, breaking)
+    assert report["hasBreaking"] is True
+    assert any(
+        change["kind"] == "breaking"
+        and change["path"] == "schema[customers].properties[email]"
+        for change in report["changes"]
+    )
+
+
+def test_parse_and_validate_paths_with_dep() -> None:
+    primary = FIXTURES / "cross-file" / "consumer-valid.yaml"
+    provider = FIXTURES / "cross-file" / "provider.yaml"
+    report = pyodcs.parse_and_validate_paths(str(primary), deps=[str(provider)])
+    assert pyodcs.is_valid(report)
 
 
 def _run_pyodcs_cli(*args: str) -> subprocess.CompletedProcess[str]:

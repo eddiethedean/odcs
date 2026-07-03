@@ -67,7 +67,6 @@ const VALIDATION_FIXTURES: &[&str] = &[
     "invalid-stable-id.yaml",
     "invalid-logical-type.yaml",
     "invalid-json-schema-only.yaml",
-    "invalid-lone-team-member.yaml",
     "unsupported-version.yaml",
     "invalid-structural-duplicate-schema-name.yaml",
     "invalid-structural-duplicate-server.yaml",
@@ -76,6 +75,11 @@ const VALIDATION_FIXTURES: &[&str] = &[
     "invalid-structural-sla-default-element-partial.yaml",
     "invalid-quality-empty-rule.yaml",
     "invalid-quality-mustbe-only.yaml",
+    "invalid-roles-duplicate-id.yaml",
+    "invalid-support-missing-url.yaml",
+    "invalid-sla-schedule-without-scheduler.yaml",
+    "invalid-pricing-missing-currency.yaml",
+    "invalid-pricing-negative-amount.yaml",
 ];
 
 /// Fixtures that fail during parse (validationPhase must be absent).
@@ -86,6 +90,7 @@ const PARSE_ONLY_FIXTURES: &[&str] = &[
     "invalid-nested-duplicate-key.json",
     "unknown-field.yaml",
     "nested-unknown-field.yaml",
+    "invalid-lone-team-member.yaml",
 ];
 
 #[test]
@@ -120,6 +125,19 @@ fn invalid_kind_uses_document_phase() {
         .find(|d| d.stage == DiagnosticStage::Validation)
         .expect("validation diagnostic");
     assert_eq!(diagnostic.validation_phase, Some(ValidationPhase::Document));
+}
+
+#[test]
+fn invalid_pricing_uses_sections_phase() {
+    let report = parse_and_validate_fixture("invalid-pricing-negative-amount.yaml");
+    assert!(
+        report.diagnostics.iter().any(|d| {
+            d.validation_phase == Some(ValidationPhase::Sections)
+                && d.object_ref.as_deref() == Some("price.priceAmount")
+        }),
+        "expected sections-phase pricing diagnostic: {:?}",
+        report.diagnostics
+    );
 }
 
 #[test]

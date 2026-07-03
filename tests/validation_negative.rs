@@ -398,10 +398,14 @@ fn strict_mode_rejects_json_schema_violation() {
     let contract = result.contract.expect("parsed contract");
     let report = validate_strict(&contract);
     assert!(!report.is_valid());
-    assert!(report
-        .diagnostics
-        .iter()
-        .any(|d| d.id == codes::INVALID_QUALITY || d.id == codes::JSON_SCHEMA_VIOLATION));
+    assert!(
+        report
+            .diagnostics
+            .iter()
+            .any(|d| d.id == codes::JSON_SCHEMA_VIOLATION),
+        "expected JSON Schema violation: {:?}",
+        report.diagnostics
+    );
 }
 
 #[test]

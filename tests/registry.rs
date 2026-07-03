@@ -1,33 +1,17 @@
 //! Registry integration tests.
 
-use std::path::{Path, PathBuf};
+mod common;
+
+use std::path::PathBuf;
 use std::sync::atomic::{AtomicU64, Ordering};
 
 use odcs::{
     index_and_save_registry, load_registry, load_set_with_registry, validate_set, Registry,
 };
 
+use common::{copy_dir_all, fixture_path as fixture};
+
 static TEMP_COUNTER: AtomicU64 = AtomicU64::new(0);
-
-fn fixture(name: &str) -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("tests/fixtures")
-        .join(name)
-}
-
-fn copy_dir_all(from: &Path, to: &Path) {
-    std::fs::create_dir_all(to).expect("create temp dir");
-    for entry in std::fs::read_dir(from).expect("read fixture dir") {
-        let entry = entry.expect("dir entry");
-        let file_type = entry.file_type().expect("file type");
-        let dest = to.join(entry.file_name());
-        if file_type.is_dir() {
-            copy_dir_all(&entry.path(), &dest);
-        } else {
-            std::fs::copy(entry.path(), dest).expect("copy fixture file");
-        }
-    }
-}
 
 fn isolated_contracts_root() -> PathBuf {
     let id = TEMP_COUNTER.fetch_add(1, Ordering::Relaxed);

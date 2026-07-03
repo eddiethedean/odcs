@@ -1,18 +1,30 @@
 //! CLI integration tests.
 
+mod common;
+
 use std::path::PathBuf;
 use std::process::Command;
+use std::sync::atomic::{AtomicU64, Ordering};
 
 use odcs::{codes, UPSTREAM_SPEC_VERSION};
 
-fn fixture(name: &str) -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("tests/fixtures")
-        .join(name)
-}
+use common::{copy_dir_all, fixture_path as fixture};
+
+static TEMP_COUNTER: AtomicU64 = AtomicU64::new(0);
 
 fn odcs_bin() -> Command {
     Command::new(env!("CARGO_BIN_EXE_odcs"))
+}
+
+fn isolated_registry_root() -> PathBuf {
+    let id = TEMP_COUNTER.fetch_add(1, Ordering::Relaxed);
+    let dir = std::env::temp_dir().join(format!(
+        "odcs-cli-registry-{}-{}",
+        std::process::id(),
+        id
+    ));
+    copy_dir_all(&fixture("registry/contracts"), &dir);
+    dir
 }
 
 #[test]
@@ -283,6 +295,39 @@ fn cli_diff_reports_breaking_exit_code() {
 }
 
 #[test]
+fn cli_validate_cross_file_with_include_succeeds() {
+    let include_dir = std::env::temp_dir().join(format!(
+        "odcs-cli-include-{}-{}",
+        std::process::id(),
+        TEMP_COUNTER.fetch_add(1, Ordering::Relaxed)
+    ));
+    std::fs::create_dir_all(&include_dir).expect("create include dir");
+    std::fs::copy(
+        fixture("cross-file/provider.yaml"),
+        include_dir.join("provider.yaml"),
+    )
+    .expect("copy provider");
+
+    let primary = fixture("cross-file/consumer-valid.yaml");
+    let output = odcs_bin()
+        .args([
+            "validate",
+            &primary.to_string_lossy(),
+            "--include",
+            &include_dir.to_string_lossy(),
+        ])
+        .output()
+        .expect("run cli");
+    assert!(
+        output.status.success(),
+        "stdout: {}\nstderr: {}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let _ = std::fs::remove_dir_all(&include_dir);
+}
+
+#[test]
 fn cli_validate_cross_file_with_dep_succeeds() {
     let primary = fixture("cross-file/consumer-valid.yaml");
     let provider = fixture("cross-file/provider.yaml");
@@ -299,8 +344,19 @@ fn cli_validate_cross_file_with_dep_succeeds() {
 }
 
 #[test]
+fn cli_validate_missing_file_exits_2() {
+    let path = fixture("does-not-exist.yaml");
+    let output = odcs_bin()
+        .arg("validate")
+        .arg(&path)
+        .output()
+        .expect("run cli");
+    assert_eq!(output.status.code(), Some(2));
+}
+
+#[test]
 fn cli_registry_index_and_validate_with_registry() {
-    let contracts_root = fixture("registry/contracts");
+    let contracts_root = isolated_registry_root();
     let index_output = odcs_bin()
         .args(["registry", "index", &contracts_root.to_string_lossy()])
         .output()
@@ -318,11 +374,12 @@ fn cli_registry_index_and_validate_with_registry() {
         .output()
         .expect("run validate");
     assert!(validate_output.status.success());
+    let _ = std::fs::remove_dir_all(&contracts_root);
 }
 
 #[test]
 fn cli_registry_lookup_prefers_highest_semver() {
-    let contracts_root = fixture("registry/contracts");
+    let contracts_root = isolated_registry_root();
     odcs_bin()
         .args(["registry", "index", &contracts_root.to_string_lossy()])
         .output()
@@ -340,11 +397,12 @@ fn cli_registry_lookup_prefers_highest_semver() {
     assert!(output.status.success());
     let stdout = String::from_utf8_lossy(&output.stdout);
     assert!(stdout.contains("2.0.0"));
+    let _ = std::fs::remove_dir_all(&contracts_root);
 }
 
 #[test]
 fn cli_registry_list_entries() {
-    let contracts_root = fixture("registry/contracts");
+    let contracts_root = isolated_registry_root();
     odcs_bin()
         .args(["registry", "index", &contracts_root.to_string_lossy()])
         .output()
@@ -357,4 +415,5 @@ fn cli_registry_list_entries() {
     assert!(output.status.success());
     let stdout = String::from_utf8_lossy(&output.stdout);
     assert!(stdout.contains("provider-contract"));
+    let _ = std::fs::remove_dir_all(&contracts_root);
 }

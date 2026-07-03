@@ -1,5 +1,7 @@
 //! Integration tests for the ODCS reference implementation.
 
+mod common;
+
 use std::fs;
 use std::path::PathBuf;
 
@@ -27,36 +29,6 @@ fn parse_fixture(name: &str) -> ParseResult {
 fn parse_fixture_contract(name: &str) -> DataContract {
     parse_fixture(name).into_contract().expect("parse fixture")
 }
-
-const SECTION_FIXTURES: &[&str] = &[
-    "with-sla.yaml",
-    "with-sla-description.yaml",
-    "with-sla-default-element.yaml",
-    "with-sla-default-element-multi.yaml",
-    "with-team.yaml",
-    "with-team-legacy-array.yaml",
-    "with-roles.yaml",
-    "with-servers.yaml",
-    "with-server-kafka.yaml",
-    "with-server-postgres.yaml",
-    "with-pricing.yaml",
-    "with-support.yaml",
-    "with-schema-quality.yaml",
-    "with-schema-properties.yaml",
-    "with-custom-properties.yaml",
-    "with-extensions.yaml",
-    "with-relationships.yaml",
-    "with-property-relationships.yaml",
-    "with-schema-array-items.yaml",
-    "with-custom-quality-object.yaml",
-    "with-tenant.yaml",
-    "with-root-tags.yaml",
-    "with-domain.yaml",
-    "with-description.yaml",
-    "with-data-product.yaml",
-    "with-contract-created-ts.yaml",
-    "with-authoritative-definitions.yaml",
-];
 
 #[test]
 fn upstream_spec_version_is_set() {
@@ -207,6 +179,14 @@ fn rejects_lone_team_member_object() {
     let result = parse_fixture("invalid-lone-team-member.yaml");
     assert!(result.contract.is_none());
     assert!(!result.report.is_valid());
+    assert!(
+        result.report.diagnostics.iter().any(|d| {
+            d.id == codes::PARSE_YAML
+                && d.message.contains("TeamDeclaration")
+        }),
+        "expected team parse failure: {:?}",
+        result.report.diagnostics
+    );
 }
 
 #[test]
@@ -232,7 +212,7 @@ fn into_contract_rejects_validation_invalid_contract() {
 
 #[test]
 fn parses_all_section_fixtures() {
-    for name in SECTION_FIXTURES {
+    for name in common::SECTION_FIXTURES {
         let contract = parse_fixture_contract(name);
         assert!(!contract.id.is_empty(), "fixture {name} missing id");
         assert_eq!(contract.api_version, "v3.1.0");

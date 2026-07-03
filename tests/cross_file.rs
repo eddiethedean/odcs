@@ -1,26 +1,29 @@
 //! Cross-file reference resolution tests.
 
+mod common;
+
+use std::fs;
 use std::path::PathBuf;
+use std::sync::atomic::{AtomicU64, Ordering};
 
-use odcs::{codes, load_set, parse_and_validate_set, validate_set, ValidationPhase};
+use odcs::{
+    codes, load_set, parse_and_validate_set, ValidationPhase,
+};
 
-fn fixture_path(name: &str) -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("tests/fixtures")
-        .join(name)
-}
+use common::fixture_path;
 
-#[test]
-fn cross_file_fqn_resolves_with_dependency() {
-    let primary = fixture_path("cross-file/consumer-valid.yaml");
-    let provider = fixture_path("cross-file/provider.yaml");
-    let set = load_set(&primary, &[provider], &[]).expect("load set");
-    let report = validate_set(&set);
-    assert!(
-        report.is_valid(),
-        "expected valid cross-file set: {:?}",
-        report.diagnostics
-    );
+static TEMP_COUNTER: AtomicU64 = AtomicU64::new(0);
+
+fn temp_include_dir_with_provider() -> PathBuf {
+    let id = TEMP_COUNTER.fetch_add(1, Ordering::Relaxed);
+    let dir = std::env::temp_dir().join(format!("odcs-include-test-{}-{}", std::process::id(), id));
+    fs::create_dir_all(&dir).expect("create include dir");
+    fs::copy(
+        fixture_path("cross-file/provider.yaml"),
+        dir.join("provider.yaml"),
+    )
+    .expect("copy provider");
+    dir
 }
 
 #[test]
@@ -53,4 +56,67 @@ fn parse_and_validate_set_with_dep_is_valid() {
         "expected valid with dependency: {:?}",
         report.diagnostics
     );
+}
+
+#[test]
+fn include_dir_resolves_fqn_without_explicit_dep() {
+    let include_dir = temp_include_dir_with_provider();
+    let primary = fixture_path("cross-file/consumer-valid.yaml");
+    let report = parse_and_validate_set(&primary, &[], &[include_dir.clone()]);
+    assert!(
+        report.is_valid(),
+        "expected valid with include dir: {:?}",
+        report.diagnostics
+    );
+    let _ = fs::remove_dir_all(&include_dir);
+}
+
+#[test]
+fn duplicate_contract_id_in_set_is_rejected() {
+    let id = TEMP_COUNTER.fetch_add(1, Ordering::Relaxed);
+    let dir = std::env::temp_dir().join(format!("odcs-dup-id-test-{}-{}", std::process::id(), id));
+    fs::create_dir_all(&dir).expect("create temp dir");
+
+    let contract_yaml = r#"version: "3.1.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "duplicate-id-contract"
+status: "active"
+schema:
+  - name: "customers"
+    logicalType: "object"
+    properties:
+      - name: "customer_id"
+        logicalType: "string"
+"#;
+    let primary = dir.join("primary.yaml");
+    let dep = dir.join("dep.yaml");
+    fs::write(&primary, contract_yaml).expect("write primary");
+    fs::write(&dep, contract_yaml).expect("write dep");
+
+    let result = load_set(&primary, &[dep.clone()], &[]);
+    assert!(result.is_err(), "expected duplicate id rejection");
+    let report = result.expect_err("duplicate id report");
+    assert!(
+        report.diagnostics.iter().any(|d| {
+            d.id == codes::INVALID_SCHEMA
+                && d.validation_phase == Some(ValidationPhase::Document)
+                && d.object_ref.as_deref() == Some("id")
+        }),
+        "expected duplicate id diagnostic: {:?}",
+        report.diagnostics
+    );
+    let _ = fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn include_dir_not_directory_returns_error() {
+    let id = TEMP_COUNTER.fetch_add(1, Ordering::Relaxed);
+    let file_path = std::env::temp_dir().join(format!("odcs-not-dir-{}-{}", std::process::id(), id));
+    fs::write(&file_path, "not a directory").expect("write file");
+
+    let primary = fixture_path("cross-file/consumer-valid.yaml");
+    let result = load_set(&primary, &[], &[file_path.clone()]);
+    assert!(result.is_err());
+    let _ = fs::remove_file(&file_path);
 }

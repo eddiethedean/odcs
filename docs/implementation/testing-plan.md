@@ -7,7 +7,9 @@
 | Integration | [`tests/skeleton.rs`](../../tests/skeleton.rs) | Parsing, validation, round-trip, section fixtures |
 | CLI | [`tests/cli.rs`](../../tests/cli.rs) | Exit codes, JSON output, all commands |
 | JSON Schema conformance | [`tests/json_schema_conformance.rs`](../../tests/json_schema_conformance.rs) | Valid/invalid fixtures vs `schema/odcs-v3.1.0.json`; upstream corpus |
-| Spec parity | [`tests/spec_parity.rs`](../../tests/spec_parity.rs) | Default `validate()` agrees with JSON Schema on valid fixtures |
+| Shared fixtures | [`tests/common/mod.rs`](../../tests/common/mod.rs) | Canonical valid fixture list and JSON Schema helpers |
+| Cross-file / contract set | [`tests/cross_file.rs`](../../tests/cross_file.rs) | `--dep`, `--include`, duplicate contract id rejection |
+| Compatibility | [`tests/compatibility.rs`](../../tests/compatibility.rs) | Contract diff and breaking-change classification |
 | Validation negative | [`tests/validation_negative.rs`](../../tests/validation_negative.rs) | Parser hardening, duplicate keys, server typos, dedup |
 | Python | [`python/tests/test_pyodcs.py`](../../python/tests/test_pyodcs.py) | API and CLI parity |
 | Doc tests | [`src/lib.rs`](../../src/lib.rs) | Public API example |
@@ -51,7 +53,7 @@ MkDocs site (Read the Docs): `pip install -r docs/requirements.txt && mkdocs bui
 | CLI success/failure exit codes | Covered (`cli.rs`) |
 | JSON output format | Covered |
 | JSON Schema conformance | Covered (`json_schema_conformance.rs`, default validation since 0.4.0) |
-| Spec parity (default vs JSON Schema) | Covered (`spec_parity.rs`) |
+| Spec parity (default vs JSON Schema) | Covered (`json_schema_conformance.rs` via `tests/common`) |
 | Schema export | Covered (`cli.rs`) |
 | Deprecated `--strict` alias | Covered (`cli.rs`, `validation_negative.rs`, Python tests) |
 | Nested duplicate-key detection | Covered (`validation_negative.rs`, `cli.rs`, Python tests) |
