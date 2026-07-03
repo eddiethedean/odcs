@@ -1,0 +1,61 @@
+name: Bug report
+description: Report a bug in odcs or pyodcs
+title: "[bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. Security issues should **not** be filed here — see [SECURITY.md](https://github.com/eddiethedean/odcs/blob/main/SECURITY.md).
+
+  - type: input
+    id: version
+    attributes:
+      label: odcs / pyodcs version
+      description: Output of `odcs version` or `pyodcs version`
+      placeholder: "0.9.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: binding
+    attributes:
+      label: Binding
+      options:
+        - Rust CLI (odcs)
+        - Python (pyodcs)
+        - Rust library
+        - Both CLI and library
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Minimal contract file, command, or code snippet
+      placeholder: |
+        odcs validate contract.yaml
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Include exit code and diagnostics if applicable
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: OS, Rust/Python version, link to related upstream ODCS spec section

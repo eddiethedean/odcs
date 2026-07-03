@@ -46,6 +46,14 @@ pytest python/tests -v
 
 ### Full CI parity
 
+Run the same checks as GitHub Actions:
+
+```bash
+./scripts/check.sh
+```
+
+Or run individually:
+
 ```bash
 cargo fmt --all -- --check
 cargo clippy --all-targets -- -D warnings
@@ -57,6 +65,10 @@ maturin build --features python --locked
 pip install -r docs/requirements.txt
 mkdocs build --strict
 ```
+
+## Code of conduct
+
+This project follows the [Contributor Covenant](CODE_OF_CONDUCT.md). Be respectful and constructive in issues and pull requests.
 
 ## Implementation changes
 

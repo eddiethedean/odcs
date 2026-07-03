@@ -1,7 +1,7 @@
 # Installation
 
 !!! tip "Version"
-    Current release is **0.7.0** on `main`. Published registries update when tag `v0.7.0` is pushed. See [Release status](../project/release-status.md).
+    Current release is **0.9.0** (published on crates.io and PyPI). **1.0.0** stabilization is in progress on `main`. See [Release status](../project/release-status.md).
 
 ## Prerequisites
 
@@ -26,7 +26,7 @@ Add to `Cargo.toml`:
 
 ```toml
 [dependencies]
-odcs = "0.7"
+odcs = "0.9"
 ```
 
 Default features include the CLI. For library-only use:

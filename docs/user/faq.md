@@ -12,16 +12,17 @@ It lets you parse ODCS v3.1.0 contracts into a typed object model and validate t
 
 ### Is it production-ready?
 
-**Pre-1.0 Alpha** (`0.7.0`, Alpha on PyPI). Default validation is schema-complete for ODCS v3.1.0.
+**0.9.0** is published on [crates.io](https://crates.io/crates/odcs) and [PyPI](https://pypi.org/project/pyodcs/). **1.0.0** stabilization is complete on `main`; the next release will commit to semver stability per [API stability policy](../implementation/api-stability.md).
 
-| Area | Status in 0.7.0 |
+| Area | Status in 0.9.0 |
 |------|-----------------|
 | Parse and validate ODCS v3.1.0 documents | Supported |
 | CLI and library APIs | Supported |
-| Registry server | Not implemented (see [Roadmap](../roadmap.md) Phase 15) |
-| Compatibility analysis | Not implemented (see [Roadmap](../roadmap.md) Phase 14) |
+| Local contract registry (index, lookup, `--registry`) | Supported |
+| Compatibility diff (`odcs diff`) | Supported |
+| Remote registry server | Out of scope (see [non-goals](../implementation/non-goals.md)) |
 
-See [Roadmap](../roadmap.md) and [non-goals](../implementation/non-goals.md).
+See [Release status](../project/release-status.md), [Roadmap](../roadmap.md), and [non-goals](../implementation/non-goals.md).
 
 ## Installation and usage
 
@@ -49,16 +50,16 @@ Semantics and exit codes are aligned.
 
 ### Why does my contract fail with `odcs:duplicate-key`?
 
-Since 0.5.0, duplicate mapping keys at any depth fail parse with exit code `2`. The `object_ref` uses a dotted path (e.g. `schema[0].name`). Fix duplicate keys so each field appears once. See [Migration](migration.md#04x--050).
+Since 0.5.0, duplicate mapping keys at any depth fail parse with exit code `2`. The `object_ref` uses a dotted path (e.g. `schema[0].name`). Fix duplicate keys so each field appears once. See [Migration](migration.md#04x-050).
 
-### Why does my contract fail structural validation in 0.7.0?
+### Why does my contract fail structural validation?
 
 Since 0.7.0, cross-field rules run in the `structural` validation phase:
 
 - Duplicate `schema[].name` or `servers[].server` → `odcs:invalid-schema`
 - `slaProperties[].element` or `slaDefaultElement` referencing a missing schema object → `odcs:unresolved-reference`
 
-Filter diagnostics with `validationPhase: structural` or see [Migration](migration.md#06x--070).
+Filter diagnostics with `validationPhase: structural` or see [Migration](migration.md#06x-070).
 
 ### Why does my contract fail with `odcs:unknown-field`?
 

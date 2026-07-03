@@ -46,7 +46,7 @@ Both return `Result<DataContract, DiagnosticReport>` after parse **and** validat
 | `ValidationOptions`, `validate_with_options()` | `validate()` |
 | Python `strict=` | Remove keyword |
 
-See [migration.md](migration.md#09x--100).
+See [migration.md](migration.md#09x-100).
 
 ## Python
 

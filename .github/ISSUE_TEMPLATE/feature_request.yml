@@ -1,0 +1,39 @@
+name: Feature request
+description: Suggest an enhancement for odcs or pyodcs
+title: "[feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please check [non-goals](https://odcs.readthedocs.io/en/latest/implementation/non-goals/) and [ROADMAP.md](https://github.com/eddiethedean/odcs/blob/main/ROADMAP.md) before filing. Out-of-scope features will be closed with a link to the policy.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or use case
+      description: What are you trying to accomplish?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope check
+      options:
+        - label: This aligns with ODCS document validation (not data execution or ETL)
+          required: true
+        - label: I checked non-goals.md and this is not listed as out of scope
+          required: true

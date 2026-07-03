@@ -1,11 +1,38 @@
 //! Reference implementation of the Open Data Contract Standard (ODCS).
 //!
-//! [`SPEC.md`](../SPEC.md) at the repository root defines the upstream specification
-//! policy. This crate implements the foundational pipeline:
+//! This is a **reference implementation** — not the normative ODCS specification.
+//! The upstream standard is maintained at
+//! [bitol-io/open-data-contract-standard](https://github.com/bitol-io/open-data-contract-standard).
+//!
+//! # User documentation
+//!
+//! - [Getting started](https://odcs.readthedocs.io/en/latest/user/getting-started/)
+//! - [API decision guide](https://odcs.readthedocs.io/en/latest/user/api-guide/)
+//! - [CLI reference](https://odcs.readthedocs.io/en/latest/user/cli/)
+//! - [API stability policy](https://odcs.readthedocs.io/en/latest/implementation/api-stability/)
+//!
+//! # Pipeline
 //!
 //! ```text
 //! ODCS Document → Parser → Canonical Object Model → Validator → Diagnostics
 //! ```
+//!
+//! # Stable API
+//!
+//! Use root re-exports only (`parse`, `validate`, `parse_and_validate`, `DataContract`,
+//! `ContractSet`, `Registry`, `diff`, …). Internal modules (`parser`, `validation`, `model`, …)
+//! are `#[doc(hidden)]` and not semver-stable. See the
+//! [public API guide](https://odcs.readthedocs.io/en/latest/implementation/public-api.md).
+//!
+//! # Error handling
+//!
+//! - [`parse`] / [`parse_and_validate`] — return [`DiagnosticReport`] (validation) or embed
+//!   parse diagnostics in [`ParseResult`]
+//! - [`parse_file`] / [`DataContract::from_file`] — return `miette::Result` for I/O errors
+//! - [`ParseResult::into_contract`] / [`parse_strict`] — `Result<DataContract, DiagnosticReport>`
+//!   after parse and validation
+//!
+//! Match on diagnostic [`codes`] and `object_ref`, not message text.
 //!
 //! # Example
 //!

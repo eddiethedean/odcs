@@ -58,7 +58,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install odcs
-        run: cargo install odcs --version 0.7.0 --locked
+        run: cargo install odcs --version 0.9.0 --locked
 
       - name: Validate contracts
         run: |
@@ -76,7 +76,7 @@ jobs:
         with:
           python-version: '3.12'
 
-      - run: pip install pyodcs==0.7.0
+      - run: pip install pyodcs==0.9.0
 
       - run: pyodcs validate contracts/customer.yaml
 ```

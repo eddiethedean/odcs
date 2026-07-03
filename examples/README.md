@@ -20,6 +20,16 @@ odcs validate examples/minimal.odcs.yaml
 | [with-relationships.yaml](with-relationships.yaml) | Schema-level foreign key relationships |
 | [with-schema-quality.yaml](with-schema-quality.yaml) | Nested quality rules (library, SQL, text) |
 | [with-extensions.yaml](with-extensions.yaml) | Root and nested `customProperties` |
+| [registry/](registry/) | Local registry index + cross-file FQN resolution (0.9.0+) |
+
+## Registry example
+
+```bash
+odcs registry index examples/registry/
+odcs validate examples/registry/consumer.yaml --registry examples/registry/
+```
+
+See [registry/README.md](registry/README.md).
 
 ## Validate all examples
 

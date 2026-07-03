@@ -22,7 +22,16 @@ cargo install odcs
 pip install pyodcs
 ```
 
-Both resolve to **0.7.0** from registries. To pin explicitly: `cargo install odcs --version 0.7.0 --locked` or `pip install pyodcs==0.7.0`. See [Release status](../project/release-status.md).
+Both resolve to **0.9.0** from registries. To pin explicitly: `cargo install odcs --version 0.9.0 --locked` or `pip install pyodcs==0.9.0`. See [Release status](../project/release-status.md).
+
+Verify either CLI:
+
+```bash
+odcs version
+pyodcs version
+```
+
+Both report `crateVersion` **0.9.0** and `upstreamSpecVersion` **3.1.0**.
 
 See [installation.md](installation.md) for prerequisites, from-source setup, and troubleshooting.
 
@@ -85,6 +94,15 @@ odcs inspect examples/minimal.odcs.yaml
 Prints a short summary: id, name, version, schema count, quality rule count.
 
 ## Step 4 — Use from code
+
+Choose the entry point that matches your needs. See [API decision guide](api-guide.md) for the full table.
+
+| Goal | Rust | Errors |
+|------|------|--------|
+| Parse + validate; diagnostics only | `parse_and_validate()` | `DiagnosticReport` |
+| Parse then validate separately | `parse()` then `validate()` | `ParseResult`, then `DiagnosticReport` |
+| Typed contract or fail | `parse_strict()` or `into_contract()` | `Result<DataContract, DiagnosticReport>` |
+| Read from file | `parse_file()` | `miette::Result` for I/O; `DiagnosticReport` for validation |
 
 ### Rust
 

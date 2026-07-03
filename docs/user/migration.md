@@ -2,7 +2,7 @@
 
 This guide covers breaking changes between releases of `odcs` and `pyodcs`.
 
-## 0.9.x → 1.0.0
+## 0.9.x → 1.0.0 { #09x-100 }
 
 ### Deprecated strict API removed
 
@@ -85,7 +85,7 @@ Python: `pyodcs.parse_and_validate_paths(primary, deps=[...])`
 
 **After (0.8.0):** Compare contracts with `odcs diff old.yaml new.yaml` (exit `1` when breaking changes exist). Python: `pyodcs.diff(old_dict, new_dict)`.
 
-## 0.6.x → 0.7.0
+## 0.6.x → 0.7.0 { #06x-070 }
 
 ### Structural cross-field validation
 
@@ -110,7 +110,7 @@ Python: `pyodcs.parse_and_validate_paths(primary, deps=[...])`
 
 **Action:** CI filters that relied on parsing `message` text can use `validationPhase` instead. Python consumers can use `pyodcs.VALIDATION_PHASES`. No changes required for well-formed contracts; diagnostic `id` values are unchanged.
 
-## 0.4.x → 0.5.0
+## 0.4.x → 0.5.0 { #04x-050 }
 
 ### Nested duplicate keys fail parse
 

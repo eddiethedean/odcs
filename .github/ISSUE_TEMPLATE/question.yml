@@ -1,0 +1,28 @@
+name: Question
+description: Ask a usage or adoption question
+title: "[question]: "
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For validation errors, see [Troubleshooting](https://odcs.readthedocs.io/en/latest/user/troubleshooting/) and [FAQ](https://odcs.readthedocs.io/en/latest/user/faq/) first.
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+    validations:
+      required: true
+
+  - type: dropdown
+    id: binding
+    attributes:
+      label: Context
+      options:
+        - CLI usage
+        - Rust library
+        - Python library
+        - CI/CD integration
+        - ODCS authoring
+        - Contributing

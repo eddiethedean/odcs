@@ -6,16 +6,20 @@
 [![Documentation](https://readthedocs.org/projects/odcs/badge/?version=latest)](https://odcs.readthedocs.io/)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
-**odcs** validates [Open Data Contract Standard (ODCS)](https://github.com/bitol-io/open-data-contract-standard) YAML/JSON files locally and in CI.
+> **Reference implementation, not the specification.** This repo validates ODCS documents. The normative [Open Data Contract Standard (ODCS)](https://github.com/bitol-io/open-data-contract-standard) is maintained by Bitol.
+
+**odcs** validates ODCS YAML/JSON files locally and in CI.
 
 It checks that your contract document is well-formed and conforms to ODCS v3.1.0 — schema, quality rules, SLAs, ownership, and server metadata. It does **not** run quality checks against live data.
 
-> **Release:** **0.9.0** is published on [crates.io](https://crates.io/crates/odcs) and [PyPI](https://pypi.org/project/pyodcs/). See [Release status](https://odcs.readthedocs.io/en/latest/project/release-status/).
+> **Release:** **0.9.0** is published on [crates.io](https://crates.io/crates/odcs) and [PyPI](https://pypi.org/project/pyodcs/). **1.0.0** stabilization is on `main` — see [Release status](https://odcs.readthedocs.io/en/latest/project/release-status/) and [API stability policy](https://odcs.readthedocs.io/en/latest/implementation/api-stability/).
 
 **Install → validate in 60 seconds:**
 
 ```bash
 cargo install odcs   # or: pip install pyodcs
+odcs version         # crateVersion 0.9.0, upstreamSpecVersion 3.1.0
+pyodcs version       # same output from the Python CLI
 odcs validate contract.yaml
 ```
 
@@ -31,16 +35,17 @@ New to ODCS? Read [What is ODCS?](https://odcs.readthedocs.io/en/latest/user/wha
 
 ## Quick start
 
-Save a minimal contract as `contract.yaml`:
+Copy [`examples/minimal.odcs.yaml`](examples/minimal.odcs.yaml) or save as `contract.yaml` (`.yaml` and `.odcs.yaml` both work):
 
 ```yaml
-version: "1.0.0"
-apiVersion: "v3.1.0"
+version: "1.0.0"      # your contract revision
+apiVersion: "v3.1.0"  # ODCS spec release — not the same as version
 kind: "DataContract"
 id: "hello-contract"
 status: "draft"
 schema:
   - name: customers
+    logicalType: object
     properties:
       - name: customer_id
         logicalType: string
@@ -51,6 +56,15 @@ schema:
 odcs validate contract.yaml   # prints: valid
 ```
 
+On failure, diagnostics include stable codes and paths:
+
+```text
+[error] odcs:invalid-kind: expected kind 'DataContract', got 'WrongKind'
+  at: kind
+```
+
+See [Diagnostics](https://odcs.readthedocs.io/en/latest/user/diagnostics/) and [Troubleshooting](https://odcs.readthedocs.io/en/latest/user/troubleshooting/).
+
 From code:
 
 ```python
@@ -60,7 +74,7 @@ report = pyodcs.parse_and_validate(open("contract.yaml", "rb").read(), format="y
 assert pyodcs.is_valid(report)
 ```
 
-Full walkthrough: [Getting started](https://odcs.readthedocs.io/en/latest/user/getting-started/) · [Installation](docs/user/installation.md)
+Full walkthrough: [Getting started](https://odcs.readthedocs.io/en/latest/user/getting-started/) · [Installation](https://odcs.readthedocs.io/en/latest/user/installation/)
 
 ## Documentation
 
@@ -76,10 +90,12 @@ Full walkthrough: [Getting started](https://odcs.readthedocs.io/en/latest/user/g
 | Integrate in CI/CD | [CI/CD](https://odcs.readthedocs.io/en/latest/user/ci-cd/) |
 | Fix validation errors | [Troubleshooting](https://odcs.readthedocs.io/en/latest/user/troubleshooting/) |
 | Browse examples | [Examples](https://odcs.readthedocs.io/en/latest/examples/) |
+| Local registry & cross-file refs | [examples/registry/](examples/registry/) |
 | Contribute | [Contributing](https://odcs.readthedocs.io/en/latest/contributing/) |
+| Upstream sync policy (maintainers) | [SPEC.md](SPEC.md) |
 | Report a security issue | [SECURITY.md](SECURITY.md) |
 
-**Status:** Alpha pre-1.0 — see [ROADMAP.md](ROADMAP.md) and [Release status](https://odcs.readthedocs.io/en/latest/project/release-status/).
+**Status:** 0.9.0 published; 1.0 stabilization on `main` — [Release status](https://odcs.readthedocs.io/en/latest/project/release-status/) · [API stability](https://odcs.readthedocs.io/en/latest/implementation/api-stability/) · [ROADMAP.md](ROADMAP.md)
 
 > This repository implements the standard; it is not the ODCS specification itself.
 
@@ -93,7 +109,7 @@ Execution, pipeline composition, and transformation semantics are out of scope. 
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). When implementation guidance conflicts with the upstream ODCS specification, **the upstream specification wins**.
+See [CONTRIBUTING.md](CONTRIBUTING.md). Run `./scripts/check.sh` before opening a PR. When implementation guidance conflicts with the upstream ODCS specification, **the upstream specification wins**.
 
 ## License
 
