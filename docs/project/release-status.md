@@ -1,6 +1,6 @@
 # Release status
 
-Current release: **0.9.0** (pending publish).
+Current release: **0.9.0** (published 2026-07-03).
 
 ## Version alignment
 
@@ -9,14 +9,16 @@ Current release: **0.9.0** (pending publish).
 | `Cargo.toml` | **0.9.0** | Aligned |
 | `pyproject.toml` | **0.9.0** | Aligned |
 | `CHANGELOG.md` | **0.9.0** | Release notes present |
-| Git tag | **v0.9.0** | Pending |
+| Git tag | **v0.9.0** | Published |
 
 ## Registry status
 
 | Registry | Latest published |
 |----------|------------------|
-| [crates.io](https://crates.io/crates/odcs) | **0.8.0** (0.9.0 pending) |
-| [PyPI](https://pypi.org/project/pyodcs/) | **0.8.0** (0.9.0 pending) |
+| [crates.io](https://crates.io/crates/odcs) | **0.9.0** |
+| [PyPI](https://pypi.org/project/pyodcs/) | **0.9.0** |
+
+Release workflow: [actions/runs/28630711719](https://github.com/eddiethedean/odcs/actions/runs/28630711719) (success).
 
 ## Install 0.9.0
 
