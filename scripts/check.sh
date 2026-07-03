@@ -36,4 +36,7 @@ echo "=== mkdocs ==="
 python -m pip install -q -r docs/requirements.txt
 mkdocs build --strict
 
+echo "=== doc version lint ==="
+./scripts/check-doc-versions.sh
+
 echo "All checks passed."

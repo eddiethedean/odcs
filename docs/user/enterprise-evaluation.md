@@ -19,7 +19,7 @@ See [Non-goals](../implementation/non-goals.md).
 
 | Attribute | Status |
 |-----------|--------|
-| Release stage | **Pre-1.0 → 1.0 stabilization** |
+| Release stage | **0.9.0 published; 1.0.0 stabilization complete on `main`, pending release** |
 | Current tree version | 0.9.0 on `main` |
 | Latest published (crates.io / PyPI) | **0.9.0** — see [Release status](../project/release-status.md) |
 | ODCS spec target | v3.1.0 (`apiVersion: "v3.1.0"`) |
@@ -70,7 +70,7 @@ Pin versions in CI for reproducibility. See [CI/CD integration](ci-cd.md).
 | Cross-file references | 0.8.0 ✓ |
 | Compatibility analysis | 0.8.0 ✓ |
 | Local registry | 0.9.0 ✓ |
-| 1.0 API stabilization | Planned |
+| 1.0 API stabilization | Complete on `main`; pending publish |
 
 Full timeline: [Roadmap](../roadmap.md).
 
@@ -79,9 +79,10 @@ Full timeline: [Roadmap](../roadmap.md).
 1. [What is ODCS?](what-is-odcs.md) — confirm problem fit
 2. [Getting started](getting-started.md) — validate a sample contract
 3. [CI/CD integration](ci-cd.md) — prototype pipeline gate
-4. [Release status](../project/release-status.md) — align on published vs `main` version
-5. [Architecture](../implementation/architecture.md) — technical depth for platform teams
-6. [API stability policy](../implementation/api-stability.md) — semver expectations for 1.0
+4. [Local registry](registry.md) — monorepo cross-file validation
+5. [Release status](../project/release-status.md) — align on published vs `main` version
+6. [Architecture](../implementation/architecture.md) — technical depth for platform teams
+7. [API stability policy](../implementation/api-stability.md) — semver expectations for 1.0
 
 ## Comparison positioning
 

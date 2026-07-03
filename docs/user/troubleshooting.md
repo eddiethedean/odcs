@@ -57,6 +57,14 @@ Nested duplicates in **block-style** YAML and JSON are detected. Not fully scann
 
 Use block-style YAML in CI. See [Diagnostics — Duplicate-key limitations](diagnostics.md#duplicate-key-limitations-050).
 
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| FQN references not checked in CI | Validated without `--registry` or `--dep` | Index and pass `--registry`, or use `--dep` |
+| `registry entry not found` | Stale or missing index | Run `odcs registry index <dir>` |
+| Index fails on duplicate `(id, version)` | Two files share the same identity | Use unique pairs or separate registry roots |
+| Index fails on symlink | Path escapes registry root | Remove or replace symlink |
+| Parallel index jobs corrupt index | Concurrent `registry index` on same dir | Serialize index step in CI |
+
 ## Upgrading from older releases
 
 Contracts that passed 0.2.x or 0.3.x may fail under 0.4.0+ (JSON Schema always on) or 0.5.0 (duplicate keys). See [Migration](migration.md).

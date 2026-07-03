@@ -292,6 +292,57 @@ def test_pinned_schema_export() -> None:
     assert "schema" in metadata
 
 
+def test_cli_diff_breaking_exits_1() -> None:
+    old = FIXTURES / "compatibility" / "base.yaml"
+    new = FIXTURES / "compatibility" / "breaking-removed-column.yaml"
+    result = _run_pyodcs_cli("diff", str(old), str(new))
+    assert result.returncode == 1
+    assert "odcs:compatibility-breaking" in result.stdout
+
+
+def test_cli_validate_with_dep_succeeds() -> None:
+    primary = FIXTURES / "cross-file" / "consumer-valid.yaml"
+    provider = FIXTURES / "cross-file" / "provider.yaml"
+    result = _run_pyodcs_cli(
+        "validate",
+        str(primary),
+        "--dep",
+        str(provider),
+    )
+    assert result.returncode == 0
+    assert "valid" in result.stdout
+
+
+def test_cli_registry_index_and_validate_with_registry(tmp_path: Path) -> None:
+    contracts_root = FIXTURES / "registry" / "contracts"
+    isolated = tmp_path / "contracts"
+    _copy_tree(contracts_root, isolated)
+
+    index_result = _run_pyodcs_cli("registry", "index", str(isolated))
+    assert index_result.returncode == 0
+
+    primary = FIXTURES / "registry" / "consumer.yaml"
+    validate_result = _run_pyodcs_cli(
+        "validate",
+        str(primary),
+        "--registry",
+        str(isolated),
+    )
+    assert validate_result.returncode == 0
+    assert "valid" in validate_result.stdout
+
+
+def test_cli_registry_lookup_prefers_highest_semver(tmp_path: Path) -> None:
+    contracts_root = FIXTURES / "registry" / "contracts"
+    isolated = tmp_path / "contracts"
+    _copy_tree(contracts_root, isolated)
+    _run_pyodcs_cli("registry", "index", str(isolated))
+
+    result = _run_pyodcs_cli("registry", "lookup", str(isolated), "provider-contract")
+    assert result.returncode == 0
+    assert "2.0.0" in result.stdout
+
+
 def test_registry_index_lookup_and_validate(tmp_path: Path) -> None:
     contracts_root = FIXTURES / "registry" / "contracts"
     isolated = tmp_path / "contracts"

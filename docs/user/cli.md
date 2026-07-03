@@ -123,6 +123,25 @@ odcs version --json
 }
 ```
 
+## diff
+
+Compare two contract files for breaking changes (schema removals, type changes, etc.).
+
+```bash
+odcs diff old.yaml new.yaml
+odcs diff old.yaml new.yaml --json
+```
+
+| Exit code | Meaning |
+|-----------|---------|
+| `0` | No breaking changes |
+| `1` | Breaking changes detected |
+| `2` | Parse or I/O failure |
+
+JSON output includes `compatible`, `hasBreaking`, and a `changes` list with `kind`, `code`, `message`, and `path`.
+
+See [Compatibility analysis](compatibility.md).
+
 ## registry
 
 Build and query a local contract index at `<dir>/.odcs/registry.json`.
@@ -138,18 +157,21 @@ Add `--json` for structured output. `lookup` without `--version` returns the hig
 
 ## CI integration example
 
+For monorepos with cross-file FQN references, index once and validate with `--registry`:
+
 ```bash
 #!/bin/sh
 set -e
+odcs registry index ./contracts/
 for f in contracts/*.yaml; do
-  odcs validate "$f" --json > /dev/null
+  odcs validate "$f" --registry ./contracts/ --json > /dev/null
 done
 ```
 
-Or fail the job on any invalid contract:
+For a single contract with no cross-file references:
 
 ```bash
 odcs validate contract.yaml || exit 1
 ```
 
-See [diagnostics.md](diagnostics.md) for error code reference.
+See [CI/CD integration](ci-cd.md) and [Local registry](registry.md).

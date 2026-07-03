@@ -10,7 +10,7 @@ Save as `contract.yaml` and validate with `odcs validate contract.yaml`:
 version: "1.0.0"
 apiVersion: "v3.1.0"
 kind: "DataContract"
-id: "my-data-contract"
+id: "hello-contract"
 status: "draft"
 
 schema:

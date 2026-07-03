@@ -16,7 +16,7 @@ These files must agree on the version number:
 |------|-------|
 | `Cargo.toml` | `[package] version` |
 | `pyproject.toml` | `[project] version` |
-| Git tag | `vX.Y.Z` (e.g. `v0.7.0`) |
+| Git tag | `vX.Y.Z` (e.g. `v0.9.0`) |
 
 The release workflow verifies tag ↔ Cargo.toml ↔ pyproject.toml alignment.
 
@@ -33,6 +33,7 @@ cargo test --locked
 maturin develop --features python --locked && pytest python/tests -v
 maturin build --features python --locked
 pip install -r docs/requirements.txt && mkdocs build --strict
+./scripts/check-doc-versions.sh
 
 # Publish dry runs
 cargo publish --dry-run --locked
@@ -54,8 +55,8 @@ Confirm:
 4. Create and push the tag:
 
 ```bash
-git tag v0.7.0
-git push origin v0.7.0
+git tag vX.Y.Z
+git push origin vX.Y.Z
 ```
 
 5. Monitor [`.github/workflows/release.yml`](../../.github/workflows/release.yml):

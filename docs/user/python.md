@@ -156,6 +156,60 @@ entries = pyodcs.registry_list("./contracts/")
 
 `registry_index` builds an in-memory index without writing to disk. `registry_load` reads an existing index file.
 
+Each registry helper returns JSON-compatible dicts. Index operations return:
+
+```python
+{
+    "entries": [
+        {
+            "id": "provider-contract",
+            "version": "1.0.0",
+            "path": "contracts/provider.yaml",
+            "apiVersion": "v3.1.0",
+            "tags": [],
+            "contentHash": "...",
+            "indexedAt": "...",
+        }
+    ],
+    "report": {"diagnostics": [...]}
+}
+```
+
+`registry_lookup` returns an entry dict or `None`. `registry_list` returns a list of entry dicts.
+
+## Compatibility diff
+
+Compare two **parsed** contract dicts:
+
+```python
+old = pyodcs.parse_file("old.yaml")["contract"]
+new = pyodcs.parse_file("new.yaml")["contract"]
+report = pyodcs.diff(old, new)
+```
+
+### Report shape
+
+```python
+{
+    "hasBreaking": True,
+    "changes": [
+        {
+            "kind": "breaking",
+            "code": "odcs:compatibility-breaking",
+            "message": "removed property 'email'",
+            "path": "schema[customers].properties[email]",
+        }
+    ],
+}
+```
+
+| Field | Description |
+|-------|-------------|
+| `hasBreaking` | `True` when any change has `kind: "breaking"` |
+| `changes` | List of changes with `kind`, `code`, `message`, `path` |
+
+See [Compatibility analysis](compatibility.md).
+
 ### `pinned_schema(*, json_metadata=False)`
 
 Return the pinned ODCS v3.1.0 JSON Schema dict.
@@ -207,12 +261,18 @@ The `pyodcs` console script mirrors the Rust `odcs` CLI:
 
 ```bash
 pyodcs validate examples/minimal.odcs.yaml
+pyodcs validate consumer.yaml --dep provider.yaml
+pyodcs validate consumer.yaml --registry ./contracts/
 pyodcs inspect examples/minimal.odcs.yaml --json
 pyodcs diagnostics examples/minimal.odcs.yaml
+pyodcs diff old.yaml new.yaml
+pyodcs registry index ./contracts/
+pyodcs registry lookup ./contracts/ provider-contract
 pyodcs schema
 pyodcs schema --json
 pyodcs schema --url-only
 pyodcs version
+pyodcs version --json
 ```
 
 Exit codes match the Rust CLI: `0` valid, `1` validation error, `2` parse/I/O failure.
@@ -247,6 +307,7 @@ if not pyodcs.is_valid(report):
 | `diagnostic_codes()` / `CODES` | Diagnostic code constants |
 | `validation_phases()` / `VALIDATION_PHASES` | Validation phase name constants (since 0.6.0) |
 | `parse_and_validate_paths()` | `parse_and_validate_set_with_registry()` |
+| `diff()` | `diff()` |
 | `registry_*()` | `index_registry`, `load_registry`, `Registry` |
 | `pinned_schema()` | `odcs schema` |
 

@@ -217,8 +217,8 @@ pub fn parse_file(path: impl AsRef<Path>) -> miette::Result<ParseResult> {
         )
     })?;
 
-    let file = File::open(path)
-        .map_err(|e| miette::miette!("failed to read {}: {e}", path.display()))?;
+    let file =
+        File::open(path).map_err(|e| miette::miette!("failed to read {}: {e}", path.display()))?;
     let mut content = Vec::new();
     file.take(MAX_PARSE_BYTES.saturating_add(1))
         .read_to_end(&mut content)

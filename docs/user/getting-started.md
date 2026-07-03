@@ -49,6 +49,7 @@ id: "hello-contract"
 status: "draft"
 schema:
   - name: customers
+    logicalType: object
     properties:
       - name: customer_id
         logicalType: string
@@ -81,6 +82,17 @@ On failure you see structured diagnostics:
 ```
 
 Exit codes: `0` = valid, `1` = validation error, `2` = parse or I/O failure.
+
+### Multiple contracts in one repo?
+
+If relationships use fully-qualified names (`provider-id/schema/column`), validate with dependencies:
+
+```bash
+odcs registry index ./contracts/
+odcs validate consumer.yaml --registry ./contracts/
+```
+
+Single-file `validate` does not load other contracts. See [CI/CD integration](ci-cd.md#cross-file-and-fqn-relationships) and [Local registry](registry.md).
 
 ## Step 3 — Inspect a contract
 
@@ -117,6 +129,7 @@ id: "hello-contract"
 status: "draft"
 schema:
   - name: customers
+    logicalType: object
     properties:
       - name: customer_id
         logicalType: string
@@ -151,6 +164,8 @@ The [examples catalog](../examples.md) includes contracts with SLA, team, server
 |------|----------|
 | Choose the right API | [api-guide.md](api-guide.md) |
 | CLI flags and JSON output | [cli.md](cli.md) |
+| Local registry | [registry.md](registry.md) |
+| Compatibility diff | [compatibility.md](compatibility.md) |
 | Rust API reference | [rust.md](rust.md) |
 | Python API reference | [python.md](python.md) |
 | Author a contract | [authoring.md](authoring.md) |

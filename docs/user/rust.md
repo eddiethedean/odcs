@@ -8,13 +8,13 @@ Add to `Cargo.toml`:
 
 ```toml
 [dependencies]
-odcs = "0.7"
+odcs = "0.9"
 ```
 
 For library-only use (no CLI binary):
 
 ```toml
-odcs = { version = "0.7", default-features = false }
+odcs = { version = "0.9", default-features = false }
 ```
 
 See [installation.md](installation.md) for `cargo install` and from-source setup.
@@ -200,6 +200,59 @@ Using `miette` for fancy errors is optional — `parse_file` returns `miette::Re
 
 - Maximum document size: 16 MiB (`MAX_PARSE_BYTES`)
 - Supported formats: YAML (`.yaml`, `.yml`) and JSON (`.json`)
+
+## Multi-document validation
+
+Load a primary contract with explicit dependencies, include directories, or a registry root:
+
+```rust
+use odcs::{load_set_with_registry, validate_set};
+use std::path::Path;
+
+let set = load_set_with_registry(
+    Path::new("consumer.yaml"),
+    &[Path::new("provider.yaml").to_path_buf()],
+    &[],
+    None,
+)?;
+let report = validate_set(&set);
+assert!(report.is_valid());
+```
+
+With a local registry:
+
+```rust
+use odcs::{load_registry, load_set_with_registry, validate_set};
+use std::path::Path;
+
+let registry = load_registry(Path::new("./contracts/"))?;
+let set = load_set_with_registry(
+    Path::new("consumer.yaml"),
+    &[],
+    &[],
+    Some(&registry),
+)?;
+let report = validate_set(&set);
+```
+
+Convenience helpers: `load_set`, `parse_and_validate_set`, `parse_and_validate_set_with_registry`. See [Local registry](registry.md).
+
+## Compatibility diff
+
+```rust
+use odcs::{diff, parse_file};
+
+let old = parse_file("old.yaml")?.into_contract()?;
+let new = parse_file("new.yaml")?.into_contract()?;
+let report = diff(&old, &new);
+if report.has_breaking {
+    for change in &report.changes {
+        eprintln!("{}: {}", change.path, change.message);
+    }
+}
+```
+
+See [Compatibility analysis](compatibility.md).
 
 ## Python equivalent
 

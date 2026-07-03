@@ -12,14 +12,14 @@
 
 It checks that your contract document is well-formed and conforms to ODCS v3.1.0 — schema, quality rules, SLAs, ownership, and server metadata. It does **not** run quality checks against live data.
 
-> **Release:** **0.9.0** is published on [crates.io](https://crates.io/crates/odcs) and [PyPI](https://pypi.org/project/pyodcs/). **1.0.0** stabilization is on `main` — see [Release status](https://odcs.readthedocs.io/en/latest/project/release-status/) and [API stability policy](https://odcs.readthedocs.io/en/latest/implementation/api-stability/).
+> **Release:** **0.9.0** is published on [crates.io](https://crates.io/crates/odcs) and [PyPI](https://pypi.org/project/pyodcs/). **1.0.0** stabilization is complete on `main`, pending release tag and registry publish — see [Release status](https://odcs.readthedocs.io/en/latest/project/release-status/) and [API stability policy](https://odcs.readthedocs.io/en/latest/implementation/api-stability/).
 
 **Install → validate in 60 seconds:**
 
 ```bash
 cargo install odcs   # or: pip install pyodcs
-odcs version         # crateVersion 0.9.0, upstreamSpecVersion 3.1.0
-pyodcs version       # same output from the Python CLI
+odcs version         # odcs 0.9.0 (upstream ODCS 3.1.0)
+pyodcs version       # pyodcs 0.9.0 (upstream ODCS 3.1.0); use --json for crateVersion JSON
 odcs validate contract.yaml
 ```
 
@@ -90,12 +90,13 @@ Full walkthrough: [Getting started](https://odcs.readthedocs.io/en/latest/user/g
 | Integrate in CI/CD | [CI/CD](https://odcs.readthedocs.io/en/latest/user/ci-cd/) |
 | Fix validation errors | [Troubleshooting](https://odcs.readthedocs.io/en/latest/user/troubleshooting/) |
 | Browse examples | [Examples](https://odcs.readthedocs.io/en/latest/examples/) |
-| Local registry & cross-file refs | [examples/registry/](examples/registry/) |
+| Local registry & cross-file refs | [Local registry](https://odcs.readthedocs.io/en/latest/user/registry/) · [examples/registry/](examples/registry/) |
+| Compare contract revisions | [Compatibility analysis](https://odcs.readthedocs.io/en/latest/user/compatibility/) |
 | Contribute | [Contributing](https://odcs.readthedocs.io/en/latest/contributing/) |
 | Upstream sync policy (maintainers) | [SPEC.md](SPEC.md) |
 | Report a security issue | [SECURITY.md](SECURITY.md) |
 
-**Status:** 0.9.0 published; 1.0 stabilization on `main` — [Release status](https://odcs.readthedocs.io/en/latest/project/release-status/) · [API stability](https://odcs.readthedocs.io/en/latest/implementation/api-stability/) · [ROADMAP.md](ROADMAP.md)
+**Status:** 0.9.0 published; 1.0 stabilization complete on `main`, pending release — [Release status](https://odcs.readthedocs.io/en/latest/project/release-status/) · [API stability](https://odcs.readthedocs.io/en/latest/implementation/api-stability/) · [ROADMAP.md](ROADMAP.md)
 
 > This repository implements the standard; it is not the ODCS specification itself.
 

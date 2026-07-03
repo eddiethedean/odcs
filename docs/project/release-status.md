@@ -1,6 +1,6 @@
 # Release status
 
-Current release: **0.9.0** (published 2026-07-03). **1.0.0** stabilization is in progress on `main`.
+Current release: **0.9.0** (published 2026-07-03). **1.0.0** stabilization is complete on `main`, pending release tag and crates.io/PyPI publish.
 
 ## 1.0 release gate
 

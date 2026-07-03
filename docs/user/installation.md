@@ -1,7 +1,7 @@
 # Installation
 
 !!! tip "Version"
-    Current release is **0.9.0** (published on crates.io and PyPI). **1.0.0** stabilization is in progress on `main`. See [Release status](../project/release-status.md).
+    Current release is **0.9.0** (published on crates.io and PyPI). **1.0.0** stabilization is complete on `main`, pending release tag and registry publish. See [Release status](../project/release-status.md).
 
 ## Prerequisites
 
@@ -32,7 +32,7 @@ odcs = "0.9"
 Default features include the CLI. For library-only use:
 
 ```toml
-odcs = { version = "0.7", default-features = false }
+odcs = { version = "0.9", default-features = false }
 ```
 
 ### Build from source

@@ -35,12 +35,9 @@ fn collect_recursive(
     out: &mut Vec<PathBuf>,
     visited: &mut HashSet<PathBuf>,
 ) -> Result<(), String> {
-    let canonical = current.canonicalize().map_err(|error| {
-        format!(
-            "failed to resolve directory {}: {error}",
-            current.display()
-        )
-    })?;
+    let canonical = current
+        .canonicalize()
+        .map_err(|error| format!("failed to resolve directory {}: {error}", current.display()))?;
     if !visited.insert(canonical) {
         return Err(format!(
             "directory cycle detected at {} (symlink loop?)",

@@ -12,7 +12,7 @@ It lets you parse ODCS v3.1.0 contracts into a typed object model and validate t
 
 ### Is it production-ready?
 
-**0.9.0** is published on [crates.io](https://crates.io/crates/odcs) and [PyPI](https://pypi.org/project/pyodcs/). **1.0.0** stabilization is complete on `main`; the next release will commit to semver stability per [API stability policy](../implementation/api-stability.md).
+**0.9.0** is the latest published release on [crates.io](https://crates.io/crates/odcs) and [PyPI](https://pypi.org/project/pyodcs/). **1.0.0** stabilization is complete on `main` but not yet tagged on registries — see [Release status](../project/release-status.md). After **1.0.0** ships, root Rust re-exports and CLI subcommands follow [API stability policy](../implementation/api-stability.md).
 
 | Area | Status in 0.9.0 |
 |------|-----------------|
@@ -115,6 +115,18 @@ See [Authoring contracts](authoring.md) for a minimal template. The normative OD
 ### How do I upgrade from an older release?
 
 See [Migration](migration.md).
+
+### When do I need to re-index the registry?
+
+After any add, remove, or change to contract files under the registry root. There is no auto-reindex on `validate`. Run `odcs registry index <dir>` explicitly.
+
+### What is an FQN relationship endpoint?
+
+A fully-qualified name like `provider-contract/customers/customer_id` — contract id, schema object name, and property path. FQN references resolve only when dependency contracts are loaded via `--dep`, `--include`, or `--registry`.
+
+### Why does validate pass without `--registry`?
+
+Single-file `validate` does not load other contracts. FQN cross-contract checks are skipped when no dependencies are provided. Use `--registry` or `--dep` for consumers with FQN references. See [Local registry](registry.md).
 
 ## Contributing
 

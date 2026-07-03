@@ -125,7 +125,10 @@ fn missing_dep_path_returns_error() {
     let primary = fixture_path("cross-file/consumer-valid.yaml");
     let missing = PathBuf::from("/nonexistent/odcs-dep-path.yaml");
     let result = load_set(&primary, std::slice::from_ref(&missing), &[]);
-    assert!(result.is_err(), "expected error for missing dependency path");
+    assert!(
+        result.is_err(),
+        "expected error for missing dependency path"
+    );
     let report = result.expect_err("missing dep report");
     assert!(
         report

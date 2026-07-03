@@ -64,6 +64,7 @@ pytest python/tests -v
 maturin build --features python --locked
 pip install -r docs/requirements.txt
 mkdocs build --strict
+./scripts/check-doc-versions.sh
 ```
 
 ## Code of conduct

@@ -467,7 +467,8 @@ fn run_registry_command(command: RegistryCommand) -> i32 {
                             return code;
                         }
                     } else {
-                        if let Err(code) = write_stderr_line(format!("registry entry not found: {id}"))
+                        if let Err(code) =
+                            write_stderr_line(format!("registry entry not found: {id}"))
                         {
                             eprintln!("failed to write output");
                             return code;

@@ -60,6 +60,8 @@ nav:
       - Python: user/python.md
       - API decision guide: user/api-guide.md
       - Authoring contracts: user/authoring.md
+      - Local registry: user/registry.md
+      - Compatibility analysis: user/compatibility.md
       - Diagnostics: user/diagnostics.md
       - CI/CD integration: user/ci-cd.md
       - Migration: user/migration.md
@@ -69,6 +71,8 @@ nav:
       - Enterprise evaluation: user/enterprise-evaluation.md
   - Tutorials:
       - Fix your first invalid contract: user/tutorials/fix-invalid-contract.md
+      - Multi-contract monorepo with registry: user/tutorials/registry-monorepo.md
+      - Contract upgrade with diff: user/tutorials/contract-upgrade-with-diff.md
   - Examples: examples.md
   - Project:
       - Release status: project/release-status.md
