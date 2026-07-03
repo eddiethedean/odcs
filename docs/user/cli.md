@@ -21,7 +21,6 @@ odcs registry list <dir>            # List indexed contracts
 | Flag | Commands | Description |
 |------|----------|-------------|
 | `--json` | all | Emit JSON output (`schema --json` includes metadata wrapper) |
-| `--strict` | `validate` | Deprecated no-op (JSON Schema always runs in 0.4.0+) |
 | `--dep` | `validate` | Explicit dependency contract path (repeatable) |
 | `--include` | `validate` | Non-recursive directory scan for dependency contracts |
 | `--registry` | `validate` | Registry root directory (`<dir>/.odcs/registry.json`) |
@@ -136,10 +135,6 @@ odcs registry list ./contracts/
 ```
 
 Add `--json` for structured output. `lookup` without `--version` returns the highest semver entry for the id. Exit `1` when lookup finds no entry; index exits `1` on duplicate `(id, version)` pairs.
-
-## `--strict` (deprecated)
-
-Since 0.4.0, JSON Schema validation always runs. `--strict` is accepted for backward compatibility but has no additional effect.
 
 ## CI integration example
 

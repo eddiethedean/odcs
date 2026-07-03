@@ -38,6 +38,16 @@ Parse failures emit diagnostics with stage `parse` (exit code `2` from CLI).
 
 Not fully scanned: flow-style mappings, anchors, and aliases. Documented in [Diagnostics — Duplicate-key limitations](../user/diagnostics.md#duplicate-key-limitations-050).
 
+### YAML security limits
+
+| Control | Value | Notes |
+|---------|-------|-------|
+| Maximum document size | 16 MiB (`MAX_PARSE_BYTES`) | Enforced before parse |
+| Duplicate-key scan | Block mappings only | Flow style, anchors, aliases not scanned |
+| Deserialization | `serde_yaml` | No explicit nesting depth cap; rely on size limit |
+
+Treat untrusted YAML as potentially hostile. Do not point the CLI at paths outside your trust boundary. See [SECURITY.md](../../SECURITY.md).
+
 ## Validation pipeline
 
 `validate()` in [`src/validation/mod.rs`](../../src/validation/mod.rs) runs phases sequentially and merges reports:
@@ -86,10 +96,9 @@ Feature-gated binary in `src/cli/` (`cli` feature, default on). Subcommands dele
 
 | Module | Planned purpose |
 |--------|-----------------|
-| `registry/` | Contract registry / discovery |
-| `compatibility/` | Cross-version contract diffing |
+| — | — |
 
-Do not depend on these until a roadmap milestone ships. See [Non-goals](non-goals.md).
+`compatibility/` and `registry/` are implemented (0.8.0 / 0.9.0). See [registry.md](registry.md) and [cross-file-references.md](cross-file-references.md).
 
 ## Module map
 
@@ -100,6 +109,9 @@ Do not depend on these until a roadmap milestone ships. See [Non-goals](non-goal
 | `validation/` | Phase-based validation pipeline |
 | `diagnostics/` | Structured error records and codes |
 | `schema/` | Pinned ODCS JSON Schema asset |
+| `compatibility/` | Contract diff and breaking-change analysis |
+| `registry/` | Local contract index (`.odcs/registry.json`) |
+| `contract_set.rs` | Multi-document loading and cross-file validation |
 | `cli/` | `odcs` binary (feature `cli`) |
 
 See [crate-layout.md](crate-layout.md) for file-level layout and [relationship-to-dtcs.md](relationship-to-dtcs.md) for ecosystem positioning.

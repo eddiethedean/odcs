@@ -8,7 +8,6 @@ use clap::{Parser, Subcommand};
 use crate::diagnostics::{inspect_contract, DiagnosticReport, DiagnosticStage};
 use crate::parser::{parse_file, ParseResult};
 use crate::schema::{self, UPSTREAM_REPOSITORY_URL};
-use crate::validation::ValidationOptions;
 use crate::UPSTREAM_SPEC_VERSION;
 
 /// ODCS command-line tool.
@@ -43,9 +42,6 @@ pub enum Command {
         /// Emit JSON output.
         #[arg(long)]
         json: bool,
-        /// Deprecated no-op retained for compatibility (JSON Schema always runs in validate).
-        #[arg(long)]
-        strict: bool,
     },
     /// Print a contract summary.
     Inspect {
@@ -139,14 +135,7 @@ pub fn run(cli: Cli) -> i32 {
             includes,
             registry_dir,
             json,
-            strict,
         } => {
-            let options = if strict {
-                ValidationOptions::strict()
-            } else {
-                ValidationOptions::default_options()
-            };
-
             let registry = match registry_dir.as_ref() {
                 Some(dir) => match crate::registry::load_registry(dir) {
                     Ok(registry) => Some(registry),
@@ -169,7 +158,7 @@ pub fn run(cli: Cli) -> i32 {
                         return 2;
                     }
                 };
-                result.validate_with_options(options)
+                result.validate()
             } else {
                 match crate::contract_set::load_set_with_registry(
                     &path,
@@ -177,7 +166,7 @@ pub fn run(cli: Cli) -> i32 {
                     &includes,
                     registry.as_ref(),
                 ) {
-                    Ok(set) => crate::contract_set::validate_set_with_options(&set, options),
+                    Ok(set) => crate::contract_set::validate_set(&set),
                     Err(report) => report,
                 }
             };

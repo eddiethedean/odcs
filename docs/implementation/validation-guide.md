@@ -35,18 +35,6 @@ assert!(report.is_valid());
 - `version` — contract document revision (any non-empty string, e.g. `1.0.0`)
 - `apiVersion` — ODCS spec release; this implementation requires `v3.1.0`
 
-## Validation options (deprecated)
-
-`ValidationOptions` and `--strict` are retained for backward compatibility. Since 0.4.0, JSON Schema validation always runs; `strict` has no effect.
-
-```rust
-use odcs::{validate_strict, ValidationOptions};
-
-// Aliases for validate() since 0.4.0
-let _ = validate_strict(&contract);
-let _ = validate_with_options(&contract, ValidationOptions::strict());
-```
-
 ## Intentional extensions
 
 See [SPEC.md](../../SPEC.md) spec parity policy for rules stricter than JSON Schema (relationship resolution, composite parity).

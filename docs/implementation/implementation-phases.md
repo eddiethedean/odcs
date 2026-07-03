@@ -80,7 +80,7 @@ odcs schema
 odcs version
 ```
 
-Since 0.4.0, JSON Schema validation always runs in default `validate()`. `--strict` is a deprecated no-op alias. `odcs schema` exports the pinned schema.
+Since 0.4.0, JSON Schema validation always runs in default `validate()`. The deprecated `--strict` flag was removed in 1.0. `odcs schema` exports the pinned schema.
 
 ## Phase 7 — JSON Schema parity
 

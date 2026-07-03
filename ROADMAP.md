@@ -377,9 +377,9 @@ Out of scope for this repository (see [docs/implementation/non-goals.md](docs/im
 
 **Breaking cleanup** (requires major bump):
 
-- [ ] Remove `--strict` from Rust and Python CLIs ([`cli-spec.md`](docs/implementation/cli-spec.md) already marks deprecated)
-- [ ] Remove `ValidationOptions::strict`, `validate_strict()`, and Python `strict=` parameters
-- [ ] Migration note in [`docs/user/migration.md`](docs/user/migration.md) (0.4.x → 1.0)
+- [x] Remove `--strict` from Rust and Python CLIs
+- [x] Remove `ValidationOptions`, `validate_strict()`, `validate_with_options()`, and Python `strict=` parameters
+- [x] Migration note in [`docs/user/migration.md`](docs/user/migration.md) (0.9.x → 1.0)
 
 **Upstream alignment** (when upstream releases beyond 3.1.0):
 
@@ -389,8 +389,10 @@ Out of scope for this repository (see [docs/implementation/non-goals.md](docs/im
 
 **Release gate:**
 
-- [ ] Public API review: [`docs/implementation/public-api.md`](docs/implementation/public-api.md) matches exported surface
-- [ ] All phases 9–15 complete or explicitly deferred with changelog entries
+- [x] Public API review: [`docs/implementation/public-api.md`](docs/implementation/public-api.md) and [`api-stability.md`](docs/implementation/api-stability.md)
+- [x] All phases 9–15 complete or explicitly deferred with changelog entries
+- [x] Documentation sync (architecture, crate-layout, enterprise evaluation)
+- [x] Registry path confinement for symlink escapes
 - [ ] CHANGELOG and release notes for `1.0.0`
 - [ ] Crates.io + PyPI publish per [docs/maintainer/releasing.md](docs/maintainer/releasing.md)
 

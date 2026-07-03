@@ -47,3 +47,22 @@ Out of scope:
 - This tool validates contract *documents*; it does not execute quality checks against live data.
 - Default parse size limit is 16 MiB (`MAX_PARSE_BYTES`).
 - Run current supported releases in CI and production validation pipelines.
+
+### YAML parsing limits
+
+| Control | Limit |
+|---------|-------|
+| Document size | 16 MiB maximum |
+| Duplicate-key detection | Block-style YAML mappings and JSON objects only |
+| Not scanned | YAML flow mappings, anchors (`&`), aliases (`*`) |
+| Nesting depth | No explicit cap; bounded primarily by document size |
+
+Malicious YAML may exploit alias expansion in `serde_yaml`. Only parse contracts from trusted sources or scan in isolated CI environments.
+
+### Registry path confinement
+
+Local registry indexing resolves contract paths with `canonicalize()` and rejects entries that resolve outside the registry root directory (including symlink escapes).
+
+### CLI file access
+
+The CLI reads user-supplied paths as-is. It is not sandboxed; do not run against untrusted filesystem locations with sensitive permissions.

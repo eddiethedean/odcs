@@ -224,23 +224,13 @@ def test_cli_schema_url_only() -> None:
     assert "Upstream ODCS JSON Schema" in result.stdout
 
 
-def test_cli_validate_strict_json_schema_violation() -> None:
+def test_cli_validate_json_schema_violation() -> None:
     result = _run_pyodcs_cli(
         "validate",
-        "--strict",
         str(FIXTURES / "invalid-json-schema-only.yaml"),
     )
     assert result.returncode == 1
     assert "odcs:json-schema-violation" in result.stdout
-
-
-def test_validate_strict_is_deprecated_alias() -> None:
-    result = pyodcs.parse(_fixture("minimal.odcs.yaml"), "yaml")
-    contract = result["contract"]
-    assert contract is not None
-    default_report = pyodcs.validate(contract)
-    strict_report = pyodcs.validate(contract, strict=True)
-    assert default_report == strict_report
 
 
 def test_invalid_json_schema_fixture_fails_default_validation() -> None:

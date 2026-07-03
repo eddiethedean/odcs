@@ -37,15 +37,16 @@ Both return `Result<DataContract, DiagnosticReport>` after parse **and** validat
 - **`into_contract()`** — call on a `ParseResult` you already have
 - **`parse_strict()`** — convenience when starting from bytes
 
-Neither is related to the deprecated CLI `--strict` flag (a no-op since 0.4.0).
+### Removed in 1.0
 
-### Deprecated names (do not use for new code)
+| Removed | Use instead |
+|---------|-------------|
+| `--strict` (CLI) | `odcs validate` (JSON Schema always runs) |
+| `validate_strict()` | `validate()` |
+| `ValidationOptions`, `validate_with_options()` | `validate()` |
+| Python `strict=` | Remove keyword |
 
-| Name | Since 0.4.0 |
-|------|-------------|
-| `validate_strict()` | Alias for `validate()` |
-| `--strict` (CLI) | No-op; JSON Schema always runs |
-| `ValidationOptions::strict()` | No additional effect |
+See [migration.md](migration.md#09x--100).
 
 ## Python
 

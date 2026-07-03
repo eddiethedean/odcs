@@ -8,8 +8,10 @@ Summary for teams evaluating `odcs` / `pyodcs` for organizational adoption.
 |----------|--------------|
 | Parse ODCS v3.1.0 YAML/JSON | Execute quality rules against live data |
 | Validate structure, semantics, JSON Schema | ETL / pipeline orchestration |
-| CLI and Rust/Python libraries | Contract registry server (planned) |
-| Structured diagnostics for CI routing | Compatibility diff reporting (planned) |
+| CLI and Rust/Python libraries | Remote contract registry server |
+| Local registry index (`.odcs/registry.json`) | Automatic contract migration |
+| Cross-file FQN resolution | Compatibility auto-fix |
+| Compatibility diff (`odcs diff`) | |
 
 See [Non-goals](../implementation/non-goals.md).
 
@@ -17,23 +19,26 @@ See [Non-goals](../implementation/non-goals.md).
 
 | Attribute | Status |
 |-----------|--------|
-| Release stage | **Pre-1.0 Alpha** |
-| Current tree version | 0.7.0 on `main` |
-| Latest published (crates.io / PyPI) | **0.7.0** — see [Release status](../project/release-status.md) |
+| Release stage | **Pre-1.0 → 1.0 stabilization** |
+| Current tree version | 0.9.0 on `main` |
+| Latest published (crates.io / PyPI) | **0.9.0** — see [Release status](../project/release-status.md) |
 | ODCS spec target | v3.1.0 (`apiVersion: "v3.1.0"`) |
 | Default validation | Schema-complete for ODCS v3.1.0 (JSON Schema + Rust validators) |
+| API stability policy | [api-stability.md](../implementation/api-stability.md) |
 
 ## Support model
 
 - Open-source reference implementation maintained on GitHub
 - No commercial SLA or dedicated support channel
-- Security reports: [SECURITY.md](../../SECURITY.md) (supported: 0.5.x, 0.4.x)
+- Security reports: [SECURITY.md](../../SECURITY.md) (supported: 0.8.x, 0.9.x)
 - Issues and contributions via GitHub
 
 ## Security
 
 - Validates **documents only**; no network calls during validation
 - Default parse size limit: **16 MiB** (`MAX_PARSE_BYTES`)
+- Registry indexing rejects symlink paths that resolve outside the registry root
+- YAML anchors/aliases not fully duplicate-scanned — see [Diagnostics](../user/diagnostics.md#duplicate-key-limitations-050)
 - Untrusted input: treat as potentially hostile; run current supported releases
 - Scope and response expectations: [SECURITY.md](../../SECURITY.md)
 
@@ -59,12 +64,13 @@ Pin versions in CI for reproducibility. See [CI/CD integration](ci-cd.md).
 
 ## Roadmap highlights
 
-| Planned (not yet shipped) | Target |
-|---------------------------|--------|
-| `validationPhase` on diagnostics | 0.6.0 ✓ |
-| Cross-field structural validation | 0.7.0 ✓ |
-| Contract registry module | 0.9.0 (local filesystem) |
-| Compatibility analysis | 0.8.0 |
+| Milestone | Status |
+|-----------|--------|
+| Structural validation | 0.7.0 ✓ |
+| Cross-file references | 0.8.0 ✓ |
+| Compatibility analysis | 0.8.0 ✓ |
+| Local registry | 0.9.0 ✓ |
+| 1.0 API stabilization | Planned |
 
 Full timeline: [Roadmap](../roadmap.md).
 
@@ -75,13 +81,8 @@ Full timeline: [Roadmap](../roadmap.md).
 3. [CI/CD integration](ci-cd.md) — prototype pipeline gate
 4. [Release status](../project/release-status.md) — align on published vs `main` version
 5. [Architecture](../implementation/architecture.md) — technical depth for platform teams
+6. [API stability policy](../implementation/api-stability.md) — semver expectations for 1.0
 
 ## Comparison positioning
 
-| Approach | When to use |
-|----------|-------------|
-| **`odcs validate`** | ODCS-aware validation with stable `odcs:*` codes and typed object model |
-| **Generic JSON Schema validator** | Schema-only checks without ODCS-specific Rust validators or diagnostics |
-| **Upstream ODCS tooling** | Spec authoring and ecosystem tools from bitol-io |
-
-This implementation adds deterministic Rust validators, duplicate-key detection, and CI-friendly diagnostics on top of the pinned ODCS JSON Schema.
+This tool validates ODCS **documents** in CI. It complements (does not replace) data quality engines, orchestrators, or enterprise catalog products.

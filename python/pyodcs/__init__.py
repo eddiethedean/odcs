@@ -44,17 +44,17 @@ def parse_file(path: str) -> dict:
     return _parse_path(path)
 
 
-def validate(contract: dict, *, strict: bool = False) -> dict:
+def validate(contract: dict) -> dict:
     """Validate a parsed data contract."""
-    return _validate_contract(contract, strict)
+    return _validate_contract(contract)
 
 
-def validate_result(result: dict, *, strict: bool = False) -> dict:
+def validate_result(result: dict) -> dict:
     """Merge parse-time and validation diagnostics from a parse result."""
     if not isinstance(result, dict):
         raise TypeError("validate_result expects a dict")
 
-    if result.get("_odcs_validated") and result.get("_odcs_strict") == strict:
+    if result.get("_odcs_validated"):
         return {"diagnostics": list(result.get("diagnostics", []))}
 
     if "report" in result:
@@ -62,12 +62,11 @@ def validate_result(result: dict, *, strict: bool = False) -> dict:
         diagnostics = list(report.get("diagnostics", []))
         contract = result.get("contract")
         if contract is not None:
-            validation = _validate_contract(contract, strict)
+            validation = _validate_contract(contract)
             diagnostics.extend(validation.get("diagnostics", []))
         merged = {
             "diagnostics": diagnostics,
             "_odcs_validated": True,
-            "_odcs_strict": strict,
         }
         return merged
 
@@ -75,7 +74,6 @@ def validate_result(result: dict, *, strict: bool = False) -> dict:
         return {
             "diagnostics": list(result.get("diagnostics", [])),
             "_odcs_validated": True,
-            "_odcs_strict": strict,
         }
 
     raise TypeError(
@@ -94,10 +92,9 @@ def parse_and_validate_paths(
     *,
     includes: list[str] | None = None,
     registry: str | None = None,
-    strict: bool = False,
 ) -> dict:
     """Parse and validate a primary contract with optional dependency paths."""
-    return _parse_and_validate_paths(primary, deps, includes, registry, strict)
+    return _parse_and_validate_paths(primary, deps, includes, registry)
 
 
 def registry_index(directory: str) -> dict:
@@ -127,11 +124,9 @@ def registry_list(directory: str) -> list[dict]:
     return _registry_list(directory)
 
 
-def parse_and_validate(
-    content: str | bytes, format: str = "yaml", *, strict: bool = False
-) -> dict:
+def parse_and_validate(content: str | bytes, format: str = "yaml") -> dict:
     """Parse and validate an ODCS document in one step."""
-    return _validate_document(content, format, strict)
+    return _validate_document(content, format)
 
 
 def pinned_schema(*, json_metadata: bool = False) -> dict:

@@ -86,9 +86,9 @@ v3.1.0 uses `nullValues`, `missingValues`, `invalidValues`, `duplicateValues`, o
 | 1 | Validation errors |
 | 2 | Parse or I/O failure |
 
-### What does `--strict` do?
+### JSON Schema validation
 
-Since 0.4.0, nothing extra — JSON Schema validation always runs in default `validate()`. `--strict` is a deprecated no-op alias.
+Since 0.4.0, JSON Schema validation always runs in `validate()`. The deprecated `--strict` flag was removed in 1.0.
 
 ## Versions
 

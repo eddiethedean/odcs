@@ -1,6 +1,21 @@
 # Release status
 
-Current release: **0.9.0** (published 2026-07-03).
+Current release: **0.9.0** (published 2026-07-03). **1.0.0** stabilization is in progress on `main`.
+
+## 1.0 release gate
+
+| Item | Status |
+|------|--------|
+| Remove deprecated strict API | Complete |
+| Public API audit + stability policy | Complete |
+| Documentation sync | Complete |
+| Registry path confinement | Complete |
+| YAML limits documented | Complete |
+| 0.9 → 1.0 migration guide | Complete |
+| CHANGELOG + release notes for 1.0.0 | Pending |
+| Crates.io + PyPI publish | Pending |
+
+See [ROADMAP.md](../../ROADMAP.md) Phase 16 and [api-stability.md](../implementation/api-stability.md).
 
 ## Version alignment
 

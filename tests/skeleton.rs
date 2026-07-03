@@ -180,10 +180,11 @@ fn rejects_lone_team_member_object() {
     assert!(result.contract.is_none());
     assert!(!result.report.is_valid());
     assert!(
-        result.report.diagnostics.iter().any(|d| {
-            d.id == codes::PARSE_YAML
-                && d.message.contains("TeamDeclaration")
-        }),
+        result
+            .report
+            .diagnostics
+            .iter()
+            .any(|d| { d.id == codes::PARSE_YAML && d.message.contains("TeamDeclaration") }),
         "expected team parse failure: {:?}",
         result.report.diagnostics
     );

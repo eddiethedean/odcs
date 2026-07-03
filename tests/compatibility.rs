@@ -102,7 +102,8 @@ fn diff_detects_breaking_quality_rule_removal() {
 fn diff_detects_breaking_quality_metric_change() {
     let old = load_fixture("base.yaml");
     let mut new = old.clone();
-    new.schema[0].quality.as_mut().expect("quality")[0].metric = Some("duplicateValues".to_string());
+    new.schema[0].quality.as_mut().expect("quality")[0].metric =
+        Some("duplicateValues".to_string());
 
     let report = diff(&old, &new);
     assert!(report.has_breaking);

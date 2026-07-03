@@ -18,11 +18,7 @@ fn odcs_bin() -> Command {
 
 fn isolated_registry_root() -> PathBuf {
     let id = TEMP_COUNTER.fetch_add(1, Ordering::Relaxed);
-    let dir = std::env::temp_dir().join(format!(
-        "odcs-cli-registry-{}-{}",
-        std::process::id(),
-        id
-    ));
+    let dir = std::env::temp_dir().join(format!("odcs-cli-registry-{}-{}", std::process::id(), id));
     copy_dir_all(&fixture("registry/contracts"), &dir);
     dir
 }
@@ -219,10 +215,10 @@ fn cli_schema_json_output() {
 }
 
 #[test]
-fn cli_validate_strict_fails_on_json_schema_violation() {
+fn cli_validate_json_schema_violation_fails() {
     let path = fixture("invalid-json-schema-only.yaml");
     let output = odcs_bin()
-        .args(["validate", "--strict"])
+        .arg("validate")
         .arg(&path)
         .output()
         .expect("run cli");
@@ -271,10 +267,10 @@ fn cli_validate_text_includes_phase_for_validation_errors() {
 }
 
 #[test]
-fn cli_validate_strict_passes_on_minimal() {
+fn cli_validate_passes_on_minimal() {
     let path = fixture("minimal.odcs.yaml");
     let output = odcs_bin()
-        .args(["validate", "--strict"])
+        .arg("validate")
         .arg(&path)
         .output()
         .expect("run cli");

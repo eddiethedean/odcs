@@ -1,6 +1,40 @@
 # Migration Guide
 
-This guide covers breaking changes between major pre-1.0 releases of `odcs` and `pyodcs`.
+This guide covers breaking changes between releases of `odcs` and `pyodcs`.
+
+## 0.9.x → 1.0.0
+
+### Deprecated strict API removed
+
+**Before (0.9.x):** `--strict` (CLI), `strict=True` (Python), `validate_strict()`, `ValidationOptions`, and `validate_with_options()` were deprecated no-ops.
+
+**After (1.0.0):** Removed. JSON Schema validation always runs in `validate()` — no flag required.
+
+**Action:**
+
+```bash
+# Remove --strict from CI scripts
+odcs validate contract.yaml
+```
+
+```python
+# Remove strict= keyword
+pyodcs.validate(contract)
+pyodcs.parse_and_validate(content, "yaml")
+pyodcs.parse_and_validate_paths(primary, deps=[...])
+```
+
+```rust
+// Use validate() instead of validate_strict() / validate_with_options()
+use odcs::validate;
+let report = validate(&contract);
+```
+
+**Unchanged:** `parse_strict()` — still means parse + validate + return `DataContract` (not related to the old CLI flag).
+
+### API stability
+
+See [API stability policy](../implementation/api-stability.md). Root re-exports in `odcs` are stable; `#[doc(hidden)]` internal modules are not.
 
 ## 0.8.x → 0.9.0
 
@@ -94,7 +128,7 @@ No API removals or changes to validation semantics for well-formed documents.
 
 **Before (0.3.x):** JSON Schema validation ran only with `--strict` (CLI) or `strict=True` (Python).
 
-**After (0.4.0):** `validate()` always runs JSON Schema validation against the pinned ODCS v3.1.0 schema. `--strict` and `strict=True` are deprecated no-ops retained for backward compatibility.
+**After (0.4.0):** `validate()` always runs JSON Schema validation against the pinned ODCS v3.1.0 schema. Deprecated `--strict` / `strict=True` aliases were removed in **1.0**.
 
 **Action:** Remove `--strict` from CI scripts if you added it only for schema checks. Expect more validation failures on contracts that passed semantic checks but violate JSON Schema.
 
@@ -130,11 +164,11 @@ apiVersion: "v3.1.0"  # ODCS specification version
 
 ### Library API changes
 
-| API | 0.4.0 behavior |
-|-----|----------------|
-| `validate_strict()` | Alias for `validate()` |
-| `ValidationOptions::strict()` | No additional effect |
-| `validate_with_options()` | `strict` flag ignored for schema gating |
+| API | 0.4.0 behavior | 1.0.0 |
+|-----|----------------|-------|
+| `validate_strict()` | Alias for `validate()` | **Removed** — use `validate()` |
+| `ValidationOptions::strict()` | No additional effect | **Removed** |
+| `validate_with_options()` | `strict` flag ignored | **Removed** |
 
 ## 0.2.x → 0.3.0
 

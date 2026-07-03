@@ -66,6 +66,22 @@ impl Registry {
 
         for relative_path in relative_paths {
             let absolute_path = canonical_root.join(&relative_path);
+            if resolve_path_within_root(&canonical_root, &absolute_path).is_none() {
+                emit(
+                    &mut report,
+                    validation_error(
+                        ValidationPhase::Document,
+                        codes::INVALID_SCHEMA,
+                        DiagnosticCategory::Structure,
+                        format!(
+                            "registry entry {} resolves outside registry root",
+                            relative_path.display()
+                        ),
+                    )
+                    .with_object_ref(relative_path.to_string_lossy().into_owned()),
+                );
+                continue;
+            }
             match build_entry(&canonical_root, &relative_path, &absolute_path) {
                 Ok(entry) => {
                     let key = (entry.id.clone(), entry.version.clone());
@@ -256,7 +272,7 @@ impl Registry {
             .values()
             .filter_map(|entry| {
                 let absolute = self.root.join(entry.path.as_path());
-                let canonical = absolute.canonicalize().ok()?;
+                let canonical = resolve_path_within_root(&self.root, &absolute)?;
                 if exclude.as_ref().is_some_and(|ex| ex == &canonical) {
                     return None;
                 }
@@ -360,6 +376,17 @@ fn compare_versions(left: &str, right: &str) -> std::cmp::Ordering {
     match (semver::Version::parse(left), semver::Version::parse(right)) {
         (Ok(left), Ok(right)) => left.cmp(&right),
         _ => left.cmp(right),
+    }
+}
+
+/// Returns the canonical path when `candidate` resolves inside `root`.
+fn resolve_path_within_root(root: &Path, candidate: &Path) -> Option<PathBuf> {
+    let canonical_root = root.canonicalize().ok()?;
+    let canonical = candidate.canonicalize().ok()?;
+    if canonical.starts_with(&canonical_root) {
+        Some(canonical)
+    } else {
+        None
     }
 }
 

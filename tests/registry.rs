@@ -113,3 +113,59 @@ status: "active"
     let _ = std::fs::remove_dir_all(&dir);
     assert!(result.is_err());
 }
+
+#[test]
+#[cfg(unix)]
+fn dependency_paths_reject_symlink_outside_registry_root() {
+    use std::os::unix::fs::symlink;
+
+    let id = TEMP_COUNTER.fetch_add(1, Ordering::Relaxed);
+    let root = std::env::temp_dir().join(format!(
+        "odcs-registry-escape-test-{}-{}",
+        std::process::id(),
+        id
+    ));
+    std::fs::create_dir_all(&root).expect("create root");
+    let outside = std::env::temp_dir().join(format!(
+        "odcs-registry-outside-{}-{}",
+        std::process::id(),
+        id
+    ));
+    std::fs::write(
+        &outside,
+        r#"version: "1.0.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "outside-contract"
+status: "active"
+"#,
+    )
+    .expect("write outside contract");
+
+    symlink(&outside, root.join("escape.yaml")).expect("symlink");
+
+    let result = Registry::index_directory(&root);
+    assert!(result.is_err(), "expected index failure for escape symlink");
+    let report = result.expect_err("escape report");
+    assert!(
+        report.diagnostics.iter().any(|d| {
+            d.message.contains("outside registry root")
+                && d.object_ref.as_deref() == Some("escape.yaml")
+        }),
+        "expected outside-root diagnostic: {:?}",
+        report.diagnostics
+    );
+
+    let (isolated_root, registry) = index_isolated();
+    assert!(
+        registry
+            .dependency_paths(&isolated_root.join("missing.yaml"))
+            .iter()
+            .all(|path| path.starts_with(registry.root())),
+        "dependency paths must stay within registry root"
+    );
+
+    let _ = std::fs::remove_file(root.join("escape.yaml"));
+    let _ = std::fs::remove_file(&outside);
+    let _ = std::fs::remove_dir_all(&root);
+}

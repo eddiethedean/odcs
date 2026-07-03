@@ -3,7 +3,7 @@
 use std::fs;
 
 use odcs::{
-    codes, parse, parse_strict, validate_strict, DocumentFormat, ParseResult, ValidationPhase,
+    codes, parse, parse_strict, validate, DocumentFormat, ParseResult, ValidationPhase,
     MAX_PARSE_BYTES,
 };
 
@@ -393,10 +393,10 @@ fn rejects_invalid_logical_type_in_default_mode() {
 }
 
 #[test]
-fn strict_mode_rejects_json_schema_violation() {
+fn json_schema_violation_fails_default_validation() {
     let result = parse_fixture("invalid-json-schema-only.yaml");
     let contract = result.contract.expect("parsed contract");
-    let report = validate_strict(&contract);
+    let report = validate(&contract);
     assert!(!report.is_valid());
     assert!(
         report

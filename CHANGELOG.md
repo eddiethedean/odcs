@@ -1,5 +1,24 @@
 # Changelog
 
+## Unreleased — 1.0.0 prep
+
+**Breaking (1.0.0):**
+
+- Removed deprecated `--strict` CLI flag (Rust and Python)
+- Removed `ValidationOptions`, `validate_with_options()`, and `validate_strict()` from Rust API
+- Removed Python `strict=` parameters from validate helpers
+- Internal modules (`parser`, `validation`, `model`, `registry`, `schema`, `diagnostics`) marked `#[doc(hidden)]` — use root re-exports only
+
+**Added:**
+
+- [API stability policy](docs/implementation/api-stability.md)
+- Registry path confinement: reject indexed paths whose canonical form escapes the registry root
+- Documented YAML alias/depth limits in [SECURITY.md](SECURITY.md)
+
+**Changed:**
+
+- Documentation sync for 0.9/1.0 reality (architecture, crate layout, enterprise evaluation, migration guide)
+
 ## 0.9.0 — 2026-07-02
 
 Local contract registry release — index, lookup, and `--registry` cross-file validation.

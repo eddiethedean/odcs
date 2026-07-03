@@ -10,12 +10,12 @@ use std::io::ErrorKind;
 use std::path::{Path, PathBuf};
 
 use crate::compatibility::diff;
-use crate::contract_set::{load_set_with_registry, validate_set_with_options};
+use crate::contract_set::{load_set_with_registry, validate_set};
 use crate::diagnostics::inspect_contract;
 use crate::model::DataContract;
 use crate::parser::{parse, parse_file, DocumentFormat, ParseResult};
 use crate::schema;
-use crate::validation::{validate_with_options, ValidationOptions, ValidationPhase};
+use crate::validation::{validate, ValidationPhase};
 
 fn value_to_py(py: Python<'_>, value: &impl Serialize) -> PyResult<Py<PyAny>> {
     let json = serde_json::to_string(value)
@@ -111,55 +111,38 @@ fn map_io_error(error: std::io::Error, path: &str) -> PyErr {
 
 /// Validate a parsed data contract.
 #[pyfunction]
-#[pyo3(signature = (contract, strict=false))]
-fn validate_contract(
-    py: Python<'_>,
-    contract: &Bound<'_, PyAny>,
-    strict: bool,
-) -> PyResult<Py<PyAny>> {
+fn validate_contract(py: Python<'_>, contract: &Bound<'_, PyAny>) -> PyResult<Py<PyAny>> {
     let contract = contract_from_py(py, contract)?;
-    let options = if strict {
-        ValidationOptions::strict()
-    } else {
-        ValidationOptions::default_options()
-    };
-    value_to_py(py, &validate_with_options(&contract, options))
+    value_to_py(py, &validate(&contract))
 }
 
 /// Parse and validate an ODCS document in one step.
 #[pyfunction]
-#[pyo3(signature = (content, format="yaml", strict=false))]
+#[pyo3(signature = (content, format="yaml"))]
 fn validate_document(
     py: Python<'_>,
     content: &Bound<'_, PyAny>,
     format: &str,
-    strict: bool,
 ) -> PyResult<Py<PyAny>> {
     let bytes = content_to_bytes(content)?;
     let doc_format = parse_format(format)?;
     let result = parse(&bytes, doc_format);
     let mut report = result.report;
     if let Some(contract) = result.contract {
-        let options = if strict {
-            ValidationOptions::strict()
-        } else {
-            ValidationOptions::default_options()
-        };
-        report.merge(validate_with_options(&contract, options));
+        report.merge(validate(&contract));
     }
     value_to_py(py, &report)
 }
 
 /// Parse and validate a primary contract with optional dependency paths.
 #[pyfunction]
-#[pyo3(signature = (primary, deps=None, includes=None, registry=None, strict=false))]
+#[pyo3(signature = (primary, deps=None, includes=None, registry=None))]
 fn parse_and_validate_paths(
     py: Python<'_>,
     primary: &str,
     deps: Option<Vec<String>>,
     includes: Option<Vec<String>>,
     registry: Option<String>,
-    strict: bool,
 ) -> PyResult<Py<PyAny>> {
     let deps: Vec<PathBuf> = deps
         .unwrap_or_default()
@@ -171,11 +154,6 @@ fn parse_and_validate_paths(
         .into_iter()
         .map(PathBuf::from)
         .collect();
-    let options = if strict {
-        ValidationOptions::strict()
-    } else {
-        ValidationOptions::default_options()
-    };
 
     let loaded_registry = match registry.as_deref() {
         Some(dir) => {
@@ -189,7 +167,7 @@ fn parse_and_validate_paths(
             .map_err(|error| PyValueError::new_err(error.to_string()))?;
         let mut report = result.report;
         if let Some(contract) = result.contract {
-            report.merge(validate_with_options(&contract, options));
+            report.merge(validate(&contract));
         }
         report
     } else {
@@ -199,7 +177,7 @@ fn parse_and_validate_paths(
             &includes,
             loaded_registry.as_ref(),
         ) {
-            Ok(set) => validate_set_with_options(&set, options),
+            Ok(set) => validate_set(&set),
             Err(report) => report,
         }
     };

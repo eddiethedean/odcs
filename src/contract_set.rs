@@ -12,8 +12,7 @@ use crate::model::DataContract;
 use crate::parser::parse_file;
 use crate::registry::is_contract_file;
 use crate::registry::Registry;
-use crate::validation::ContractIndex;
-use crate::validation::{validate_with_contract_index, ValidationOptions};
+use crate::validation::{validate_with_contract_index, ContractIndex};
 
 /// A primary contract and its loaded dependencies for cross-file validation.
 #[derive(Debug, Clone)]
@@ -229,15 +228,6 @@ fn validate_duplicate_ids(set: &ContractSet) -> DiagnosticReport {
 /// Validate all contracts in a set with cross-file reference resolution.
 #[must_use]
 pub fn validate_set(set: &ContractSet) -> DiagnosticReport {
-    validate_set_with_options(set, ValidationOptions::default_options())
-}
-
-/// Validate all contracts in a set with cross-file reference resolution.
-#[must_use]
-pub fn validate_set_with_options(
-    set: &ContractSet,
-    options: ValidationOptions,
-) -> DiagnosticReport {
     let mut report = DiagnosticReport::new();
     report.merge(validate_duplicate_ids(set));
 
@@ -247,7 +237,6 @@ pub fn validate_set_with_options(
     for contract in set.contracts() {
         report.merge(validate_with_contract_index(
             contract,
-            options,
             Some(&contract_index),
         ));
     }

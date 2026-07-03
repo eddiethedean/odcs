@@ -87,6 +87,7 @@ nav:
       - Local registry: implementation/registry.md
       - Diagnostics guide: implementation/diagnostics-guide.md
       - Public API: implementation/public-api.md
+      - API stability: implementation/api-stability.md
       - CLI specification: implementation/cli-spec.md
       - Implementation phases: implementation/implementation-phases.md
       - Testing plan: implementation/testing-plan.md

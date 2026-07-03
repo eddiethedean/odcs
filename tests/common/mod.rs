@@ -1,4 +1,5 @@
 //! Shared helpers and fixture lists for integration tests.
+#![allow(dead_code)]
 
 use std::fs;
 use std::path::{Path, PathBuf};

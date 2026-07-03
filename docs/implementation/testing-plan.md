@@ -55,7 +55,8 @@ MkDocs site (Read the Docs): `pip install -r docs/requirements.txt && mkdocs bui
 | JSON Schema conformance | Covered (`json_schema_conformance.rs`, default validation since 0.4.0) |
 | Spec parity (default vs JSON Schema) | Covered (`json_schema_conformance.rs` via `tests/common`) |
 | Schema export | Covered (`cli.rs`) |
-| Deprecated `--strict` alias | Covered (`cli.rs`, `validation_negative.rs`, Python tests) |
+| Oversized input (`MAX_PARSE_BYTES`) | Covered (`validation_negative.rs`) |
+| Registry path confinement | Covered (`registry.rs`, Unix symlink escape) |
 | Nested duplicate-key detection | Covered (`validation_negative.rs`, `cli.rs`, Python tests) |
 | JSON Schema dedup vs Rust validators | Covered (`validation_negative.rs`) |
 

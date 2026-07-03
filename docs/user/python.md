@@ -83,7 +83,7 @@ assert pyodcs.is_valid(report)
 }
 ```
 
-`validate_result()` may add internal cache keys (`_odcs_validated`, `_odcs_strict`) — do not rely on them in application code.
+`validate_result()` may add internal cache keys (`_odcs_validated`) — do not rely on them in application code.
 
 A report is valid when `is_valid(report)` is `True` (no `error`-severity diagnostics). `is_valid()` also accepts a parse result dict and reads diagnostics from `report`.
 
@@ -111,15 +111,15 @@ result = pyodcs.parse_file("examples/minimal.odcs.yaml")
 
 ## Validation
 
-### `validate(contract, *, strict=False)`
+### `validate(contract)`
 
-Validate a parsed contract dict. Returns `{"diagnostics": [...]}`. Since 0.4.0, default validation includes pinned ODCS v3.1.0 JSON Schema checks. `strict=True` is a deprecated no-op alias.
+Validate a parsed contract dict. Returns `{"diagnostics": [...]}`. Validation includes pinned ODCS v3.1.0 JSON Schema checks.
 
 ```python
 validation = pyodcs.validate(contract)
 ```
 
-### `validate_result(result, *, strict=False)`
+### `validate_result(result)`
 
 Merge parse-time and validation diagnostics from a `parse()` / `parse_file()` result.
 
@@ -127,7 +127,7 @@ Merge parse-time and validation diagnostics from a `parse()` / `parse_file()` re
 report = pyodcs.validate_result(result)
 ```
 
-### `parse_and_validate(content, format="yaml", *, strict=False)`
+### `parse_and_validate(content, format="yaml")`
 
 Parse and validate in one step. Returns `{"diagnostics": [...]}`.
 
@@ -135,7 +135,7 @@ Parse and validate in one step. Returns `{"diagnostics": [...]}`.
 report = pyodcs.parse_and_validate(content, format="yaml")
 ```
 
-### `parse_and_validate_paths(primary, deps=None, *, includes=None, registry=None, strict=False)`
+### `parse_and_validate_paths(primary, deps=None, *, includes=None, registry=None)`
 
 Parse and validate a primary contract with optional dependency paths and registry root (since 0.9.0).
 
@@ -209,7 +209,6 @@ The `pyodcs` console script mirrors the Rust `odcs` CLI:
 pyodcs validate examples/minimal.odcs.yaml
 pyodcs inspect examples/minimal.odcs.yaml --json
 pyodcs diagnostics examples/minimal.odcs.yaml
-pyodcs validate examples/minimal.odcs.yaml  # --strict is deprecated (no-op since 0.4.0)
 pyodcs schema
 pyodcs schema --json
 pyodcs schema --url-only
@@ -245,7 +244,6 @@ if not pyodcs.is_valid(report):
 | `parse_file()` | `parse_file()` |
 | `validate()` | `validate()` |
 | `parse_and_validate()` | `parse_and_validate()` |
-| `validate(strict=True)` | `validate_strict()` (deprecated no-op since 0.4.0) |
 | `diagnostic_codes()` / `CODES` | Diagnostic code constants |
 | `validation_phases()` / `VALIDATION_PHASES` | Validation phase name constants (since 0.6.0) |
 | `parse_and_validate_paths()` | `parse_and_validate_set_with_registry()` |

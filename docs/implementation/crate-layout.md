@@ -1,6 +1,6 @@
 # Crate Layout
 
-Current layout (as of 0.7.0):
+Current layout (as of 0.9.0):
 
 ```text
 odcs/
@@ -14,6 +14,7 @@ odcs/
   src/
     lib.rs
     bin/odcs.rs
+    contract_set.rs      # Multi-document loading
 
     model/
       mod.rs
@@ -21,7 +22,7 @@ odcs/
       schema.rs          # SchemaObject, SchemaProperty
       quality.rs
       sla.rs
-      stakeholders.rs
+      stakeholders.rs    # Reserved stub (no upstream section in v3.1.0)
       team.rs
       roles.rs
       pricing.rs
@@ -54,6 +55,7 @@ odcs/
       json_schema.rs
       dedup.rs
       helpers.rs
+      schema_index.rs
 
     diagnostics/
       mod.rs
@@ -67,34 +69,37 @@ odcs/
       validation_phase.rs
 
     compatibility/
-      mod.rs             # stub
+      mod.rs             # Contract diff (0.8.0+)
 
     registry/
-      mod.rs             # stub
+      mod.rs
+      local.rs
+      entry.rs
+      scan.rs
 
     cli/
       mod.rs
 
     python.rs            # PyO3 bindings (feature-gated)
 
-  python/
-    pyodcs/
-      __init__.py
-      __main__.py
-
-  examples/
   tests/
+    common/mod.rs        # Shared fixture helpers
     skeleton.rs
     cli.rs
+    cross_file.rs
+    compatibility.rs
+    registry.rs
     json_schema_conformance.rs
+    validation_negative.rs
+    diagnostic_metadata.rs
     fixtures/
 
   docs/
-    user/                # user-facing guides
-    implementation/      # maintainer guides
+    user/
+    implementation/
     maintainer/
 ```
 
 Keep the layout close to `dtcs` so future maintainers recognize the ecosystem pattern.
 
-Note: `SchemaProperty` lives in `schema.rs` (there is no separate `field.rs` module).
+Internal modules are `#[doc(hidden)]`; use root re-exports documented in [public-api.md](public-api.md).

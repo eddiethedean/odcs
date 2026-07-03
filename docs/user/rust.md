@@ -133,10 +133,6 @@ use odcs::{parse_strict, DocumentFormat};
 let contract = parse_strict(yaml_bytes, DocumentFormat::Yaml)?;
 ```
 
-### Deprecated aliases (0.4.0+)
-
-`validate_strict()`, `validate_with_options()`, and `ValidationOptions::strict()` are retained for compatibility but have no additional effect — JSON Schema validation always runs.
-
 ## Inspection
 
 ```rust

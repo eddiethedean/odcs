@@ -168,6 +168,15 @@ Nested duplicate keys in **block-style** YAML mappings and JSON objects are dete
 
 Use block-style mappings for CI validation. See [migration.md](migration.md).
 
+### Untrusted YAML (security)
+
+- Maximum input size is **16 MiB** (`MAX_PARSE_BYTES`).
+- **Anchors and aliases** are not duplicate-scanned and may expand during `serde_yaml` deserialization.
+- There is **no explicit nesting depth limit** beyond the size cap.
+- Prefer JSON for fully untrusted input when YAML-specific features are not required.
+
+See [SECURITY.md](../../SECURITY.md) and [architecture — YAML security limits](../implementation/architecture.md#yaml-security-limits).
+
 ## Implementation details
 
 Type definitions live in [`src/diagnostics/`](../../src/diagnostics/). Code constants are in [`src/diagnostics/codes.rs`](../../src/diagnostics/codes.rs).

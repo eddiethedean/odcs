@@ -22,30 +22,6 @@ use crate::diagnostics::DiagnosticReport;
 use crate::model::DataContract;
 use crate::validation::schema_index::ContractIndex as ContractIndexType;
 
-/// Options controlling validation behavior.
-///
-/// As of 0.4.0, JSON Schema validation always runs. The `strict` flag is
-/// retained for backward compatibility and has no effect.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub struct ValidationOptions {
-    /// Deprecated: JSON Schema validation is always enabled in 0.4.0+.
-    pub strict: bool,
-}
-
-impl ValidationOptions {
-    /// Default validation options.
-    #[must_use]
-    pub const fn default_options() -> Self {
-        Self { strict: false }
-    }
-
-    /// Deprecated alias for default options (strict mode is always on in 0.4.0+).
-    #[must_use]
-    pub const fn strict() -> Self {
-        Self { strict: true }
-    }
-}
-
 fn run_validation_pipeline(
     contract: &DataContract,
     contract_index: Option<&ContractIndexType>,
@@ -72,15 +48,6 @@ fn run_validation_pipeline(
 /// Validate a parsed data contract (Rust pipeline + JSON Schema).
 #[must_use]
 pub fn validate(contract: &DataContract) -> DiagnosticReport {
-    validate_with_options(contract, ValidationOptions::default_options())
-}
-
-/// Validate a parsed data contract.
-#[must_use]
-pub fn validate_with_options(
-    contract: &DataContract,
-    _options: ValidationOptions,
-) -> DiagnosticReport {
     run_validation_pipeline(contract, None)
 }
 
@@ -88,14 +55,7 @@ pub fn validate_with_options(
 #[must_use]
 pub fn validate_with_contract_index(
     contract: &DataContract,
-    _options: ValidationOptions,
     contract_index: Option<&ContractIndexType>,
 ) -> DiagnosticReport {
     run_validation_pipeline(contract, contract_index)
-}
-
-/// Validate a parsed data contract (alias for [`validate`] since 0.4.0).
-#[must_use]
-pub fn validate_strict(contract: &DataContract) -> DiagnosticReport {
-    validate(contract)
 }

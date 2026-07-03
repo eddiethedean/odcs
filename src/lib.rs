@@ -31,11 +31,17 @@ pub const UPSTREAM_SPEC_VERSION: &str = "3.1.0";
 
 pub mod compatibility;
 pub mod contract_set;
+#[doc(hidden)]
 pub mod diagnostics;
+#[doc(hidden)]
 pub mod model;
+#[doc(hidden)]
 pub mod parser;
+#[doc(hidden)]
 pub mod registry;
+#[doc(hidden)]
 pub mod schema;
+#[doc(hidden)]
 pub mod validation;
 
 #[cfg(feature = "cli")]
@@ -47,7 +53,7 @@ mod python;
 pub use compatibility::{diff, ChangeKind, CompatibilityChange, CompatibilityReport};
 pub use contract_set::{
     load_set, load_set_with_registry, parse_and_validate_set, parse_and_validate_set_with_registry,
-    validate_set, validate_set_with_options, ContractSet,
+    validate_set, ContractSet,
 };
 pub use diagnostics::{
     codes, inspect_contract, Diagnostic, DiagnosticCategory, DiagnosticReport, DiagnosticStage,
@@ -61,7 +67,7 @@ pub use parser::{
 pub use registry::{
     index_and_save_registry, index_registry, load_registry, Registry, RegistryEntry,
 };
-pub use validation::{validate, validate_strict, validate_with_options, ValidationOptions};
+pub use validation::{validate, validate_with_contract_index};
 
 /// Parse and validate an ODCS document in one step.
 #[must_use]

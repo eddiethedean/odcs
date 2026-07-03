@@ -6,9 +6,7 @@ use std::fs;
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicU64, Ordering};
 
-use odcs::{
-    codes, load_set, parse_and_validate_set, ValidationPhase,
-};
+use odcs::{codes, load_set, parse_and_validate_set, ValidationPhase};
 
 use common::fixture_path;
 
@@ -62,7 +60,7 @@ fn parse_and_validate_set_with_dep_is_valid() {
 fn include_dir_resolves_fqn_without_explicit_dep() {
     let include_dir = temp_include_dir_with_provider();
     let primary = fixture_path("cross-file/consumer-valid.yaml");
-    let report = parse_and_validate_set(&primary, &[], &[include_dir.clone()]);
+    let report = parse_and_validate_set(&primary, &[], std::slice::from_ref(&include_dir));
     assert!(
         report.is_valid(),
         "expected valid with include dir: {:?}",
@@ -94,7 +92,7 @@ schema:
     fs::write(&primary, contract_yaml).expect("write primary");
     fs::write(&dep, contract_yaml).expect("write dep");
 
-    let result = load_set(&primary, &[dep.clone()], &[]);
+    let result = load_set(&primary, std::slice::from_ref(&dep), &[]);
     assert!(result.is_err(), "expected duplicate id rejection");
     let report = result.expect_err("duplicate id report");
     assert!(
@@ -112,11 +110,12 @@ schema:
 #[test]
 fn include_dir_not_directory_returns_error() {
     let id = TEMP_COUNTER.fetch_add(1, Ordering::Relaxed);
-    let file_path = std::env::temp_dir().join(format!("odcs-not-dir-{}-{}", std::process::id(), id));
+    let file_path =
+        std::env::temp_dir().join(format!("odcs-not-dir-{}-{}", std::process::id(), id));
     fs::write(&file_path, "not a directory").expect("write file");
 
     let primary = fixture_path("cross-file/consumer-valid.yaml");
-    let result = load_set(&primary, &[], &[file_path.clone()]);
+    let result = load_set(&primary, &[], std::slice::from_ref(&file_path));
     assert!(result.is_err());
     let _ = fs::remove_file(&file_path);
 }

@@ -7,7 +7,10 @@ use std::fs;
 use odcs::parser::ParseResult;
 use odcs::{codes, parse, validate, DocumentFormat};
 
-use common::{assert_valid_fixture_passes_odcs_and_json_schema, fixture_bytes, format_for, pinned_validator, VALID_FIXTURES};
+use common::{
+    assert_valid_fixture_passes_odcs_and_json_schema, fixture_bytes, format_for, pinned_validator,
+    VALID_FIXTURES,
+};
 
 #[test]
 fn valid_fixtures_conform_to_pinned_json_schema() {

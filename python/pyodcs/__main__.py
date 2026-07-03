@@ -76,11 +76,6 @@ def _build_parser() -> argparse.ArgumentParser:
     validate_parser = subparsers.add_parser("validate", help="Parse and validate a contract")
     validate_parser.add_argument("path", type=Path)
     validate_parser.add_argument("--json", action="store_true")
-    validate_parser.add_argument(
-        "--strict",
-        action="store_true",
-        help="Deprecated no-op retained for compatibility (JSON Schema always runs in validate)",
-    )
 
     inspect_parser = subparsers.add_parser("inspect", help="Print a contract summary")
     inspect_parser.add_argument("path", type=Path)
@@ -145,15 +140,13 @@ def _main_impl(argv: list[str] | None = None) -> int:
             print(json.dumps(pinned_schema(), indent=2))
         return 0
 
-    strict = getattr(args, "strict", False)
-
     try:
         result = parse_file(str(args.path))
     except (FileNotFoundError, OSError, ValueError) as error:
         print(error, file=sys.stderr)
         return 2
 
-    report = validate_result(result, strict=strict)
+    report = validate_result(result)
 
     if args.command == "validate":
         _render_report(report, json_output=args.json, mode="validate")
