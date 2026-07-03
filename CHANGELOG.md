@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.9.1 — 2026-07-03
+
+Documentation adoption and Python CLI parity patch.
+
+**Added:**
+
+- User guides: [Local registry](docs/user/registry.md), [Compatibility analysis](docs/user/compatibility.md)
+- Tutorials: registry monorepo, contract upgrade with `odcs diff`
+- `pyodcs` CLI parity: `diff`, `registry index|lookup|list`, `validate --dep|--include|--registry`
+- Doc version lint (`scripts/check-doc-versions.sh`) in CI checks
+
+**Changed:**
+
+- Unified 1.0 stabilization messaging across README, FAQ, and release status
+- Updated user doc dependency pins from `0.7` to `0.9`
+- Registry-aware CI examples in CLI and getting started guides
+
 ## Unreleased — 1.0.0 prep
 
 **Breaking (1.0.0):**

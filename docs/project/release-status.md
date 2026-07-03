@@ -1,6 +1,6 @@
 # Release status
 
-Current release: **0.9.0** (published 2026-07-03). **1.0.0** stabilization is complete on `main`, pending release tag and crates.io/PyPI publish.
+Current tree version: **0.9.1** on `main`. Latest published: **0.9.0** (2026-07-03). **1.0.0** stabilization is complete on `main`, pending release tag and crates.io/PyPI publish.
 
 ## 1.0 release gate
 
@@ -21,10 +21,10 @@ See [ROADMAP.md](../../ROADMAP.md) Phase 16 and [api-stability.md](../implementa
 
 | Source | Version | Status |
 |--------|---------|--------|
-| `Cargo.toml` | **0.9.0** | Aligned |
-| `pyproject.toml` | **0.9.0** | Aligned |
-| `CHANGELOG.md` | **0.9.0** | Release notes present |
-| Git tag | **v0.9.0** | Published |
+| `Cargo.toml` | **0.9.1** | Aligned |
+| `pyproject.toml` | **0.9.1** | Aligned |
+| `CHANGELOG.md` | **0.9.1** | Release notes present |
+| Git tag | **v0.9.1** | Pending |
 
 ## Registry status
 
@@ -35,9 +35,16 @@ See [ROADMAP.md](../../ROADMAP.md) Phase 16 and [api-stability.md](../implementa
 
 Release workflow: [actions/runs/28630711719](https://github.com/eddiethedean/odcs/actions/runs/28630711719) (success).
 
-## Install 0.9.0
+## Install 0.9.1
 
 ### From crates.io / PyPI (after release)
+
+```bash
+cargo install odcs --version 0.9.1 --locked
+pip install pyodcs==0.9.1
+```
+
+### Install latest published (0.9.0)
 
 ```bash
 cargo install odcs --version 0.9.0 --locked
@@ -52,6 +59,14 @@ cd odcs
 cargo install --path . --locked
 maturin develop --features python --locked
 ```
+
+## What changed in 0.9.1
+
+See [Changelog](../changelog.md). Highlights:
+
+- `pyodcs` CLI parity with `odcs` (`diff`, `registry`, cross-file validate flags)
+- User guides for local registry and compatibility diff
+- Doc version lint in CI checks
 
 ## What changed in 0.9.0
 

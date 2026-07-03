@@ -12,9 +12,9 @@ It lets you parse ODCS v3.1.0 contracts into a typed object model and validate t
 
 ### Is it production-ready?
 
-**0.9.0** is the latest published release on [crates.io](https://crates.io/crates/odcs) and [PyPI](https://pypi.org/project/pyodcs/). **1.0.0** stabilization is complete on `main` but not yet tagged on registries — see [Release status](../project/release-status.md). After **1.0.0** ships, root Rust re-exports and CLI subcommands follow [API stability policy](../implementation/api-stability.md).
+**0.9.1** is the current tree version on `main` (**0.9.0** latest on [crates.io](https://crates.io/crates/odcs) and [PyPI](https://pypi.org/project/pyodcs/)). **1.0.0** stabilization is complete on `main` but not yet tagged on registries — see [Release status](../project/release-status.md). After **1.0.0** ships, root Rust re-exports and CLI subcommands follow [API stability policy](../implementation/api-stability.md).
 
-| Area | Status in 0.9.0 |
+| Area | Status in 0.9.x |
 |------|-----------------|
 | Parse and validate ODCS v3.1.0 documents | Supported |
 | CLI and library APIs | Supported |

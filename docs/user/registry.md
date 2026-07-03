@@ -105,6 +105,6 @@ Implementation details: [Local registry (implementation)](../implementation/regi
 | `registry entry not found` on lookup | Index missing or stale | Run `odcs registry index <dir>` |
 | Index fails with duplicate entry | Two files share the same `id` and `version` | Use unique `(id, version)` pairs or separate registry roots |
 | Index fails on symlink | Path resolves outside registry root | Remove or replace the symlink |
-| CI passes locally but fails in CI | Unpinned tool version | Pin `cargo install odcs --version 0.9.0 --locked` |
+| CI passes locally but fails in CI | Unpinned tool version | Pin `cargo install odcs --version 0.9.1 --locked` |
 
 See also [Troubleshooting](troubleshooting.md) and [FAQ](faq.md).

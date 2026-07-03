@@ -3,7 +3,7 @@
 Reference implementation of the [Open Data Contract Standard (ODCS)](https://github.com/bitol-io/open-data-contract-standard) — parse, validate, and inspect data contracts from Rust or Python.
 
 !!! note "Release"
-    **0.9.0** is published on [crates.io](https://crates.io/crates/odcs) and [PyPI](https://pypi.org/project/pyodcs/). **1.0.0** stabilization is complete on `main`, pending release tag and registry publish. See [Release status](project/release-status.md).
+    **0.9.1** on `main` (**0.9.0** published on [crates.io](https://crates.io/crates/odcs) and [PyPI](https://pypi.org/project/pyodcs/)). **1.0.0** stabilization is complete on `main`, pending release tag and registry publish. See [Release status](project/release-status.md).
 
 **Normative ODCS specification:** [bitol-io/open-data-contract-standard](https://github.com/bitol-io/open-data-contract-standard) · [Published spec site](https://bitol-io.github.io/open-data-contract-standard/)
 

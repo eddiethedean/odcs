@@ -1,7 +1,7 @@
 # Installation
 
 !!! tip "Version"
-    Current release is **0.9.0** (published on crates.io and PyPI). **1.0.0** stabilization is complete on `main`, pending release tag and registry publish. See [Release status](../project/release-status.md).
+    Current release is **0.9.1** on `main` (**0.9.0** on crates.io and PyPI). **1.0.0** stabilization is complete on `main`, pending release tag and registry publish. See [Release status](../project/release-status.md).
 
 ## Prerequisites
 

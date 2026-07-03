@@ -16,7 +16,7 @@ These files must agree on the version number:
 |------|-------|
 | `Cargo.toml` | `[package] version` |
 | `pyproject.toml` | `[project] version` |
-| Git tag | `vX.Y.Z` (e.g. `v0.9.0`) |
+| Git tag | `vX.Y.Z` (e.g. `v0.9.1`) |
 
 The release workflow verifies tag ↔ Cargo.toml ↔ pyproject.toml alignment.
 

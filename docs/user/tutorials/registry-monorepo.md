@@ -92,7 +92,7 @@ done
 Pin the tool version for reproducibility:
 
 ```bash
-cargo install odcs --version 0.9.0 --locked
+cargo install odcs --version 0.9.1 --locked
 ```
 
 ## What to read next

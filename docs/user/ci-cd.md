@@ -92,7 +92,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install odcs
-        run: cargo install odcs --version 0.9.0 --locked
+        run: cargo install odcs --version 0.9.1 --locked
 
       - name: Index contract registry
         run: odcs registry index ./contracts/
@@ -113,7 +113,7 @@ jobs:
         with:
           python-version: '3.12'
 
-      - run: pip install pyodcs==0.9.0
+      - run: pip install pyodcs==0.9.1
 
       - run: pyodcs validate contracts/customer.yaml
 ```
@@ -138,7 +138,7 @@ Requires `odcs` on `PATH` (`cargo install odcs`).
 
 ## Notes
 
-- Pin the tool version in CI for reproducibility: `cargo install odcs --version 0.9.0 --locked` and `pip install pyodcs==0.9.0`.
+- Pin the tool version in CI for reproducibility: `cargo install odcs --version 0.9.1 --locked` and `pip install pyodcs==0.9.1`.
 - Do **not** run `odcs registry index` in parallel against the same directory — index writes are atomic but concurrent jobs can race.
 - See [Release status](../project/release-status.md) for current published versions.
 - See [diagnostics.md](diagnostics.md) for routing on `odcs:*` error codes.

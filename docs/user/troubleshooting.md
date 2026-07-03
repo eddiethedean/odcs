@@ -10,7 +10,7 @@ Symptom → cause → fix for common `odcs` / `pyodcs` issues. For installation-
 | `pyodcs` import fails after clone | Editable install not built | `maturin develop --features python --locked` |
 | `PackageNotFoundError: pyodcs` | Importing from source without install | `pip install pyodcs` or `maturin develop` |
 | Version mismatch vs docs | Docs track `main`; registries may lag | See [Release status](../project/release-status.md) |
-| CI behaves differently than local | Unpinned tool version | Pin `cargo install odcs --version 0.9.0 --locked` |
+| CI behaves differently than local | Unpinned tool version | Pin `cargo install odcs --version 0.9.1 --locked` |
 
 ## Validation failures
 

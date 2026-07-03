@@ -22,7 +22,7 @@ cargo install odcs
 pip install pyodcs
 ```
 
-Both resolve to **0.9.0** from registries. To pin explicitly: `cargo install odcs --version 0.9.0 --locked` or `pip install pyodcs==0.9.0`. See [Release status](../project/release-status.md).
+Both resolve to **0.9.0** from registries today; **0.9.1** after the next publish. To pin explicitly: `cargo install odcs --version 0.9.1 --locked` or `pip install pyodcs==0.9.1`. See [Release status](../project/release-status.md).
 
 Verify either CLI:
 
@@ -31,7 +31,7 @@ odcs version
 pyodcs version
 ```
 
-Both report `crateVersion` **0.9.0** and `upstreamSpecVersion` **3.1.0**.
+Both report `crateVersion` **0.9.1** (from source/`main`) or **0.9.0** (from registries until v0.9.1 ships) and `upstreamSpecVersion` **3.1.0**.
 
 See [installation.md](installation.md) for prerequisites, from-source setup, and troubleshooting.
 
