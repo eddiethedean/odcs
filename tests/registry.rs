@@ -116,6 +116,35 @@ status: "active"
 
 #[test]
 #[cfg(unix)]
+fn index_rejects_directory_symlink_cycle() {
+    use std::os::unix::fs::symlink;
+
+    let id = TEMP_COUNTER.fetch_add(1, Ordering::Relaxed);
+    let root = std::env::temp_dir().join(format!(
+        "odcs-registry-cycle-test-{}-{}",
+        std::process::id(),
+        id
+    ));
+    let nested = root.join("nested");
+    std::fs::create_dir_all(&nested).expect("create nested");
+    symlink(&root, nested.join("loop")).expect("symlink cycle");
+
+    let result = Registry::index_directory(&root);
+    let _ = std::fs::remove_dir_all(&root);
+    assert!(result.is_err(), "expected index failure for symlink cycle");
+    let report = result.expect_err("cycle report");
+    assert!(
+        report
+            .diagnostics
+            .iter()
+            .any(|d| d.message.contains("directory cycle")),
+        "expected cycle diagnostic: {:?}",
+        report.diagnostics
+    );
+}
+
+#[test]
+#[cfg(unix)]
 fn dependency_paths_reject_symlink_outside_registry_root() {
     use std::os::unix::fs::symlink;
 

@@ -32,6 +32,18 @@ Duplicate `(id, version)` pairs fail at index time.
 
 `registry index` recursively walks `<dir>` for `*.yaml`, `*.yml`, `*.json`.
 
+Limits:
+
+| Limit | Value |
+|-------|-------|
+| Contract files per scan | 10,000 (`MAX_REGISTRY_CONTRACT_FILES`) |
+| Index file size | 16 MiB (`MAX_REGISTRY_INDEX_BYTES`) |
+| Directory cycles | Rejected (symlink loops) |
+
+Index writes use atomic temp-file + rename. **Do not run parallel index jobs** against the same registry root.
+
+Set `ODCS_VERBOSE=1` for per-file progress on stderr during indexing.
+
 Skipped directories:
 
 - Hidden directories (name starts with `.`), including `.git` and `.odcs`

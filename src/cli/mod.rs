@@ -330,18 +330,22 @@ pub fn run(cli: Cli) -> i32 {
                     return code;
                 }
             } else if report.changes.is_empty() {
-                writeln!(io::stdout(), "no changes").expect("write stdout");
+                if let Err(code) = write_stdout_line("no changes") {
+                    eprintln!("failed to write output");
+                    return code;
+                }
             } else {
                 for change in &report.changes {
-                    writeln!(
-                        io::stdout(),
+                    if let Err(code) = write_stdout_line(format!(
                         "[{}] {}: {} ({})",
                         format!("{:?}", change.kind).to_lowercase(),
                         change.code,
                         change.message,
                         change.path
-                    )
-                    .expect("write stdout");
+                    )) {
+                        eprintln!("failed to write output");
+                        return code;
+                    }
                 }
             }
 
@@ -373,15 +377,20 @@ fn run_registry_command(command: RegistryCommand) -> i32 {
                         }
                     } else {
                         for entry in registry.list() {
-                            writeln!(
-                                io::stdout(),
+                            if let Err(code) = write_stdout_line(format!(
                                 "{} {} ({})",
                                 entry.id,
                                 entry.version,
                                 entry.path.display()
-                            )
-                            .expect("write stdout");
+                            )) {
+                                eprintln!("failed to write output");
+                                return code;
+                            }
                         }
+                        let _ = write_stderr_line(format!(
+                            "indexed {} contract(s)",
+                            registry.list().len()
+                        ));
                     }
                     0
                 }
@@ -438,14 +447,15 @@ fn run_registry_command(command: RegistryCommand) -> i32 {
                             return code;
                         }
                     } else {
-                        writeln!(
-                            io::stdout(),
+                        if let Err(code) = write_stdout_line(format!(
                             "{} {} {}",
                             entry.id,
                             entry.version,
                             entry.path.display()
-                        )
-                        .expect("write stdout");
+                        )) {
+                            eprintln!("failed to write output");
+                            return code;
+                        }
                     }
                     0
                 }
@@ -457,8 +467,11 @@ fn run_registry_command(command: RegistryCommand) -> i32 {
                             return code;
                         }
                     } else {
-                        writeln!(io::stderr(), "registry entry not found: {id}")
-                            .expect("write stderr");
+                        if let Err(code) = write_stderr_line(format!("registry entry not found: {id}"))
+                        {
+                            eprintln!("failed to write output");
+                            return code;
+                        }
                     }
                     1
                 }
@@ -485,14 +498,15 @@ fn run_registry_command(command: RegistryCommand) -> i32 {
                 }
             } else {
                 for entry in registry.list() {
-                    writeln!(
-                        io::stdout(),
+                    if let Err(code) = write_stdout_line(format!(
                         "{} {} ({})",
                         entry.id,
                         entry.version,
                         entry.path.display()
-                    )
-                    .expect("write stdout");
+                    )) {
+                        eprintln!("failed to write output");
+                        return code;
+                    }
                 }
             }
             0
@@ -515,6 +529,14 @@ fn registry_entry_json(entry: &crate::registry::RegistryEntry) -> serde_json::Va
 fn write_json_stdout(payload: &serde_json::Value) -> Result<(), i32> {
     let rendered = serde_json::to_string_pretty(payload).map_err(|_| 2)?;
     writeln!(io::stdout(), "{rendered}").map_err(|_| 2)
+}
+
+fn write_stdout_line(message: impl AsRef<str>) -> Result<(), i32> {
+    writeln!(io::stdout(), "{}", message.as_ref()).map_err(|_| 2)
+}
+
+fn write_stderr_line(message: impl AsRef<str>) -> Result<(), i32> {
+    writeln!(io::stderr(), "{}", message.as_ref()).map_err(|_| 2)
 }
 
 #[derive(Debug, Clone, Copy)]

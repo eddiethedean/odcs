@@ -147,21 +147,26 @@ fn collect_dependency_paths(
     let mut paths = Vec::new();
     let mut seen = HashSet::new();
 
-    let mut push_path = |path: PathBuf| {
-        if let Ok(canonical) = path.canonicalize() {
-            if seen.insert(canonical.clone()) {
-                paths.push(canonical);
-            }
+    let mut push_path = |path: PathBuf| -> Result<(), String> {
+        let canonical = path.canonicalize().map_err(|error| {
+            format!(
+                "failed to resolve dependency path {}: {error}",
+                path.display()
+            )
+        })?;
+        if seen.insert(canonical.clone()) {
+            paths.push(canonical);
         }
+        Ok(())
     };
 
     for dep in deps {
-        push_path(dep.clone());
+        push_path(dep.clone())?;
     }
 
     if let Some(registry) = registry {
         for path in registry.dependency_paths(primary_path) {
-            push_path(path);
+            push_path(path)?;
         }
     }
 
@@ -192,7 +197,7 @@ fn collect_dependency_paths(
         }
         files.sort();
         for path in files {
-            push_path(path);
+            push_path(path)?;
         }
     }
 

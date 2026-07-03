@@ -18,6 +18,9 @@ use super::scan::collect_contract_files_recursive;
 const REGISTRY_DIR: &str = ".odcs";
 const REGISTRY_FILE: &str = "registry.json";
 
+/// Maximum size of a persisted `.odcs/registry.json` file (16 MiB).
+pub const MAX_REGISTRY_INDEX_BYTES: u64 = 16 * 1024 * 1024;
+
 /// Local contract registry backed by `.odcs/registry.json`.
 #[derive(Debug, Clone)]
 pub struct Registry {
@@ -65,6 +68,7 @@ impl Registry {
         let mut seen_keys = HashSet::new();
 
         for relative_path in relative_paths {
+            verbose_progress(&format!("indexing {}", relative_path.display()));
             let absolute_path = canonical_root.join(&relative_path);
             if resolve_path_within_root(&canonical_root, &absolute_path).is_none() {
                 emit(
@@ -122,6 +126,12 @@ impl Registry {
             return Err(report);
         }
 
+        verbose_progress(&format!(
+            "indexed {} contract(s) under {}",
+            entries.len(),
+            canonical_root.display()
+        ));
+
         Ok((
             Self {
                 root: canonical_root,
@@ -145,9 +155,23 @@ impl Registry {
         })?;
 
         let index_path = Self::index_path(&canonical_root);
-        let content = fs::read_to_string(&index_path).map_err(|error| {
+        let content = fs::read(&index_path).map_err(|error| {
             io_error_report(&format!(
                 "failed to read registry index {}: {error}",
+                index_path.display()
+            ))
+        })?;
+
+        if content.len() as u64 > MAX_REGISTRY_INDEX_BYTES {
+            return Err(io_error_report(&format!(
+                "registry index {} exceeds maximum size of {MAX_REGISTRY_INDEX_BYTES} bytes",
+                index_path.display()
+            )));
+        }
+
+        let content = String::from_utf8(content).map_err(|error| {
+            io_error_report(&format!(
+                "registry index {} is not valid UTF-8: {error}",
                 index_path.display()
             ))
         })?;
@@ -188,7 +212,21 @@ impl Registry {
             io_error_report(&format!("failed to serialize registry index: {error}"))
         })?;
 
-        fs::write(&index_path, json).map_err(|error| {
+        if json.len() as u64 > MAX_REGISTRY_INDEX_BYTES {
+            return Err(io_error_report(&format!(
+                "registry index exceeds maximum size of {MAX_REGISTRY_INDEX_BYTES} bytes"
+            )));
+        }
+
+        let temp_path = index_path.with_extension("json.tmp");
+        fs::write(&temp_path, &json).map_err(|error| {
+            io_error_report(&format!(
+                "failed to write registry index {}: {error}",
+                temp_path.display()
+            ))
+        })?;
+        fs::rename(&temp_path, &index_path).map_err(|error| {
+            let _ = fs::remove_file(&temp_path);
             io_error_report(&format!(
                 "failed to write registry index {}: {error}",
                 index_path.display()
@@ -402,6 +440,12 @@ fn io_error_report(message: &str) -> DiagnosticReport {
         ),
     );
     report
+}
+
+fn verbose_progress(message: &str) {
+    if std::env::var_os("ODCS_VERBOSE").is_some() {
+        eprintln!("odcs: {message}");
+    }
 }
 
 mod time {

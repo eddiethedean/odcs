@@ -5,8 +5,8 @@ mod local;
 mod scan;
 
 pub use entry::RegistryEntry;
-pub use local::Registry;
-pub use scan::{collect_contract_files_recursive, is_contract_file};
+pub use local::{Registry, MAX_REGISTRY_INDEX_BYTES};
+pub use scan::{collect_contract_files_recursive, is_contract_file, MAX_REGISTRY_CONTRACT_FILES};
 
 use std::path::Path;
 

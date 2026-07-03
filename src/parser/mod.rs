@@ -4,6 +4,8 @@ mod duplicate_keys;
 mod json;
 mod yaml;
 
+use std::fs::File;
+use std::io::Read;
 use std::path::Path;
 
 pub use json::parse_json;
@@ -208,18 +210,23 @@ fn extract_serde_path(message: &str) -> Option<String> {
 /// Parse an ODCS document from a file path.
 pub fn parse_file(path: impl AsRef<Path>) -> miette::Result<ParseResult> {
     let path = path.as_ref();
-    let metadata = std::fs::metadata(path)
-        .map_err(|e| miette::miette!("failed to read {}: {e}", path.display()))?;
-    if metadata.len() > MAX_PARSE_BYTES {
-        return Ok(failure_document_too_large());
-    }
-    let content = std::fs::read(path)
-        .map_err(|e| miette::miette!("failed to read {}: {e}", path.display()))?;
     let format = DocumentFormat::from_path(path).ok_or_else(|| {
         miette::miette!(
             "unsupported file extension for {}: expected .yaml, .yml, or .json",
             path.display()
         )
     })?;
+
+    let file = File::open(path)
+        .map_err(|e| miette::miette!("failed to read {}: {e}", path.display()))?;
+    let mut content = Vec::new();
+    file.take(MAX_PARSE_BYTES.saturating_add(1))
+        .read_to_end(&mut content)
+        .map_err(|e| miette::miette!("failed to read {}: {e}", path.display()))?;
+
+    if content.len() as u64 > MAX_PARSE_BYTES {
+        return Ok(failure_document_too_large());
+    }
+
     Ok(parse(&content, format))
 }

@@ -52,12 +52,24 @@ Out of scope:
 
 | Control | Limit |
 |---------|-------|
-| Document size | 16 MiB maximum |
+| Document size | 16 MiB maximum (`MAX_PARSE_BYTES`); file reads are capped (no metadata-only check) |
 | Duplicate-key detection | Block-style YAML mappings and JSON objects only |
 | Not scanned | YAML flow mappings, anchors (`&`), aliases (`*`) |
 | Nesting depth | No explicit cap; bounded primarily by document size |
 
 Malicious YAML may exploit alias expansion in `serde_yaml`. Only parse contracts from trusted sources or scan in isolated CI environments.
+
+### Registry limits
+
+| Control | Limit |
+|---------|-------|
+| Index file size | 16 MiB maximum (`.odcs/registry.json`) |
+| Contract files per scan | 10,000 maximum |
+| Directory cycles | Rejected during recursive scan (symlink loops) |
+| Index write | Atomic temp file + rename |
+| Parallel index | Not supported — run one indexer per registry root |
+
+Set `ODCS_VERBOSE=1` for per-file index progress on stderr.
 
 ### Registry path confinement
 

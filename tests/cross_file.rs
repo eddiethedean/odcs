@@ -119,3 +119,20 @@ fn include_dir_not_directory_returns_error() {
     assert!(result.is_err());
     let _ = fs::remove_file(&file_path);
 }
+
+#[test]
+fn missing_dep_path_returns_error() {
+    let primary = fixture_path("cross-file/consumer-valid.yaml");
+    let missing = PathBuf::from("/nonexistent/odcs-dep-path.yaml");
+    let result = load_set(&primary, std::slice::from_ref(&missing), &[]);
+    assert!(result.is_err(), "expected error for missing dependency path");
+    let report = result.expect_err("missing dep report");
+    assert!(
+        report
+            .diagnostics
+            .iter()
+            .any(|d| d.message.contains("failed to resolve dependency path")),
+        "expected resolve failure diagnostic: {:?}",
+        report.diagnostics
+    );
+}

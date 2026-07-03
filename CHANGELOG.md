@@ -14,10 +14,13 @@
 - [API stability policy](docs/implementation/api-stability.md)
 - Registry path confinement: reject indexed paths whose canonical form escapes the registry root
 - Documented YAML alias/depth limits in [SECURITY.md](SECURITY.md)
+- Production hardening: capped `parse_file` reads, registry scan limits (10k files, 16 MiB index), symlink cycle detection, atomic index writes, `ODCS_VERBOSE` index progress
 
 **Changed:**
 
 - Documentation sync for 0.9/1.0 reality (architecture, crate layout, enterprise evaluation, migration guide)
+- CLI `diff` / `registry` no longer panic on broken pipe (exit 2 instead)
+- Cross-file `--dep` / registry paths fail loudly when `canonicalize()` fails (no silent skip)
 
 ## 0.9.0 — 2026-07-02
 
