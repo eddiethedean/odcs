@@ -16,6 +16,12 @@ from pyodcs._native import upstream_spec_version as _upstream_spec_version
 from pyodcs._native import validate_contract as _validate_contract
 from pyodcs._native import validate_document as _validate_document
 from pyodcs._native import diff_contracts as _diff_contracts
+from pyodcs._native import parse_and_validate_paths as _parse_and_validate_paths
+from pyodcs._native import registry_index as _registry_index
+from pyodcs._native import registry_index_and_save as _registry_index_and_save
+from pyodcs._native import registry_load as _registry_load
+from pyodcs._native import registry_lookup as _registry_lookup
+from pyodcs._native import registry_list as _registry_list
 
 UPSTREAM_SPEC_VERSION = _upstream_spec_version()
 UPSTREAM_REPOSITORY_URL = "https://github.com/bitol-io/open-data-contract-standard"
@@ -25,7 +31,7 @@ VALIDATION_PHASES = _validation_phases()
 try:
     __version__ = version("pyodcs")
 except PackageNotFoundError:
-    __version__ = "0.8.0"
+    __version__ = "0.9.0"
 
 
 def parse(content: str | bytes, format: str = "yaml") -> dict:
@@ -87,10 +93,38 @@ def parse_and_validate_paths(
     deps: list[str] | None = None,
     *,
     includes: list[str] | None = None,
+    registry: str | None = None,
     strict: bool = False,
 ) -> dict:
     """Parse and validate a primary contract with optional dependency paths."""
-    return _parse_and_validate_paths(primary, deps, includes, strict)
+    return _parse_and_validate_paths(primary, deps, includes, registry, strict)
+
+
+def registry_index(directory: str) -> dict:
+    """Scan a directory recursively and build a registry index in memory."""
+    return _registry_index(directory)
+
+
+def registry_index_and_save(directory: str) -> dict:
+    """Scan a directory and write `.odcs/registry.json`."""
+    return _registry_index_and_save(directory)
+
+
+def registry_load(directory: str) -> list[dict]:
+    """Load registry entries from `.odcs/registry.json`."""
+    return _registry_load(directory)
+
+
+def registry_lookup(
+    directory: str, id: str, version: str | None = None
+) -> dict | None:
+    """Look up a registry entry by id (and optional version)."""
+    return _registry_lookup(directory, id, version)
+
+
+def registry_list(directory: str) -> list[dict]:
+    """List all entries in a registry index."""
+    return _registry_list(directory)
 
 
 def parse_and_validate(
@@ -142,6 +176,11 @@ __all__ = [
     "parse",
     "parse_and_validate",
     "parse_and_validate_paths",
+    "registry_index",
+    "registry_index_and_save",
+    "registry_load",
+    "registry_lookup",
+    "registry_list",
     "parse_file",
     "pinned_schema",
     "quality_rules_count",

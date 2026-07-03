@@ -46,7 +46,8 @@ mod python;
 
 pub use compatibility::{diff, ChangeKind, CompatibilityChange, CompatibilityReport};
 pub use contract_set::{
-    load_set, parse_and_validate_set, validate_set, validate_set_with_options, ContractSet,
+    load_set, load_set_with_registry, parse_and_validate_set, parse_and_validate_set_with_registry,
+    validate_set, validate_set_with_options, ContractSet,
 };
 pub use diagnostics::{
     codes, inspect_contract, Diagnostic, DiagnosticCategory, DiagnosticReport, DiagnosticStage,
@@ -56,6 +57,9 @@ pub use model::DataContract;
 pub use parser::{
     parse, parse_file, parse_json, parse_strict, parse_yaml, DocumentFormat, ParseResult,
     MAX_PARSE_BYTES,
+};
+pub use registry::{
+    index_and_save_registry, index_registry, load_registry, Registry, RegistryEntry,
 };
 pub use validation::{validate, validate_strict, validate_with_options, ValidationOptions};
 

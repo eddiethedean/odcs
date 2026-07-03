@@ -28,7 +28,8 @@ When building a `ContractSet`:
 
 1. Primary contract (CLI path argument or library primary path)
 2. Explicit `--dep` paths in command order
-3. Files from `--include` directory: non-recursive scan of `*.yaml`, `*.yml`, `*.json`, sorted lexicographically by filename
+3. Registry dependency paths from `--registry` (all indexed contracts except primary, sorted by path)
+4. Files from `--include` directory: non-recursive scan of `*.yaml`, `*.yml`, `*.json`, sorted lexicographically by filename
 
 The primary contract is always validated; dependencies are indexed for reference resolution only (their own validation diagnostics are merged into the set report).
 
@@ -40,14 +41,15 @@ When no dependencies are loaded, validation behavior is unchanged from 0.7.0. FQ
 
 ```bash
 odcs validate contract.yaml --dep other.yaml --include ./contracts/
+odcs validate contract.yaml --registry ./contracts/
 ```
 
 - `--dep <path>` — repeatable; explicit dependency files
 - `--include <dir>` — non-recursive directory scan
+- `--registry <dir>` — load `<dir>/.odcs/registry.json` (requires prior `odcs registry index`)
 
-## Out of scope (0.8.0)
+## Out of scope (0.8.0+)
 
 - Remote URL fetching
-- Registry-backed resolution (Phase 15)
+- HTTP remote registry server
 - Workspace manifest files
-- Recursive directory scanning

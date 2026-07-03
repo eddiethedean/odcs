@@ -10,10 +10,13 @@ Commands:
 
 ```bash
 odcs validate <path>
-odcs validate <path> --dep <path> [--dep ...] [--include <dir>]
+odcs validate <path> --dep <path> [--dep ...] [--include <dir>] [--registry <dir>]
 odcs inspect <path>
 odcs diagnostics <path>
 odcs diff <old> <new>
+odcs registry index <dir>
+odcs registry lookup <dir> <id> [--version <ver>]
+odcs registry list <dir>
 odcs schema
 odcs version
 ```
@@ -39,6 +42,17 @@ Exit codes:
 
 ```bash
 odcs validate consumer.yaml --dep provider.yaml --include ./contracts/
+odcs validate consumer.yaml --registry ./contracts/
+```
+
+Requires `odcs registry index ./contracts/` before `--registry` validation.
+
+## Local registry (0.9.0+)
+
+```bash
+odcs registry index ./contracts/
+odcs registry lookup ./contracts/ provider-contract
+odcs registry list ./contracts/
 ```
 
 ## Compatibility diff (0.8.0+)

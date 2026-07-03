@@ -297,3 +297,64 @@ fn cli_validate_cross_file_with_dep_succeeds() {
         .expect("run cli");
     assert!(output.status.success());
 }
+
+#[test]
+fn cli_registry_index_and_validate_with_registry() {
+    let contracts_root = fixture("registry/contracts");
+    let index_output = odcs_bin()
+        .args(["registry", "index", &contracts_root.to_string_lossy()])
+        .output()
+        .expect("run registry index");
+    assert!(index_output.status.success());
+
+    let primary = fixture("registry/consumer.yaml");
+    let validate_output = odcs_bin()
+        .args([
+            "validate",
+            &primary.to_string_lossy(),
+            "--registry",
+            &contracts_root.to_string_lossy(),
+        ])
+        .output()
+        .expect("run validate");
+    assert!(validate_output.status.success());
+}
+
+#[test]
+fn cli_registry_lookup_prefers_highest_semver() {
+    let contracts_root = fixture("registry/contracts");
+    odcs_bin()
+        .args(["registry", "index", &contracts_root.to_string_lossy()])
+        .output()
+        .expect("run registry index");
+
+    let output = odcs_bin()
+        .args([
+            "registry",
+            "lookup",
+            &contracts_root.to_string_lossy(),
+            "provider-contract",
+        ])
+        .output()
+        .expect("run registry lookup");
+    assert!(output.status.success());
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(stdout.contains("2.0.0"));
+}
+
+#[test]
+fn cli_registry_list_entries() {
+    let contracts_root = fixture("registry/contracts");
+    odcs_bin()
+        .args(["registry", "index", &contracts_root.to_string_lossy()])
+        .output()
+        .expect("run registry index");
+
+    let output = odcs_bin()
+        .args(["registry", "list", &contracts_root.to_string_lossy()])
+        .output()
+        .expect("run registry list");
+    assert!(output.status.success());
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(stdout.contains("provider-contract"));
+}

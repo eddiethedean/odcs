@@ -2,6 +2,28 @@
 
 This guide covers breaking changes between major pre-1.0 releases of `odcs` and `pyodcs`.
 
+## 0.8.x → 0.9.0
+
+### Local contract registry
+
+**After (0.9.0):** Index a directory of contracts and resolve cross-file FQNs without listing every dependency:
+
+```bash
+odcs registry index ./contracts/
+odcs validate consumer.yaml --registry ./contracts/
+```
+
+Python:
+
+```python
+pyodcs.registry_index_and_save("./contracts/")
+pyodcs.parse_and_validate_paths("consumer.yaml", registry="./contracts/")
+```
+
+Lookup helpers: `registry_lookup`, `registry_list`, `registry_load`.
+
+**Action:** Run `odcs registry index` after adding or changing contracts under your registry root. Re-index explicitly when files change (no auto-reindex on validate).
+
 ## 0.7.x → 0.8.0
 
 ### Section semantics

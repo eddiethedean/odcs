@@ -24,7 +24,7 @@ The [upstream ODCS specification](https://github.com/bitol-io/open-data-contract
 | **12** | [Section semantics](#phase-12--section-semantics) | Roles, SLA, pricing, support validators | **Complete** (`0.8.0`) |
 | **13** | [Cross-file references](#phase-13--cross-file-references) | Multi-document FQN resolution | **Complete** (`0.8.0`) |
 | **14** | [Compatibility analysis](#phase-14--compatibility-analysis) | Contract diff and breaking-change report | **Complete** (`0.8.0`) |
-| **15** | [Registry](#phase-15--registry) | Local contract index and lookup | Planned (`0.9.0`) |
+| **15** | [Registry](#phase-15--registry) | Local contract index and lookup | **Complete** (`0.9.0`) |
 | **16** | [1.0 release](#phase-16--10-release) | API stabilization and upstream sync | Planned (`1.0.0`) |
 
 ## Dependencies
@@ -350,20 +350,20 @@ Out of scope for this repository (see [docs/implementation/non-goals.md](docs/im
 
 ## Phase 15 — Registry
 
-**Target:** `0.9.0` — **Planned**
+**Target:** `0.9.0` — **Complete**
 
-**Context:** Stub [`src/registry/mod.rs`](src/registry/mod.rs). Deferred from the first-repo milestone per [non-goals](docs/implementation/non-goals.md).
+**Context:** Implemented in [`src/registry/`](src/registry/). See [registry ADR](docs/implementation/registry.md).
 
 **Deliverables:**
 
-- [ ] `RegistryEntry` model: `id`, `version`, `path`, optional `tags`, `apiVersion`, content hash
-- [ ] Local backend: index file (e.g. `.odcs/registry.json`) + scanned contract directory
-- [ ] API: `register`, `lookup(id)`, `lookup(id, version)`, `list`
-- [ ] CLI: `odcs registry index <dir>`, `odcs registry lookup <id>` (exact names TBD in cli-spec)
-- [ ] Optional: `odcs validate --registry <dir>` loads index for FQN resolution (builds on Phase 13)
-- [ ] Python bindings for lookup/list
+- [x] `RegistryEntry` model: `id`, `version`, `path`, optional `tags`, `apiVersion`, content hash
+- [x] Local backend: index file (`.odcs/registry.json`) + recursive contract directory scan
+- [x] API: `register`, `lookup(id)`, `lookup(id, version)`, `list`
+- [x] CLI: `odcs registry index <dir>`, `odcs registry lookup <dir> <id>`, `odcs registry list <dir>`
+- [x] `odcs validate --registry <dir>` loads index for FQN resolution (builds on Phase 13)
+- [x] Python bindings for index/lookup/list
 
-**Out of scope for MVP:** HTTP remote registry, auth, publish/subscribe, write-through to external systems.
+**Out of scope for MVP:** HTTP remote registry, auth, publish-subscribe, write-through to external systems.
 
 **Done when:** Indexing a directory of contracts enables lookup by `id` and powers cross-file validation without explicit `--include` for indexed paths.
 

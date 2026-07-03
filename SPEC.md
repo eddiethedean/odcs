@@ -153,7 +153,7 @@ Fully-qualified relationship endpoints (`{contractId}/{schemaObject}/{property}`
 
 | Behavior | Diagnostic |
 |----------|------------|
-| FQN resolves when referenced contract is included via `--dep` or `--include` | (pass) |
+| FQN resolves when referenced contract is included via `--dep`, `--include`, or `--registry` | (pass) |
 | FQN does not resolve when referenced contract is omitted | `odcs:unresolved-reference` |
 | Duplicate `id` within a loaded set | `odcs:invalid-schema` |
 
@@ -161,9 +161,19 @@ Fully-qualified relationship endpoints (`{contractId}/{schemaObject}/{property}`
 
 Contract diff compares two parsed contracts and classifies changes as breaking, additive, deprecated, or unchanged. See `src/compatibility/`. CLI: `odcs diff <old> <new>`.
 
+## Local registry (0.9.0)
+
+Filesystem registry for contract discovery and cross-file validation. See [docs/implementation/registry.md](docs/implementation/registry.md).
+
+| Behavior | Notes |
+|----------|-------|
+| `odcs registry index <dir>` | Recursive scan; writes `<dir>/.odcs/registry.json` |
+| `lookup(id)` / `lookup(id, version)` | In-memory lookup from index |
+| `odcs validate --registry <dir>` | Loads index for FQN dependency resolution |
+
 ## Out of scope
 
-- Registry server (Phase 15; see [docs/implementation/non-goals.md](docs/implementation/non-goals.md))
+- Remote registry server (see [docs/implementation/non-goals.md](docs/implementation/non-goals.md))
 
 ------------------------------------------------------------------------
 

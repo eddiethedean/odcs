@@ -8,8 +8,12 @@ The `odcs` binary (Rust) and `pyodcs` command (Python) share the same subcommand
 odcs validate <path>    # Parse and validate; print result
 odcs inspect <path>     # Print contract summary
 odcs diagnostics <path> # Print validation diagnostics
+odcs diff <old> <new> # Compare contracts for breaking changes
 odcs schema             # Print pinned ODCS JSON Schema
 odcs version            # Print tool and upstream spec versions
+odcs registry index <dir>           # Build .odcs/registry.json
+odcs registry lookup <dir> <id>     # Look up contract by id
+odcs registry list <dir>            # List indexed contracts
 ```
 
 ## Flags
@@ -18,6 +22,9 @@ odcs version            # Print tool and upstream spec versions
 |------|----------|-------------|
 | `--json` | all | Emit JSON output (`schema --json` includes metadata wrapper) |
 | `--strict` | `validate` | Deprecated no-op (JSON Schema always runs in 0.4.0+) |
+| `--dep` | `validate` | Explicit dependency contract path (repeatable) |
+| `--include` | `validate` | Non-recursive directory scan for dependency contracts |
+| `--registry` | `validate` | Registry root directory (`<dir>/.odcs/registry.json`) |
 | `--url-only` | `schema` | Print upstream repository URL only |
 
 ## Exit codes
@@ -33,7 +40,11 @@ odcs version            # Print tool and upstream spec versions
 ```bash
 odcs validate contract.yaml
 odcs validate contract.yaml --json
+odcs validate consumer.yaml --dep provider.yaml
+odcs validate consumer.yaml --registry ./contracts/
 ```
+
+Cross-file load order: primary → `--dep` → `--registry` → `--include`.
 
 **Text output (valid):**
 
@@ -112,6 +123,19 @@ odcs version --json
   "upstreamSpecVersion": "3.1.0"
 }
 ```
+
+## registry
+
+Build and query a local contract index at `<dir>/.odcs/registry.json`.
+
+```bash
+odcs registry index ./contracts/
+odcs registry lookup ./contracts/ provider-contract
+odcs registry lookup ./contracts/ provider-contract --version 1.0.0
+odcs registry list ./contracts/
+```
+
+Add `--json` for structured output. `lookup` without `--version` returns the highest semver entry for the id. Exit `1` when lookup finds no entry; index exits `1` on duplicate `(id, version)` pairs.
 
 ## `--strict` (deprecated)
 

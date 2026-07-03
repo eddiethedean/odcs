@@ -10,7 +10,7 @@ use std::io::ErrorKind;
 use std::path::{Path, PathBuf};
 
 use crate::compatibility::diff;
-use crate::contract_set::{load_set, validate_set_with_options};
+use crate::contract_set::{load_set_with_registry, validate_set_with_options};
 use crate::diagnostics::inspect_contract;
 use crate::model::DataContract;
 use crate::parser::{parse, parse_file, DocumentFormat, ParseResult};
@@ -152,12 +152,13 @@ fn validate_document(
 
 /// Parse and validate a primary contract with optional dependency paths.
 #[pyfunction]
-#[pyo3(signature = (primary, deps=None, includes=None, strict=false))]
+#[pyo3(signature = (primary, deps=None, includes=None, registry=None, strict=false))]
 fn parse_and_validate_paths(
     py: Python<'_>,
     primary: &str,
     deps: Option<Vec<String>>,
     includes: Option<Vec<String>>,
+    registry: Option<String>,
     strict: bool,
 ) -> PyResult<Py<PyAny>> {
     let deps: Vec<PathBuf> = deps
@@ -176,7 +177,14 @@ fn parse_and_validate_paths(
         ValidationOptions::default_options()
     };
 
-    let report = if deps.is_empty() && includes.is_empty() {
+    let loaded_registry = match registry.as_deref() {
+        Some(dir) => {
+            Some(crate::registry::load_registry(Path::new(dir)).map_err(report_to_py_err)?)
+        }
+        None => None,
+    };
+
+    let report = if deps.is_empty() && includes.is_empty() && loaded_registry.is_none() {
         let result = parse_file(Path::new(primary))
             .map_err(|error| PyValueError::new_err(error.to_string()))?;
         let mut report = result.report;
@@ -185,13 +193,107 @@ fn parse_and_validate_paths(
         }
         report
     } else {
-        match load_set(Path::new(primary), &deps, &includes) {
+        match load_set_with_registry(
+            Path::new(primary),
+            &deps,
+            &includes,
+            loaded_registry.as_ref(),
+        ) {
             Ok(set) => validate_set_with_options(&set, options),
             Err(report) => report,
         }
     };
 
     value_to_py(py, &report)
+}
+
+fn registry_entry_to_json(entry: &crate::registry::RegistryEntry) -> serde_json::Value {
+    serde_json::json!({
+        "id": entry.id,
+        "version": entry.version,
+        "path": entry.path,
+        "apiVersion": entry.api_version,
+        "tags": entry.tags,
+        "contentHash": entry.content_hash,
+        "indexedAt": entry.indexed_at,
+    })
+}
+
+fn report_to_py_err(report: crate::diagnostics::DiagnosticReport) -> PyErr {
+    let message = if report.diagnostics.is_empty() {
+        "operation failed".to_string()
+    } else {
+        report
+            .diagnostics
+            .iter()
+            .map(|diagnostic| diagnostic.message.as_str())
+            .collect::<Vec<_>>()
+            .join("; ")
+    };
+    PyValueError::new_err(message)
+}
+
+/// Scan a directory and build a local registry index in memory.
+#[pyfunction]
+fn registry_index(py: Python<'_>, directory: &str) -> PyResult<Py<PyAny>> {
+    let (registry, report) =
+        crate::registry::index_registry(Path::new(directory)).map_err(report_to_py_err)?;
+    let dict = PyDict::new(py);
+    let entries: Vec<_> = registry.list().iter().map(registry_entry_to_json).collect();
+    dict.set_item("entries", value_to_py(py, &entries)?)?;
+    dict.set_item("report", value_to_py(py, &report)?)?;
+    Ok(dict.into())
+}
+
+/// Scan a directory and write `.odcs/registry.json`.
+#[pyfunction]
+fn registry_index_and_save(py: Python<'_>, directory: &str) -> PyResult<Py<PyAny>> {
+    let (registry, report) =
+        crate::registry::index_and_save_registry(Path::new(directory)).map_err(report_to_py_err)?;
+    let dict = PyDict::new(py);
+    let entries: Vec<_> = registry.list().iter().map(registry_entry_to_json).collect();
+    dict.set_item("entries", value_to_py(py, &entries)?)?;
+    dict.set_item("report", value_to_py(py, &report)?)?;
+    Ok(dict.into())
+}
+
+/// Load a registry from `.odcs/registry.json`.
+#[pyfunction]
+fn registry_load(py: Python<'_>, directory: &str) -> PyResult<Py<PyAny>> {
+    let registry =
+        crate::registry::load_registry(Path::new(directory)).map_err(report_to_py_err)?;
+    let entries: Vec<_> = registry.list().iter().map(registry_entry_to_json).collect();
+    value_to_py(py, &entries)
+}
+
+/// Look up a registry entry by id (and optional version).
+#[pyfunction]
+#[pyo3(signature = (directory, id, version=None))]
+fn registry_lookup(
+    py: Python<'_>,
+    directory: &str,
+    id: &str,
+    version: Option<&str>,
+) -> PyResult<Py<PyAny>> {
+    let registry =
+        crate::registry::load_registry(Path::new(directory)).map_err(report_to_py_err)?;
+    let entry = match version {
+        Some(version) => registry.lookup_version(id, version),
+        None => registry.lookup(id),
+    };
+    match entry {
+        Some(entry) => value_to_py(py, &registry_entry_to_json(entry)),
+        None => Ok(py.None()),
+    }
+}
+
+/// List all entries in a registry index.
+#[pyfunction]
+fn registry_list(py: Python<'_>, directory: &str) -> PyResult<Py<PyAny>> {
+    let registry =
+        crate::registry::load_registry(Path::new(directory)).map_err(report_to_py_err)?;
+    let entries: Vec<_> = registry.list().iter().map(registry_entry_to_json).collect();
+    value_to_py(py, &entries)
 }
 
 /// Return a short human-readable contract summary.
@@ -320,6 +422,11 @@ fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(validate_contract, m)?)?;
     m.add_function(wrap_pyfunction!(validate_document, m)?)?;
     m.add_function(wrap_pyfunction!(parse_and_validate_paths, m)?)?;
+    m.add_function(wrap_pyfunction!(registry_index, m)?)?;
+    m.add_function(wrap_pyfunction!(registry_index_and_save, m)?)?;
+    m.add_function(wrap_pyfunction!(registry_load, m)?)?;
+    m.add_function(wrap_pyfunction!(registry_lookup, m)?)?;
+    m.add_function(wrap_pyfunction!(registry_list, m)?)?;
     m.add_function(wrap_pyfunction!(diff_contracts, m)?)?;
     m.add_function(wrap_pyfunction!(pinned_schema, m)?)?;
     m.add_function(wrap_pyfunction!(diagnostic_codes, m)?)?;

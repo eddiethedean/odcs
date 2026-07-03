@@ -1,6 +1,6 @@
 # Implementation Phases
 
-All reference-implementation phases through **Phase 11 (structural validation)** and **spec parity** are **complete** as of `0.7.0`. See [ROADMAP.md](../../ROADMAP.md) and [SPEC.md](../../SPEC.md) spec parity policy.
+All reference-implementation phases through **Phase 15 (local registry)** are **complete** as of `0.9.0`. See [ROADMAP.md](../../ROADMAP.md) and [SPEC.md](../../SPEC.md) spec parity policy.
 
 ## Phase 1 — Skeleton
 
@@ -119,3 +119,27 @@ Cross-field rules in [`structural.rs`](../../src/validation/structural.rs):
 - Unique non-empty `schema[].name` and `servers[].server` values
 - `slaProperties[].element` and `slaDefaultElement` must reference existing schema object names (comma-separated tokens supported)
 - Documented in [SPEC.md](../../SPEC.md) structural validation (0.7.0) policy
+
+## Phase 12 — Section semantics
+
+**Status:** Complete (`0.8.0`).
+
+Business rules in [`sections.rs`](../../src/validation/sections.rs): unique `roles[].id`, support URL requirements, SLA scheduler/schedule pairing, pricing currency and amount rules.
+
+## Phase 13 — Cross-file references
+
+**Status:** Complete (`0.8.0`).
+
+Multi-document FQN resolution via `ContractSet`, CLI `--dep` / `--include`, and library `load_set`.
+
+## Phase 14 — Compatibility analysis
+
+**Status:** Complete (`0.8.0`).
+
+`compatibility::diff`, CLI `odcs diff`, and Python `pyodcs.diff()`.
+
+## Phase 15 — Local registry
+
+**Status:** Complete (`0.9.0`).
+
+Recursive directory index to `.odcs/registry.json`, lookup APIs, CLI `odcs registry` subcommands, `validate --registry`, and Python registry bindings. See [registry.md](registry.md).

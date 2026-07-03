@@ -19,7 +19,7 @@ def _fixture(name: str) -> bytes:
 
 def test_upstream_spec_version() -> None:
     assert pyodcs.UPSTREAM_SPEC_VERSION == "3.1.0"
-    assert pyodcs.__version__ == "0.8.0"
+    assert pyodcs.__version__ == "0.9.0"
     assert pyodcs.CODES["INVALID_KIND"] == "odcs:invalid-kind"
 
 
@@ -281,3 +281,42 @@ def test_pinned_schema_export() -> None:
     metadata = pyodcs.pinned_schema(json_metadata=True)
     assert metadata["schemaVersion"] == "3.1.0"
     assert "schema" in metadata
+
+
+def test_registry_index_lookup_and_validate(tmp_path: Path) -> None:
+    contracts_root = FIXTURES / "registry" / "contracts"
+    isolated = tmp_path / "contracts"
+    _copy_tree(contracts_root, isolated)
+
+    indexed = pyodcs.registry_index_and_save(str(isolated))
+    assert pyodcs.is_valid(indexed["report"])
+    entries = indexed["entries"]
+    assert any(entry["id"] == "provider-contract" for entry in entries)
+
+    loaded = pyodcs.registry_load(str(isolated))
+    assert loaded
+
+    best = pyodcs.registry_lookup(str(isolated), "provider-contract")
+    assert best is not None
+    assert best["version"] == "2.0.0"
+
+    listed = pyodcs.registry_list(str(isolated))
+    assert len(listed) == len(entries)
+
+    primary = FIXTURES / "registry" / "consumer.yaml"
+    report = pyodcs.parse_and_validate_paths(
+        str(primary),
+        registry=str(isolated),
+    )
+    assert pyodcs.is_valid(report)
+
+
+def _copy_tree(source: Path, destination: Path) -> None:
+    destination.mkdir(parents=True, exist_ok=True)
+    for path in source.rglob("*"):
+        if path.is_dir():
+            continue
+        relative = path.relative_to(source)
+        target = destination / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(path.read_bytes())

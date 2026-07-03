@@ -17,7 +17,7 @@ The first goal is a correct Rust spec core.
 
 | Module | Planned purpose | Status |
 |--------|-----------------|--------|
-| `src/registry/` | Contract registry / discovery | Stub (Phase 15 / 0.9.0) |
+| `src/registry/` | Local contract registry / discovery | Implemented (0.9.0) |
 | `src/compatibility/` | Cross-version contract diffing | Implemented (0.8.0) |
 
-Do not depend on `registry/` until Phase 15 ships.
+Do not depend on remote registry features until explicitly documented.

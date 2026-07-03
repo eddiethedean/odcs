@@ -37,6 +37,9 @@ pub enum Command {
         /// Directory of dependency contracts (non-recursive `*.yaml`, `*.yml`, `*.json` scan).
         #[arg(long = "include")]
         includes: Vec<PathBuf>,
+        /// Registry root directory (`<dir>/.odcs/registry.json` for dependency resolution).
+        #[arg(long = "registry")]
+        registry_dir: Option<PathBuf>,
         /// Emit JSON output.
         #[arg(long)]
         json: bool,
@@ -85,6 +88,46 @@ pub enum Command {
         #[arg(long)]
         json: bool,
     },
+    /// Local contract registry commands.
+    Registry {
+        /// Registry subcommand to execute.
+        #[command(subcommand)]
+        command: RegistryCommand,
+    },
+}
+
+/// Registry subcommands.
+#[derive(Debug, Subcommand)]
+pub enum RegistryCommand {
+    /// Build or overwrite `.odcs/registry.json` for a directory.
+    Index {
+        /// Registry root directory (indexed recursively).
+        dir: PathBuf,
+        /// Emit JSON output.
+        #[arg(long)]
+        json: bool,
+    },
+    /// Look up a contract by id (and optional version).
+    Lookup {
+        /// Registry root directory.
+        dir: PathBuf,
+        /// Contract id to look up.
+        id: String,
+        /// Exact contract revision (`version` field).
+        #[arg(long)]
+        version: Option<String>,
+        /// Emit JSON output.
+        #[arg(long)]
+        json: bool,
+    },
+    /// List all indexed contracts.
+    List {
+        /// Registry root directory.
+        dir: PathBuf,
+        /// Emit JSON output.
+        #[arg(long)]
+        json: bool,
+    },
 }
 
 /// Run the CLI application.
@@ -94,6 +137,7 @@ pub fn run(cli: Cli) -> i32 {
             path,
             deps,
             includes,
+            registry_dir,
             json,
             strict,
         } => {
@@ -103,7 +147,21 @@ pub fn run(cli: Cli) -> i32 {
                 ValidationOptions::default_options()
             };
 
-            let report = if deps.is_empty() && includes.is_empty() {
+            let registry = match registry_dir.as_ref() {
+                Some(dir) => match crate::registry::load_registry(dir) {
+                    Ok(registry) => Some(registry),
+                    Err(report) => {
+                        if let Err(error) = render_report(&report, json, ReportMode::Diagnostics) {
+                            eprintln!("{error}");
+                            return 2;
+                        }
+                        return exit_code_for_report(&report);
+                    }
+                },
+                None => None,
+            };
+
+            let report = if deps.is_empty() && includes.is_empty() && registry.is_none() {
                 let result = match parse_file(&path) {
                     Ok(result) => result,
                     Err(error) => {
@@ -113,7 +171,12 @@ pub fn run(cli: Cli) -> i32 {
                 };
                 result.validate_with_options(options)
             } else {
-                match crate::contract_set::load_set(&path, &deps, &includes) {
+                match crate::contract_set::load_set_with_registry(
+                    &path,
+                    &deps,
+                    &includes,
+                    registry.as_ref(),
+                ) {
                     Ok(set) => crate::contract_set::validate_set_with_options(&set, options),
                     Err(report) => report,
                 }
@@ -299,7 +362,165 @@ pub fn run(cli: Cli) -> i32 {
                 0
             }
         }
+        Command::Registry { command } => run_registry_command(command),
     }
+}
+
+fn run_registry_command(command: RegistryCommand) -> i32 {
+    match command {
+        RegistryCommand::Index { dir, json } => {
+            match crate::registry::index_and_save_registry(&dir) {
+                Ok((registry, report)) => {
+                    if json {
+                        let entries: Vec<_> =
+                            registry.list().iter().map(registry_entry_json).collect();
+                        let payload = serde_json::json!({
+                            "entries": entries,
+                            "diagnostics": report.diagnostics,
+                        });
+                        if let Err(code) = write_json_stdout(&payload) {
+                            eprintln!("failed to write JSON output");
+                            return code;
+                        }
+                    } else {
+                        for entry in registry.list() {
+                            writeln!(
+                                io::stdout(),
+                                "{} {} ({})",
+                                entry.id,
+                                entry.version,
+                                entry.path.display()
+                            )
+                            .expect("write stdout");
+                        }
+                    }
+                    0
+                }
+                Err(report) => {
+                    if let Err(error) = render_report(&report, json, ReportMode::Diagnostics) {
+                        eprintln!("{error}");
+                        return 2;
+                    }
+                    if report
+                        .diagnostics
+                        .iter()
+                        .any(|d| d.message.contains("duplicate registry entry"))
+                    {
+                        1
+                    } else if report
+                        .diagnostics
+                        .iter()
+                        .any(|d| d.stage == DiagnosticStage::Parse)
+                    {
+                        2
+                    } else {
+                        exit_code_for_report(&report)
+                    }
+                }
+            }
+        }
+        RegistryCommand::Lookup {
+            dir,
+            id,
+            version,
+            json,
+        } => {
+            let registry = match crate::registry::load_registry(&dir) {
+                Ok(registry) => registry,
+                Err(report) => {
+                    if let Err(error) = render_report(&report, json, ReportMode::Diagnostics) {
+                        eprintln!("{error}");
+                        return 2;
+                    }
+                    return exit_code_for_report(&report);
+                }
+            };
+
+            let entry = match version.as_deref() {
+                Some(version) => registry.lookup_version(&id, version),
+                None => registry.lookup(&id),
+            };
+
+            match entry {
+                Some(entry) => {
+                    if json {
+                        if let Err(code) = write_json_stdout(&registry_entry_json(entry)) {
+                            eprintln!("failed to write JSON output");
+                            return code;
+                        }
+                    } else {
+                        writeln!(
+                            io::stdout(),
+                            "{} {} {}",
+                            entry.id,
+                            entry.version,
+                            entry.path.display()
+                        )
+                        .expect("write stdout");
+                    }
+                    0
+                }
+                None => {
+                    if json {
+                        let payload = serde_json::json!({ "entry": null });
+                        if let Err(code) = write_json_stdout(&payload) {
+                            eprintln!("failed to write JSON output");
+                            return code;
+                        }
+                    } else {
+                        writeln!(io::stderr(), "registry entry not found: {id}")
+                            .expect("write stderr");
+                    }
+                    1
+                }
+            }
+        }
+        RegistryCommand::List { dir, json } => {
+            let registry = match crate::registry::load_registry(&dir) {
+                Ok(registry) => registry,
+                Err(report) => {
+                    if let Err(error) = render_report(&report, json, ReportMode::Diagnostics) {
+                        eprintln!("{error}");
+                        return 2;
+                    }
+                    return exit_code_for_report(&report);
+                }
+            };
+
+            if json {
+                let entries: Vec<_> = registry.list().iter().map(registry_entry_json).collect();
+                let payload = serde_json::json!({ "entries": entries });
+                if let Err(code) = write_json_stdout(&payload) {
+                    eprintln!("failed to write JSON output");
+                    return code;
+                }
+            } else {
+                for entry in registry.list() {
+                    writeln!(
+                        io::stdout(),
+                        "{} {} ({})",
+                        entry.id,
+                        entry.version,
+                        entry.path.display()
+                    )
+                    .expect("write stdout");
+                }
+            }
+            0
+        }
+    }
+}
+
+fn registry_entry_json(entry: &crate::registry::RegistryEntry) -> serde_json::Value {
+    serde_json::json!({
+        "id": entry.id,
+        "version": entry.version,
+        "path": entry.path,
+        "apiVersion": entry.api_version,
+        "tags": entry.tags,
+        "contentHash": entry.content_hash,
+        "indexedAt": entry.indexed_at,
+    })
 }
 
 fn write_json_stdout(payload: &serde_json::Value) -> Result<(), i32> {

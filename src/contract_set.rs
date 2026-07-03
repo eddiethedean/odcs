@@ -10,6 +10,8 @@ use crate::diagnostics::{
 };
 use crate::model::DataContract;
 use crate::parser::parse_file;
+use crate::registry::is_contract_file;
+use crate::registry::Registry;
 use crate::validation::ContractIndex;
 use crate::validation::{validate_with_contract_index, ValidationOptions};
 
@@ -44,6 +46,16 @@ impl ContractSet {
         deps: &[PathBuf],
         include_dirs: &[PathBuf],
     ) -> Result<Self, DiagnosticReport> {
+        Self::from_paths_with_registry(primary_path, deps, include_dirs, None)
+    }
+
+    /// Load a contract set with optional registry-backed dependencies.
+    pub fn from_paths_with_registry(
+        primary_path: &Path,
+        deps: &[PathBuf],
+        include_dirs: &[PathBuf],
+        registry: Option<&Registry>,
+    ) -> Result<Self, DiagnosticReport> {
         let mut report = DiagnosticReport::new();
 
         let primary_result = parse_file(primary_path).map_err(|error| {
@@ -70,20 +82,28 @@ impl ContractSet {
         report.merge(primary_result.report);
 
         let mut dependencies = Vec::new();
-        for path in collect_dependency_paths(deps, include_dirs).map_err(|error| {
-            let mut report = DiagnosticReport::new();
-            emit(
-                &mut report,
-                crate::diagnostics::Diagnostic::error(
-                    codes::PARSE_YAML,
-                    DiagnosticCategory::Syntax,
-                    DiagnosticStage::Parse,
-                    error,
-                ),
-            );
-            report
-        })? {
-            if path == primary_path {
+        let dependency_paths = collect_dependency_paths(primary_path, deps, include_dirs, registry)
+            .map_err(|error| {
+                let mut report = DiagnosticReport::new();
+                emit(
+                    &mut report,
+                    crate::diagnostics::Diagnostic::error(
+                        codes::PARSE_YAML,
+                        DiagnosticCategory::Syntax,
+                        DiagnosticStage::Parse,
+                        error,
+                    ),
+                );
+                report
+            })?;
+
+        let primary_canonical = primary_path.canonicalize().ok();
+
+        for path in dependency_paths {
+            if primary_canonical
+                .as_ref()
+                .is_some_and(|primary| path == *primary)
+            {
                 continue;
             }
             let dep_result = parse_file(&path).map_err(|error| {
@@ -120,10 +140,32 @@ impl ContractSet {
 }
 
 fn collect_dependency_paths(
+    primary_path: &Path,
     deps: &[PathBuf],
     include_dirs: &[PathBuf],
+    registry: Option<&Registry>,
 ) -> Result<Vec<PathBuf>, String> {
-    let mut paths: Vec<PathBuf> = deps.to_vec();
+    let mut paths = Vec::new();
+    let mut seen = HashSet::new();
+
+    let mut push_path = |path: PathBuf| {
+        if let Ok(canonical) = path.canonicalize() {
+            if seen.insert(canonical.clone()) {
+                paths.push(canonical);
+            }
+        }
+    };
+
+    for dep in deps {
+        push_path(dep.clone());
+    }
+
+    if let Some(registry) = registry {
+        for path in registry.dependency_paths(primary_path) {
+            push_path(path);
+        }
+    }
+
     for dir in include_dirs {
         if !dir.is_dir() {
             return Err(format!(
@@ -150,16 +192,12 @@ fn collect_dependency_paths(
             }
         }
         files.sort();
-        paths.extend(files);
+        for path in files {
+            push_path(path);
+        }
     }
-    Ok(paths)
-}
 
-fn is_contract_file(path: &Path) -> bool {
-    matches!(
-        path.extension().and_then(|ext| ext.to_str()),
-        Some("yaml") | Some("yml") | Some("json")
-    )
+    Ok(paths)
 }
 
 fn validate_duplicate_ids(set: &ContractSet) -> DiagnosticReport {
@@ -223,7 +261,17 @@ pub fn parse_and_validate_set(
     deps: &[PathBuf],
     include_dirs: &[PathBuf],
 ) -> DiagnosticReport {
-    match ContractSet::from_paths(primary_path, deps, include_dirs) {
+    parse_and_validate_set_with_registry(primary_path, deps, include_dirs, None)
+}
+
+/// Parse and validate a contract set with optional registry dependencies.
+pub fn parse_and_validate_set_with_registry(
+    primary_path: &Path,
+    deps: &[PathBuf],
+    include_dirs: &[PathBuf],
+    registry: Option<&Registry>,
+) -> DiagnosticReport {
+    match ContractSet::from_paths_with_registry(primary_path, deps, include_dirs, registry) {
         Ok(set) => validate_set(&set),
         Err(report) => report,
     }
@@ -238,9 +286,20 @@ pub fn load_set(
     ContractSet::from_paths(primary_path, deps, include_dirs)
 }
 
+/// Parse a primary contract and dependencies with optional registry.
+pub fn load_set_with_registry(
+    primary_path: &Path,
+    deps: &[PathBuf],
+    include_dirs: &[PathBuf],
+    registry: Option<&Registry>,
+) -> Result<ContractSet, DiagnosticReport> {
+    ContractSet::from_paths_with_registry(primary_path, deps, include_dirs, registry)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::registry::index_and_save_registry;
     use std::path::PathBuf;
 
     fn fixture_path(name: &str) -> PathBuf {
@@ -256,5 +315,20 @@ mod tests {
         let set = ContractSet::from_paths(&primary, &[provider], &[]).expect("load set");
         assert_eq!(set.primary().id, "consumer-contract");
         assert_eq!(set.dependencies().len(), 1);
+    }
+
+    #[test]
+    fn loads_registry_backed_set() {
+        let contracts_root = fixture_path("registry/contracts");
+        let (registry, _) = index_and_save_registry(&contracts_root).expect("index");
+        let primary = fixture_path("registry/consumer.yaml");
+        let set = ContractSet::from_paths_with_registry(&primary, &[], &[], Some(&registry))
+            .expect("load set");
+        let report = validate_set(&set);
+        assert!(
+            report.is_valid(),
+            "expected valid registry-backed set: {:?}",
+            report.diagnostics
+        );
     }
 }

@@ -1,6 +1,6 @@
 [package]
 name = "odcs"
-version = "0.8.0"
+version = "0.9.0"
 edition = "2021"
 rust-version = "1.75"
 description = "Reference implementation of the Open Data Contract Standard (ODCS)"
@@ -25,6 +25,7 @@ semver = { version = "1", features = ["serde"] }
 indexmap = { version = "2", features = ["serde"] }
 regex = "1"
 jsonschema = "0.29"
+sha2 = "0.10"
 
 [dependencies.clap]
 version = "4"

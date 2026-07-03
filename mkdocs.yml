@@ -84,6 +84,7 @@ nav:
       - Model guide: implementation/model-guide.md
       - Validation guide: implementation/validation-guide.md
       - Cross-file references: implementation/cross-file-references.md
+      - Local registry: implementation/registry.md
       - Diagnostics guide: implementation/diagnostics-guide.md
       - Public API: implementation/public-api.md
       - CLI specification: implementation/cli-spec.md

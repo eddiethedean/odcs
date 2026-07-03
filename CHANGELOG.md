@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.9.0 — 2026-07-02
+
+Local contract registry release — index, lookup, and `--registry` cross-file validation.
+
+**Added:**
+
+- Local registry: recursive directory index to `<dir>/.odcs/registry.json` with SHA-256 content hashes
+- `Registry`, `RegistryEntry`, `index_registry`, `index_and_save_registry`, `load_registry`
+- `ContractSet::from_paths_with_registry` and `parse_and_validate_set_with_registry`
+- CLI: `odcs registry index|lookup|list` subcommands
+- CLI: `odcs validate --registry <dir>` for registry-backed FQN resolution
+- Python: `registry_index`, `registry_index_and_save`, `registry_load`, `registry_lookup`, `registry_list`
+- Python: `parse_and_validate_paths(..., registry=...)` parameter
+- ADR: [docs/implementation/registry.md](docs/implementation/registry.md)
+- Fixtures and tests under `tests/fixtures/registry/` and `tests/registry.rs`
+
+**Changed:**
+
+- Cross-file load order extended: primary → `--dep` → `--registry` → `--include`
+- `SPEC.md` documents local registry policy (0.9.0)
+
 ## 0.8.0 — 2026-07-02
 
 Section semantics, cross-file references, and compatibility analysis release.

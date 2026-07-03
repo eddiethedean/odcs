@@ -135,6 +135,27 @@ Parse and validate in one step. Returns `{"diagnostics": [...]}`.
 report = pyodcs.parse_and_validate(content, format="yaml")
 ```
 
+### `parse_and_validate_paths(primary, deps=None, *, includes=None, registry=None, strict=False)`
+
+Parse and validate a primary contract with optional dependency paths and registry root (since 0.9.0).
+
+```python
+report = pyodcs.parse_and_validate_paths(
+    "consumer.yaml",
+    registry="./contracts/",
+)
+```
+
+### Registry helpers (0.9.0+)
+
+```python
+indexed = pyodcs.registry_index_and_save("./contracts/")
+entry = pyodcs.registry_lookup("./contracts/", "provider-contract")
+entries = pyodcs.registry_list("./contracts/")
+```
+
+`registry_index` builds an in-memory index without writing to disk. `registry_load` reads an existing index file.
+
 ### `pinned_schema(*, json_metadata=False)`
 
 Return the pinned ODCS v3.1.0 JSON Schema dict.
@@ -227,6 +248,8 @@ if not pyodcs.is_valid(report):
 | `validate(strict=True)` | `validate_strict()` (deprecated no-op since 0.4.0) |
 | `diagnostic_codes()` / `CODES` | Diagnostic code constants |
 | `validation_phases()` / `VALIDATION_PHASES` | Validation phase name constants (since 0.6.0) |
+| `parse_and_validate_paths()` | `parse_and_validate_set_with_registry()` |
+| `registry_*()` | `index_registry`, `load_registry`, `Registry` |
 | `pinned_schema()` | `odcs schema` |
 
 See also [cli.md](cli.md) and [diagnostics.md](diagnostics.md).
