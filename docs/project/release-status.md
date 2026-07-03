@@ -1,6 +1,6 @@
 # Release status
 
-Current release: **0.8.0** (on `main`, ready to publish).
+Current release: **0.8.0** (published 2026-07-03).
 
 ## Version alignment
 
@@ -9,16 +9,16 @@ Current release: **0.8.0** (on `main`, ready to publish).
 | `Cargo.toml` | **0.8.0** | Aligned |
 | `pyproject.toml` | **0.8.0** | Aligned |
 | `CHANGELOG.md` | **0.8.0** | Release notes present |
-| Git tag | *(none yet)* | Push `v0.8.0` to publish |
+| Git tag | **v0.8.0** | Published |
 
 ## Registry status
 
 | Registry | Latest published |
 |----------|------------------|
-| [crates.io](https://crates.io/crates/odcs) | **0.7.0** |
-| [PyPI](https://pypi.org/project/pyodcs/) | **0.7.0** |
+| [crates.io](https://crates.io/crates/odcs) | **0.8.0** |
+| [PyPI](https://pypi.org/project/pyodcs/) | **0.8.0** |
 
-After pushing `v0.8.0`, both registries will publish via the release workflow.
+Release workflow: [actions/runs/28629406161](https://github.com/eddiethedean/odcs/actions/runs/28629406161) (success).
 
 ## Install 0.8.0
 
