@@ -1,0 +1,18 @@
+version: "3.1.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "support-missing-url-contract"
+name: "support_missing_url_contract"
+status: "active"
+
+support:
+  - channel: "slack"
+    tool: "slack"
+    description: "Missing URL"
+
+schema:
+  - name: "customers"
+    logicalType: "object"
+    properties:
+      - name: "customer_id"
+        logicalType: "string"

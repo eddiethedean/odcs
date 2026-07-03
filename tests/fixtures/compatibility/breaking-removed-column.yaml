@@ -1,0 +1,19 @@
+version: "3.1.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "compat-base"
+name: "compat_base"
+status: "active"
+
+schema:
+  - name: "customers"
+    logicalType: "object"
+    properties:
+      - name: "customer_id"
+        logicalType: "string"
+        required: true
+    quality:
+      - name: "customer_id_not_null"
+        type: "library"
+        metric: "nullValues"
+        mustBe: 0

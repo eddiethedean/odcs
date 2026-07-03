@@ -11,7 +11,7 @@ Validation is deterministic and phase-based. The `validate()` function in [`src/
 | References | `references.rs` | Relationship endpoints and types |
 | Extensions | `extensions.rs` | Custom property keys, authoritative definitions |
 | Servers | `servers.rs` | Server name, `type` enum, type-specific required fields |
-| Sections | `sections.rs` | Team, roles, support, SLA sections |
+| Sections | `sections.rs` | Team usernames; unique `roles[].id`; support URL when tool requires it; SLA scheduler/schedule pairing; pricing currency and amount |
 | IDs | `ids.rs` | StableId patterns |
 | JSON Schema | `json_schema.rs` | Pinned ODCS v3.1.0 schema (always runs in 0.4.0+) |
 

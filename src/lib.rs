@@ -30,6 +30,7 @@
 pub const UPSTREAM_SPEC_VERSION: &str = "3.1.0";
 
 pub mod compatibility;
+pub mod contract_set;
 pub mod diagnostics;
 pub mod model;
 pub mod parser;
@@ -43,6 +44,10 @@ pub mod cli;
 #[cfg(feature = "python")]
 mod python;
 
+pub use compatibility::{diff, ChangeKind, CompatibilityChange, CompatibilityReport};
+pub use contract_set::{
+    load_set, parse_and_validate_set, validate_set, validate_set_with_options, ContractSet,
+};
 pub use diagnostics::{
     codes, inspect_contract, Diagnostic, DiagnosticCategory, DiagnosticReport, DiagnosticStage,
     Severity, ValidationPhase, ValidationReport,

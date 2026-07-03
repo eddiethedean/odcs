@@ -10,14 +10,17 @@ mod phases;
 mod quality;
 mod references;
 mod schema;
+mod schema_index;
 mod sections;
 mod servers;
 mod structural;
 
 pub use phases::ValidationPhase;
+pub use schema_index::{ContractIndex, SchemaIndex};
 
 use crate::diagnostics::DiagnosticReport;
 use crate::model::DataContract;
+use crate::validation::schema_index::ContractIndex as ContractIndexType;
 
 /// Options controlling validation behavior.
 ///
@@ -43,13 +46,20 @@ impl ValidationOptions {
     }
 }
 
-fn run_validation_pipeline(contract: &DataContract) -> DiagnosticReport {
+fn run_validation_pipeline(
+    contract: &DataContract,
+    contract_index: Option<&ContractIndexType>,
+) -> DiagnosticReport {
     let mut report = DiagnosticReport::new();
     report.merge(document::validate(contract));
     report.merge(structural::validate(contract));
     report.merge(schema::validate(contract));
     report.merge(quality::validate(contract));
-    report.merge(references::validate(contract));
+    if contract_index.is_some() {
+        report.merge(references::validate_with_index(contract, contract_index));
+    } else {
+        report.merge(references::validate(contract));
+    }
     report.merge(extensions::validate(contract));
     report.merge(servers::validate(contract));
     report.merge(sections::validate(contract));
@@ -71,7 +81,17 @@ pub fn validate_with_options(
     contract: &DataContract,
     _options: ValidationOptions,
 ) -> DiagnosticReport {
-    run_validation_pipeline(contract)
+    run_validation_pipeline(contract, None)
+}
+
+/// Validate a parsed data contract with optional cross-file reference index.
+#[must_use]
+pub fn validate_with_contract_index(
+    contract: &DataContract,
+    _options: ValidationOptions,
+    contract_index: Option<&ContractIndexType>,
+) -> DiagnosticReport {
+    run_validation_pipeline(contract, contract_index)
 }
 
 /// Validate a parsed data contract (alias for [`validate`] since 0.4.0).

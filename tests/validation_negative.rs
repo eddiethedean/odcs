@@ -57,6 +57,24 @@ fn assert_structural_error(name: &str, code: &str, object_ref: &str) {
     );
 }
 
+fn assert_sections_error(name: &str, code: &str, object_ref: &str) {
+    let report = parse_fixture(name).validate();
+    assert!(
+        !report.is_valid(),
+        "fixture {name} should be invalid: {:?}",
+        report.diagnostics
+    );
+    assert!(
+        report.diagnostics.iter().any(|d| {
+            d.id == code
+                && d.validation_phase == Some(ValidationPhase::Sections)
+                && d.object_ref.as_deref() == Some(object_ref)
+        }),
+        "fixture {name}: expected sections {code} at {object_ref}, got {:?}",
+        report.diagnostics
+    );
+}
+
 #[test]
 fn quality_rules_count_includes_items() {
     let contract = parse_fixture("with-schema-quality-items.yaml")
@@ -454,4 +472,49 @@ fn rejects_empty_quality_rule() {
 #[test]
 fn rejects_quality_with_mustbe_only() {
     assert_invalid_with_code("invalid-quality-mustbe-only.yaml", codes::INVALID_QUALITY);
+}
+
+#[test]
+fn rejects_duplicate_role_ids() {
+    assert_sections_error(
+        "invalid-roles-duplicate-id.yaml",
+        codes::INVALID_SCHEMA,
+        "roles[1].id",
+    );
+}
+
+#[test]
+fn rejects_support_missing_url_for_tool() {
+    assert_sections_error(
+        "invalid-support-missing-url.yaml",
+        codes::MISSING_REQUIRED_FIELD,
+        "support[0].url",
+    );
+}
+
+#[test]
+fn rejects_sla_schedule_when_scheduler_set() {
+    assert_sections_error(
+        "invalid-sla-schedule-without-scheduler.yaml",
+        codes::MISSING_REQUIRED_FIELD,
+        "slaProperties[0].schedule",
+    );
+}
+
+#[test]
+fn rejects_pricing_missing_currency() {
+    assert_sections_error(
+        "invalid-pricing-missing-currency.yaml",
+        codes::MISSING_REQUIRED_FIELD,
+        "price.priceCurrency",
+    );
+}
+
+#[test]
+fn rejects_pricing_negative_amount() {
+    assert_sections_error(
+        "invalid-pricing-negative-amount.yaml",
+        codes::INVALID_SCHEMA,
+        "price.priceAmount",
+    );
 }

@@ -1,0 +1,19 @@
+version: "3.1.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "sla-schedule-missing-contract"
+name: "sla_schedule_missing_contract"
+status: "active"
+
+slaProperties:
+  - property: "freshness"
+    value: 24
+    unit: "hours"
+    scheduler: "cron"
+
+schema:
+  - name: "customers"
+    logicalType: "object"
+    properties:
+      - name: "customer_id"
+        logicalType: "string"

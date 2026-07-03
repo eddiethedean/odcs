@@ -26,3 +26,11 @@ pub const DUPLICATE_KEY: &str = "odcs:duplicate-key";
 pub const DOCUMENT_TOO_LARGE: &str = "odcs:document-too-large";
 /// JSON Schema validation violation (default validation).
 pub const JSON_SCHEMA_VIOLATION: &str = "odcs:json-schema-violation";
+/// Breaking compatibility change.
+pub const COMPATIBILITY_BREAKING: &str = "odcs:compatibility-breaking";
+/// Additive compatibility change.
+pub const COMPATIBILITY_ADDITIVE: &str = "odcs:compatibility-additive";
+/// Deprecated compatibility change.
+pub const COMPATIBILITY_DEPRECATED: &str = "odcs:compatibility-deprecated";
+/// Unchanged compatibility entry (informational).
+pub const COMPATIBILITY_UNCHANGED: &str = "odcs:compatibility-unchanged";

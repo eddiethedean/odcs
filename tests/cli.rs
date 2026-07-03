@@ -268,3 +268,32 @@ fn cli_validate_strict_passes_on_minimal() {
         .expect("run cli");
     assert!(output.status.success());
 }
+
+#[test]
+fn cli_diff_reports_breaking_exit_code() {
+    let old = fixture("compatibility/base.yaml");
+    let new = fixture("compatibility/breaking-removed-column.yaml");
+    let output = odcs_bin()
+        .args(["diff", &old.to_string_lossy(), &new.to_string_lossy()])
+        .output()
+        .expect("run cli");
+    assert_eq!(output.status.code(), Some(1));
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(stdout.contains("odcs:compatibility-breaking"));
+}
+
+#[test]
+fn cli_validate_cross_file_with_dep_succeeds() {
+    let primary = fixture("cross-file/consumer-valid.yaml");
+    let provider = fixture("cross-file/provider.yaml");
+    let output = odcs_bin()
+        .args([
+            "validate",
+            &primary.to_string_lossy(),
+            "--dep",
+            &provider.to_string_lossy(),
+        ])
+        .output()
+        .expect("run cli");
+    assert!(output.status.success());
+}

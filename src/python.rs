@@ -7,8 +7,10 @@ use pyo3::prelude::*;
 use pyo3::types::{PyByteArray, PyDict};
 use serde::Serialize;
 use std::io::ErrorKind;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
+use crate::compatibility::diff;
+use crate::contract_set::{load_set, validate_set_with_options};
 use crate::diagnostics::inspect_contract;
 use crate::model::DataContract;
 use crate::parser::{parse, parse_file, DocumentFormat, ParseResult};
@@ -148,6 +150,50 @@ fn validate_document(
     value_to_py(py, &report)
 }
 
+/// Parse and validate a primary contract with optional dependency paths.
+#[pyfunction]
+#[pyo3(signature = (primary, deps=None, includes=None, strict=false))]
+fn parse_and_validate_paths(
+    py: Python<'_>,
+    primary: &str,
+    deps: Option<Vec<String>>,
+    includes: Option<Vec<String>>,
+    strict: bool,
+) -> PyResult<Py<PyAny>> {
+    let deps: Vec<PathBuf> = deps
+        .unwrap_or_default()
+        .into_iter()
+        .map(PathBuf::from)
+        .collect();
+    let includes: Vec<PathBuf> = includes
+        .unwrap_or_default()
+        .into_iter()
+        .map(PathBuf::from)
+        .collect();
+    let options = if strict {
+        ValidationOptions::strict()
+    } else {
+        ValidationOptions::default_options()
+    };
+
+    let report = if deps.is_empty() && includes.is_empty() {
+        let result = parse_file(Path::new(primary))
+            .map_err(|error| PyValueError::new_err(error.to_string()))?;
+        let mut report = result.report;
+        if let Some(contract) = result.contract {
+            report.merge(validate_with_options(&contract, options));
+        }
+        report
+    } else {
+        match load_set(Path::new(primary), &deps, &includes) {
+            Ok(set) => validate_set_with_options(&set, options),
+            Err(report) => report,
+        }
+    };
+
+    value_to_py(py, &report)
+}
+
 /// Return a short human-readable contract summary.
 #[pyfunction]
 fn inspect(py: Python<'_>, contract: &Bound<'_, PyAny>) -> PyResult<String> {
@@ -253,6 +299,18 @@ fn validation_phases(py: Python<'_>) -> PyResult<Py<PyAny>> {
     Ok(dict.into())
 }
 
+/// Compare two parsed contracts for compatibility.
+#[pyfunction]
+fn diff_contracts(
+    py: Python<'_>,
+    old: &Bound<'_, PyAny>,
+    new: &Bound<'_, PyAny>,
+) -> PyResult<Py<PyAny>> {
+    let old = contract_from_py(py, old)?;
+    let new = contract_from_py(py, new)?;
+    value_to_py(py, &diff(&old, &new))
+}
+
 /// Native extension module for the Python `pyodcs` package.
 #[pymodule]
 fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
@@ -261,6 +319,8 @@ fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(parse_path, m)?)?;
     m.add_function(wrap_pyfunction!(validate_contract, m)?)?;
     m.add_function(wrap_pyfunction!(validate_document, m)?)?;
+    m.add_function(wrap_pyfunction!(parse_and_validate_paths, m)?)?;
+    m.add_function(wrap_pyfunction!(diff_contracts, m)?)?;
     m.add_function(wrap_pyfunction!(pinned_schema, m)?)?;
     m.add_function(wrap_pyfunction!(diagnostic_codes, m)?)?;
     m.add_function(wrap_pyfunction!(validation_phases, m)?)?;

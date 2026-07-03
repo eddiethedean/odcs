@@ -21,9 +21,9 @@ The [upstream ODCS specification](https://github.com/bitol-io/open-data-contract
 | **9** | [Parser hardening](#phase-9--parser-hardening) | Nested YAML duplicate-key detection | **Complete** (`0.5.0`) |
 | **10** | [Diagnostics metadata](#phase-10--diagnostics-metadata) | `validationPhase` on validation diagnostics | **Complete** (`0.6.0`) |
 | **11** | [Structural validation](#phase-11--structural-validation) | Cross-field rules in `structural.rs` | **Complete** (`0.7.0`) |
-| **12** | [Section semantics](#phase-12--section-semantics) | Roles, SLA, pricing, support validators | Planned (`0.8.0`) |
-| **13** | [Cross-file references](#phase-13--cross-file-references) | Multi-document FQN resolution | Planned (`0.8.0`) |
-| **14** | [Compatibility analysis](#phase-14--compatibility-analysis) | Contract diff and breaking-change report | Planned (`0.8.0`) |
+| **12** | [Section semantics](#phase-12--section-semantics) | Roles, SLA, pricing, support validators | **Complete** (`0.8.0`) |
+| **13** | [Cross-file references](#phase-13--cross-file-references) | Multi-document FQN resolution | **Complete** (`0.8.0`) |
+| **14** | [Compatibility analysis](#phase-14--compatibility-analysis) | Contract diff and breaking-change report | **Complete** (`0.8.0`) |
 | **15** | [Registry](#phase-15--registry) | Local contract index and lookup | Planned (`0.9.0`) |
 | **16** | [1.0 release](#phase-16--10-release) | API stabilization and upstream sync | Planned (`1.0.0`) |
 
@@ -271,7 +271,7 @@ Out of scope for this repository (see [docs/implementation/non-goals.md](docs/im
 
 ## Phase 12 — Section semantics
 
-**Target:** `0.8.0` — **Planned**
+**Target:** `0.8.0` — **Complete**
 
 **Goal:** Add Rust-side semantic validation for sections where JSON Schema coverage is thin and remaining business rules are not yet covered.
 
@@ -286,10 +286,10 @@ Out of scope for this repository (see [docs/implementation/non-goals.md](docs/im
 | SLA | `sections.rs` or `sla.rs` | Validate `scheduler`/`schedule` pairing if spec defines constraints |
 | Pricing | `sections.rs` or `pricing.rs` | When `priceAmount` is set, require `priceCurrency`; reject negative amounts if spec disallows |
 
-- [ ] Implement validators; prefer extending `sections.rs` unless a section grows large enough to split
-- [ ] Negative fixtures for each new rule
-- [ ] Update [docs/implementation/testing-plan.md](docs/implementation/testing-plan.md) SLA row from “limited semantic validation” to covered items
-- [ ] All new diagnostics use `validationPhase` and stable existing codes where possible (`missing-required-field`, `invalid-schema`, etc.)
+- [x] Implement validators; prefer extending `sections.rs` unless a section grows large enough to split
+- [x] Negative fixtures for each new rule
+- [x] Update [docs/implementation/testing-plan.md](docs/implementation/testing-plan.md) SLA row from “limited semantic validation” to covered items
+- [x] All new diagnostics use `validationPhase` and stable existing codes where possible (`missing-required-field`, `invalid-schema`, etc.)
 
 **Out of scope:** Re-validating fields already fully constrained by pinned JSON Schema; quality rule execution.
 
@@ -299,7 +299,7 @@ Out of scope for this repository (see [docs/implementation/non-goals.md](docs/im
 
 ## Phase 13 — Cross-file references
 
-**Target:** `0.8.0` — **Planned**
+**Target:** `0.8.0` — **Complete**
 
 **Goal:** Resolve fully-qualified relationship endpoints across a loaded set of contracts; fail unresolved refs with actionable diagnostics.
 
@@ -307,13 +307,13 @@ Out of scope for this repository (see [docs/implementation/non-goals.md](docs/im
 
 **Design decisions** (resolve before coding):
 
-- [ ] ADR or `docs/implementation/cross-file-references.md` covering: contract index key (`id` vs filename), FQN grammar (reuse existing regex), and load order
-- [ ] `ContractSet` (or equivalent) type: parse + index multiple documents from paths
-- [ ] Extend reference validation to resolve FQN endpoints against the set
-- [ ] CLI: `odcs validate <path> --include <dir>` or repeated `--dep <path>` (update [`docs/implementation/cli-spec.md`](docs/implementation/cli-spec.md))
-- [ ] Library: `validate_set(&ContractSet)` or `parse_and_validate_paths(&[Path])`
-- [ ] Python: `parse_and_validate_paths(...)` binding
-- [ ] Fixtures: two-contract valid/invalid pairs under `tests/fixtures/cross-file/`
+- [x] ADR or `docs/implementation/cross-file-references.md` covering: contract index key (`id` vs filename), FQN grammar (reuse existing regex), and load order
+- [x] `ContractSet` (or equivalent) type: parse + index multiple documents from paths
+- [x] Extend reference validation to resolve FQN endpoints against the set
+- [x] CLI: `odcs validate <path> --include <dir>` or repeated `--dep <path>` (update [`docs/implementation/cli-spec.md`](docs/implementation/cli-spec.md))
+- [x] Library: `validate_set(&ContractSet)` or `parse_and_validate_paths(&[Path])`
+- [x] Python: `parse_and_validate_paths(...)` binding
+- [x] Fixtures: two-contract valid/invalid pairs under `tests/fixtures/cross-file/`
 
 **Out of scope for MVP:** Remote URL fetching, registry-backed resolution (Phase 15), workspace manifests.
 
@@ -323,7 +323,7 @@ Out of scope for this repository (see [docs/implementation/non-goals.md](docs/im
 
 ## Phase 14 — Compatibility analysis
 
-**Target:** `0.8.0` — **Planned**
+**Target:** `0.8.0` — **Complete**
 
 **Goal:** Compare two parsed contracts and produce a structured breaking-change report for contract evolution workflows.
 
@@ -331,16 +331,16 @@ Out of scope for this repository (see [docs/implementation/non-goals.md](docs/im
 
 **Deliverables:**
 
-- [ ] `CompatibilityReport` with classified changes: `breaking`, `additive`, `deprecated`, `unchanged`
-- [ ] Compare dimensions:
+- [x] `CompatibilityReport` with classified changes: `breaking`, `additive`, `deprecated`, `unchanged`
+- [x] Compare dimensions:
   - Root metadata (`id`, `status`, `version` — informational, not breaking by default)
   - Schema objects: added/removed/renamed; property added/removed; `logicalType` change; `required` toggle
   - Quality rules: added/removed; metric or operator change
   - Relationships: added/removed; endpoint change
-- [ ] Stable codes: `odcs:compatibility-breaking`, `odcs:compatibility-additive`, … (document in diagnostics guide)
-- [ ] CLI: `odcs diff <old> <new>` with text + `--json`; exit `0` if no breaking changes, `1` if breaking
-- [ ] Python: `pyodcs.diff(old, new)` returning report dict
-- [ ] Fixtures: pairs under `tests/fixtures/compatibility/`
+- [x] Stable codes: `odcs:compatibility-breaking`, `odcs:compatibility-additive`, … (document in diagnostics guide)
+- [x] CLI: `odcs diff <old> <new>` with text + `--json`; exit `0` if no breaking changes, `1` if breaking
+- [x] Python: `pyodcs.diff(old, new)` returning report dict
+- [x] Fixtures: pairs under `tests/fixtures/compatibility/`
 
 **Out of scope:** Automatic migration or contract rewriting; semver inference for `version` field.
 

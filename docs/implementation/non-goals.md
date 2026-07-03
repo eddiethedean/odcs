@@ -13,13 +13,11 @@ Do not implement these in the first ODCS repo:
 
 The first goal is a correct Rust spec core.
 
-## Reserved modules (not implemented)
-
-The crate includes stub modules for future work. They are **not** part of the public API surface:
+## Reserved modules
 
 | Module | Planned purpose | Status |
 |--------|-----------------|--------|
-| `src/registry/` | Contract registry / discovery | Stub only |
-| `src/compatibility/` | Cross-version contract diffing | Stub only |
+| `src/registry/` | Contract registry / discovery | Stub (Phase 15 / 0.9.0) |
+| `src/compatibility/` | Cross-version contract diffing | Implemented (0.8.0) |
 
-Do not document or depend on these until a roadmap milestone ships.
+Do not depend on `registry/` until Phase 15 ships.

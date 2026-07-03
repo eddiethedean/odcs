@@ -1,0 +1,17 @@
+version: "3.1.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "pricing-negative-amount-contract"
+name: "pricing_negative_amount_contract"
+status: "active"
+
+price:
+  priceAmount: -1.0
+  priceCurrency: "USD"
+
+schema:
+  - name: "customers"
+    logicalType: "object"
+    properties:
+      - name: "customer_id"
+        logicalType: "string"

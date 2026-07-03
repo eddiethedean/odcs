@@ -10,7 +10,7 @@
 
 It checks that your contract document is well-formed and conforms to ODCS v3.1.0 — schema, quality rules, SLAs, ownership, and server metadata. It does **not** run quality checks against live data.
 
-> **Release:** **0.7.0** is on `main` and ready to publish. Push tag `v0.7.0` to release to [crates.io](https://crates.io/crates/odcs) and [PyPI](https://pypi.org/project/pyodcs/). See [Release status](https://odcs.readthedocs.io/en/latest/project/release-status/).
+> **Release:** **0.8.0** is on `main` and ready to publish. Push tag `v0.8.0` to release to [crates.io](https://crates.io/crates/odcs) and [PyPI](https://pypi.org/project/pyodcs/). See [Release status](https://odcs.readthedocs.io/en/latest/project/release-status/).
 
 **Install → validate in 60 seconds:**
 
@@ -18,8 +18,6 @@ It checks that your contract document is well-formed and conforms to ODCS v3.1.0
 cargo install odcs   # or: pip install pyodcs
 odcs validate contract.yaml
 ```
-
-Until `v0.7.0` is published, unpinned installs from crates.io/PyPI may serve **0.6.0**. Pin `0.7.0` or install from source — see [Release status](https://odcs.readthedocs.io/en/latest/project/release-status/).
 
 New to ODCS? Read [What is ODCS?](https://odcs.readthedocs.io/en/latest/user/what-is-odcs/) first.
 

@@ -1,0 +1,19 @@
+version: "3.1.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "roles-duplicate-id-contract"
+name: "roles_duplicate_id_contract"
+status: "active"
+
+roles:
+  - id: "role-analyst"
+    role: "analyst"
+  - id: "role-analyst"
+    role: "viewer"
+
+schema:
+  - name: "customers"
+    logicalType: "object"
+    properties:
+      - name: "customer_id"
+        logicalType: "string"

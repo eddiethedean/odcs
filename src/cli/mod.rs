@@ -31,6 +31,12 @@ pub enum Command {
     Validate {
         /// Path to an ODCS document.
         path: PathBuf,
+        /// Explicit dependency contract paths for cross-file reference resolution.
+        #[arg(long = "dep")]
+        deps: Vec<PathBuf>,
+        /// Directory of dependency contracts (non-recursive `*.yaml`, `*.yml`, `*.json` scan).
+        #[arg(long = "include")]
+        includes: Vec<PathBuf>,
         /// Emit JSON output.
         #[arg(long)]
         json: bool,
@@ -69,25 +75,50 @@ pub enum Command {
         #[arg(long)]
         json: bool,
     },
+    /// Compare two contracts for breaking changes.
+    Diff {
+        /// Path to the older contract.
+        old: PathBuf,
+        /// Path to the newer contract.
+        new: PathBuf,
+        /// Emit JSON output.
+        #[arg(long)]
+        json: bool,
+    },
 }
 
 /// Run the CLI application.
 pub fn run(cli: Cli) -> i32 {
     match cli.command {
-        Command::Validate { path, json, strict } => {
-            let result = match parse_file(&path) {
-                Ok(result) => result,
-                Err(error) => {
-                    eprintln!("{error}");
-                    return 2;
-                }
-            };
+        Command::Validate {
+            path,
+            deps,
+            includes,
+            json,
+            strict,
+        } => {
             let options = if strict {
                 ValidationOptions::strict()
             } else {
                 ValidationOptions::default_options()
             };
-            let report = result.validate_with_options(options);
+
+            let report = if deps.is_empty() && includes.is_empty() {
+                let result = match parse_file(&path) {
+                    Ok(result) => result,
+                    Err(error) => {
+                        eprintln!("{error}");
+                        return 2;
+                    }
+                };
+                result.validate_with_options(options)
+            } else {
+                match crate::contract_set::load_set(&path, &deps, &includes) {
+                    Ok(set) => crate::contract_set::validate_set_with_options(&set, options),
+                    Err(report) => report,
+                }
+            };
+
             if let Err(error) = render_report(&report, json, ReportMode::Validate) {
                 eprintln!("{error}");
                 return 2;
@@ -214,6 +245,59 @@ pub fn run(cli: Cli) -> i32 {
                 return 2;
             }
             0
+        }
+        Command::Diff { old, new, json } => {
+            let old_contract = match parse_file(&old) {
+                Ok(result) => result.contract,
+                Err(error) => {
+                    eprintln!("{error}");
+                    return 2;
+                }
+            };
+            let new_contract = match parse_file(&new) {
+                Ok(result) => result.contract,
+                Err(error) => {
+                    eprintln!("{error}");
+                    return 2;
+                }
+            };
+            let (Some(old_contract), Some(new_contract)) = (old_contract, new_contract) else {
+                eprintln!("failed to parse one or both contracts");
+                return 2;
+            };
+
+            let report = crate::compatibility::diff(&old_contract, &new_contract);
+            if json {
+                let payload = serde_json::json!({
+                    "compatible": report.is_compatible(),
+                    "hasBreaking": report.has_breaking,
+                    "changes": report.changes,
+                });
+                if let Err(code) = write_json_stdout(&payload) {
+                    eprintln!("failed to write JSON output");
+                    return code;
+                }
+            } else if report.changes.is_empty() {
+                writeln!(io::stdout(), "no changes").expect("write stdout");
+            } else {
+                for change in &report.changes {
+                    writeln!(
+                        io::stdout(),
+                        "[{}] {}: {} ({})",
+                        format!("{:?}", change.kind).to_lowercase(),
+                        change.code,
+                        change.message,
+                        change.path
+                    )
+                    .expect("write stdout");
+                }
+            }
+
+            if report.has_breaking {
+                1
+            } else {
+                0
+            }
         }
     }
 }

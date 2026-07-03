@@ -2,6 +2,33 @@
 
 This guide covers breaking changes between major pre-1.0 releases of `odcs` and `pyodcs`.
 
+## 0.7.x → 0.8.0
+
+### Section semantics
+
+**After (0.8.0):** Additional business rules in the sections validation phase:
+
+- Unique non-empty `roles[].id` values
+- `support[].url` required when `tool` is `slack`, `teams`, `discord`, `googlechat`, `ticket`, or `other`
+- Non-empty `slaProperties[].scheduler` requires non-empty `schedule`
+- `price.priceAmount` requires `price.priceCurrency`; negative amounts rejected
+
+**Action:** Run `odcs validate contract.yaml --json` and fix section semantics violations.
+
+### Cross-file references
+
+**After (0.8.0):** Fully-qualified relationship endpoints resolve when dependency contracts are loaded:
+
+```bash
+odcs validate consumer.yaml --dep provider.yaml --include ./contracts/
+```
+
+Python: `pyodcs.parse_and_validate_paths(primary, deps=[...])`
+
+### Compatibility analysis
+
+**After (0.8.0):** Compare contracts with `odcs diff old.yaml new.yaml` (exit `1` when breaking changes exist). Python: `pyodcs.diff(old_dict, new_dict)`.
+
 ## 0.6.x → 0.7.0
 
 ### Structural cross-field validation

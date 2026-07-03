@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.8.0 — 2026-07-02
+
+Section semantics, cross-file references, and compatibility analysis release.
+
+**Added:**
+
+- Section semantics validation: unique `roles[].id`, support URL requirements, SLA scheduler/schedule pairing, pricing currency and amount rules
+- Cross-file FQN resolution via `ContractSet`, indexed by contract `id`
+- CLI: `odcs validate --dep` and `--include` for multi-document validation
+- CLI: `odcs diff <old> <new>` with breaking-change classification
+- Library: `parse_and_validate_set`, `validate_set`, `load_set`, `ContractSet`
+- Library: `compatibility::diff` with `CompatibilityReport`
+- Python: `parse_and_validate_paths()` and `diff()`
+- Diagnostic codes: `odcs:compatibility-breaking`, `odcs:compatibility-additive`, `odcs:compatibility-deprecated`, `odcs:compatibility-unchanged`
+- ADR: [docs/implementation/cross-file-references.md](docs/implementation/cross-file-references.md)
+- Fixtures and tests for section semantics, cross-file, and compatibility workflows
+
+**Changed:**
+
+- Pinned JSON Schema `FullyQualifiedReference` pattern accepts canonical 3-segment FQN form with hyphens in contract ids
+- `SPEC.md` documents section semantics, cross-file references, and compatibility analysis (0.8.0)
+
 ## 0.7.0 — 2026-07-02
 
 Structural validation release — cross-field rules for schema, server, and SLA references.

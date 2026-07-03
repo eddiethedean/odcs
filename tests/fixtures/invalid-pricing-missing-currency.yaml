@@ -1,0 +1,16 @@
+version: "3.1.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "pricing-missing-currency-contract"
+name: "pricing_missing_currency_contract"
+status: "active"
+
+price:
+  priceAmount: 100.0
+
+schema:
+  - name: "customers"
+    logicalType: "object"
+    properties:
+      - name: "customer_id"
+        logicalType: "string"

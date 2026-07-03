@@ -44,7 +44,8 @@ MkDocs site (Read the Docs): `pip install -r docs/requirements.txt && mkdocs bui
 | Reject missing required fields | Covered |
 | Validate schema object names | Covered (validation phase) |
 | Validate quality rules | Covered (library metrics, rule types) |
-| Validate SLA structures | Parse fixtures; cross-field SLA element refs in structural phase |
+| Validate SLA structures | Parse fixtures; cross-field SLA element refs in structural phase; scheduler/schedule pairing in sections phase |
+| Section semantics (0.8.0) | Roles, support, SLA, pricing negative fixtures in `validation_negative.rs` |
 | Preserve custom properties | Covered |
 | Structural cross-field rules | Covered (`validation_negative.rs`, structural fixtures) |
 | CLI success/failure exit codes | Covered (`cli.rs`) |

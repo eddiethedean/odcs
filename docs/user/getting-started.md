@@ -15,14 +15,14 @@ New to ODCS? Read [What is ODCS?](what-is-odcs.md) first.
 Choose Rust or Python (or both):
 
 ```bash
-# Rust CLI (pin 0.7.0 until published to crates.io — see Release status)
-cargo install odcs --version 0.7.0 --locked
+# Rust CLI
+cargo install odcs
 
 # Python package + CLI
-pip install pyodcs==0.7.0
+pip install pyodcs
 ```
 
-Unpinned `cargo install odcs` / `pip install pyodcs` may install **0.6.0** from registries until tag `v0.7.0` is published. See [Release status](../project/release-status.md).
+Both resolve to **0.7.0** from registries. To pin explicitly: `cargo install odcs --version 0.7.0 --locked` or `pip install pyodcs==0.7.0`. See [Release status](../project/release-status.md).
 
 See [installation.md](installation.md) for prerequisites, from-source setup, and troubleshooting.
 

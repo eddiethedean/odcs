@@ -135,10 +135,35 @@ Cross-field rules enforced in `src/validation/structural.rs` (not covered by JSO
 
 **Not adopted:** `servers[].schema` in server-type details is a database/catalog schema string (e.g. Snowflake `"public"`), not a reference to an ODCS `schema[]` object name.
 
+## Section semantics (0.8.0)
+
+Business rules enforced in `src/validation/sections.rs` (beyond JSON Schema and emptiness checks in `extensions.rs`):
+
+| Rule | Behavior | Diagnostic |
+|------|----------|------------|
+| Unique `roles[].id` | Non-empty role ids must be unique within `roles[]` | `odcs:invalid-schema` |
+| Support URL | When `support[].tool` is `slack`, `teams`, `discord`, `googlechat`, `ticket`, or `other`, `url` must be non-empty | `odcs:missing-required-field` |
+| SLA scheduler pairing | When `slaProperties[].scheduler` is non-empty, `schedule` must be non-empty | `odcs:missing-required-field` |
+| Pricing currency | When `price.priceAmount` is set, `price.priceCurrency` must be non-empty | `odcs:missing-required-field` |
+| Pricing amount | `price.priceAmount` must not be negative | `odcs:invalid-schema` |
+
+## Cross-file references (0.8.0)
+
+Fully-qualified relationship endpoints (`{contractId}/{schemaObject}/{property}`) resolve against a loaded contract set indexed by root `id`. See [docs/implementation/cross-file-references.md](docs/implementation/cross-file-references.md).
+
+| Behavior | Diagnostic |
+|----------|------------|
+| FQN resolves when referenced contract is included via `--dep` or `--include` | (pass) |
+| FQN does not resolve when referenced contract is omitted | `odcs:unresolved-reference` |
+| Duplicate `id` within a loaded set | `odcs:invalid-schema` |
+
+## Compatibility analysis (0.8.0)
+
+Contract diff compares two parsed contracts and classifies changes as breaking, additive, deprecated, or unchanged. See `src/compatibility/`. CLI: `odcs diff <old> <new>`.
+
 ## Out of scope
 
-- Cross-file / fully-qualified reference resolution
-- Registry server and compatibility analysis (see [docs/implementation/non-goals.md](docs/implementation/non-goals.md))
+- Registry server (Phase 15; see [docs/implementation/non-goals.md](docs/implementation/non-goals.md))
 
 ------------------------------------------------------------------------
 

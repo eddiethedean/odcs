@@ -15,6 +15,7 @@ from pyodcs._native import quality_rules_count as _quality_rules_count
 from pyodcs._native import upstream_spec_version as _upstream_spec_version
 from pyodcs._native import validate_contract as _validate_contract
 from pyodcs._native import validate_document as _validate_document
+from pyodcs._native import diff_contracts as _diff_contracts
 
 UPSTREAM_SPEC_VERSION = _upstream_spec_version()
 UPSTREAM_REPOSITORY_URL = "https://github.com/bitol-io/open-data-contract-standard"
@@ -24,7 +25,7 @@ VALIDATION_PHASES = _validation_phases()
 try:
     __version__ = version("pyodcs")
 except PackageNotFoundError:
-    __version__ = "0.7.0"
+    __version__ = "0.8.0"
 
 
 def parse(content: str | bytes, format: str = "yaml") -> dict:
@@ -76,6 +77,22 @@ def validate_result(result: dict, *, strict: bool = False) -> dict:
     )
 
 
+def diff(old: dict, new: dict) -> dict:
+    """Compare two parsed contracts and return a compatibility report."""
+    return _diff_contracts(old, new)
+
+
+def parse_and_validate_paths(
+    primary: str,
+    deps: list[str] | None = None,
+    *,
+    includes: list[str] | None = None,
+    strict: bool = False,
+) -> dict:
+    """Parse and validate a primary contract with optional dependency paths."""
+    return _parse_and_validate_paths(primary, deps, includes, strict)
+
+
 def parse_and_validate(
     content: str | bytes, format: str = "yaml", *, strict: bool = False
 ) -> dict:
@@ -118,11 +135,13 @@ __all__ = [
     "UPSTREAM_REPOSITORY_URL",
     "UPSTREAM_SPEC_VERSION",
     "__version__",
+    "diff",
     "inspect",
     "inspect_summary",
     "is_valid",
     "parse",
     "parse_and_validate",
+    "parse_and_validate_paths",
     "parse_file",
     "pinned_schema",
     "quality_rules_count",

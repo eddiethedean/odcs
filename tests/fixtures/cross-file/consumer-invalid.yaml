@@ -1,0 +1,18 @@
+version: "3.1.0"
+apiVersion: "v3.1.0"
+kind: "DataContract"
+id: "consumer-contract"
+name: "consumer_contract"
+status: "active"
+
+schema:
+  - name: "orders"
+    logicalType: "object"
+    properties:
+      - name: "customer_id"
+        logicalType: "string"
+        required: true
+    relationships:
+      - type: "foreignKey"
+        from: "orders.customer_id"
+        to: "provider-contract/customers/customer_id"

@@ -19,7 +19,7 @@ See [Non-goals](../implementation/non-goals.md).
 |-----------|--------|
 | Release stage | **Pre-1.0 Alpha** |
 | Current tree version | 0.7.0 on `main` |
-| Latest published (crates.io / PyPI) | 0.6.0 until `v0.7.0` tag — see [Release status](../project/release-status.md) |
+| Latest published (crates.io / PyPI) | **0.7.0** — see [Release status](../project/release-status.md) |
 | ODCS spec target | v3.1.0 (`apiVersion: "v3.1.0"`) |
 | Default validation | Schema-complete for ODCS v3.1.0 (JSON Schema + Rust validators) |
 

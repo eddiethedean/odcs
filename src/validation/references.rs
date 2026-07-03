@@ -1,6 +1,5 @@
 //! Reference validation.
 
-use std::collections::{HashMap, HashSet};
 use std::sync::OnceLock;
 
 use regex::Regex;
@@ -9,6 +8,7 @@ use crate::diagnostics::{
     codes, emit, validation_error, DiagnosticCategory, DiagnosticReport, ValidationPhase,
 };
 use crate::model::{DataContract, RelationshipEndpoint, RelationshipSchemaLevel, SchemaProperty};
+use crate::validation::schema_index::{ContractIndex, SchemaIndex};
 
 fn shorthand_reference_regex() -> &'static Regex {
     static RE: OnceLock<Regex> = OnceLock::new();
@@ -22,17 +22,26 @@ fn fully_qualified_reference_regex() -> &'static Regex {
     static RE: OnceLock<Regex> = OnceLock::new();
     RE.get_or_init(|| {
         Regex::new(
-            r"^(?:(?:https?://)?[A-Za-z0-9._\-/]+\.yaml#)?/?[A-Za-z_][A-Za-z0-9_]*/[A-Za-z0-9_-]+(?:/[A-Za-z_][A-Za-z0-9_]*/[A-Za-z0-9_-]+)*$",
+            r"^(?:(?:https?://)?[A-Za-z0-9._\-/]+\.yaml#)?/?[A-Za-z_][A-Za-z0-9_-]*/[A-Za-z0-9_-]+(?:/[A-Za-z0-9_-]+(?:/[A-Za-z_][A-Za-z0-9_-]*)*)*$",
         )
         .expect("valid fully qualified reference regex")
     })
 }
 
-/// Validate relationship and reference constraints.
+/// Validate relationship and reference constraints within a single contract.
 #[must_use]
 pub fn validate(contract: &DataContract) -> DiagnosticReport {
-    let mut report = DiagnosticReport::new();
+    validate_with_index(contract, None)
+}
+
+/// Validate relationship and reference constraints with optional cross-file index.
+#[must_use]
+pub fn validate_with_index(
+    contract: &DataContract,
+    contract_index: Option<&ContractIndex>,
+) -> DiagnosticReport {
     let index = SchemaIndex::build(contract);
+    let mut report = DiagnosticReport::new();
 
     for (schema_index, schema) in contract.schema.iter().enumerate() {
         let base_ref = format!("schema[{schema_index}]");
@@ -42,55 +51,19 @@ pub fn validate(contract: &DataContract) -> DiagnosticReport {
                 relationship,
                 &format!("{base_ref}.relationships[{rel_index}]"),
                 &index,
+                contract_index,
             );
         }
-        validate_property_relationships(&mut report, &schema.properties, &base_ref, &index);
+        validate_property_relationships(
+            &mut report,
+            &schema.properties,
+            &base_ref,
+            &index,
+            contract_index,
+        );
     }
 
     report
-}
-
-struct SchemaIndex {
-    objects: HashMap<String, HashSet<String>>,
-}
-
-impl SchemaIndex {
-    fn build(contract: &DataContract) -> Self {
-        let mut objects = HashMap::new();
-        for schema in &contract.schema {
-            if let Some(name) = schema.element.name.as_deref() {
-                if !name.is_empty() {
-                    let mut properties = HashSet::new();
-                    collect_property_names(&schema.properties, &mut properties);
-                    objects.insert(name.to_string(), properties);
-                }
-            }
-        }
-        Self { objects }
-    }
-
-    fn resolve_shorthand(&self, reference: &str) -> bool {
-        let Some((table, column)) = reference.split_once('.') else {
-            return false;
-        };
-        self.objects
-            .get(table)
-            .is_some_and(|properties| properties.contains(column))
-    }
-}
-
-fn collect_property_names(properties: &[SchemaProperty], out: &mut HashSet<String>) {
-    for property in properties {
-        if let Some(name) = property.element.name.as_deref() {
-            if !name.is_empty() {
-                out.insert(name.to_string());
-            }
-        }
-        collect_property_names(&property.properties, out);
-        if let Some(items) = &property.items {
-            collect_property_names(std::slice::from_ref(items), out);
-        }
-    }
 }
 
 fn endpoint_is_invalid(endpoint: &RelationshipEndpoint) -> bool {
@@ -114,6 +87,7 @@ fn validate_endpoint(
     endpoint: &RelationshipEndpoint,
     object_ref: &str,
     index: &SchemaIndex,
+    contract_index: Option<&ContractIndex>,
 ) {
     if endpoint_is_invalid(endpoint) {
         emit(
@@ -156,12 +130,44 @@ fn validate_endpoint(
                 .with_object_ref(object_ref.to_string())
                 .with_remediation("reference an existing schema object and property name"),
             );
+            continue;
+        }
+
+        if is_fully_qualified_reference(value) {
+            if let Some(contract_index) = contract_index {
+                if !contract_index.resolve_fqn(value) {
+                    emit(
+                        report,
+                        validation_error(
+                            ValidationPhase::References,
+                            codes::UNRESOLVED_REFERENCE,
+                            DiagnosticCategory::Reference,
+                            format!("relationship endpoint '{value}' does not resolve to a known contract schema object and property"),
+                        )
+                        .with_object_ref(object_ref.to_string())
+                        .with_remediation(
+                            "include the referenced contract with --dep or --include",
+                        ),
+                    );
+                }
+            }
         }
     }
 }
 
 fn is_valid_reference_format(value: &str) -> bool {
-    shorthand_reference_regex().is_match(value) || fully_qualified_reference_regex().is_match(value)
+    if shorthand_reference_regex().is_match(value) {
+        return true;
+    }
+    if fully_qualified_reference_regex().is_match(value) {
+        return true;
+    }
+    crate::validation::schema_index::parse_fqn_triple(value).is_some()
+}
+
+fn is_fully_qualified_reference(value: &str) -> bool {
+    fully_qualified_reference_regex().is_match(value)
+        || crate::validation::schema_index::parse_fqn_triple(value).is_some()
 }
 
 fn validate_relationship_type(
@@ -223,6 +229,7 @@ fn validate_schema_relationship(
     relationship: &RelationshipSchemaLevel,
     object_ref: &str,
     index: &SchemaIndex,
+    contract_index: Option<&ContractIndex>,
 ) {
     validate_relationship_type(report, &relationship.base.relationship_type, object_ref);
     validate_endpoint(
@@ -230,8 +237,15 @@ fn validate_schema_relationship(
         &relationship.from,
         &format!("{object_ref}.from"),
         index,
+        contract_index,
     );
-    validate_endpoint(report, &relationship.to, &format!("{object_ref}.to"), index);
+    validate_endpoint(
+        report,
+        &relationship.to,
+        &format!("{object_ref}.to"),
+        index,
+        contract_index,
+    );
     validate_composite_parity(report, &relationship.from, &relationship.to, object_ref);
 }
 
@@ -240,6 +254,7 @@ fn validate_property_relationships(
     properties: &[SchemaProperty],
     base: &str,
     schema_index: &SchemaIndex,
+    contract_index: Option<&ContractIndex>,
 ) {
     for (prop_index, property) in properties.iter().enumerate() {
         let prop_ref = format!("{base}.properties[{prop_index}]");
@@ -251,10 +266,17 @@ fn validate_property_relationships(
                 &relationship.to,
                 &format!("{prop_ref}.relationships[{rel_index}].to"),
                 schema_index,
+                contract_index,
             );
         }
         if !property.properties.is_empty() {
-            validate_property_relationships(report, &property.properties, &prop_ref, schema_index);
+            validate_property_relationships(
+                report,
+                &property.properties,
+                &prop_ref,
+                schema_index,
+                contract_index,
+            );
         }
         if let Some(items) = &property.items {
             validate_property_relationships(
@@ -262,6 +284,7 @@ fn validate_property_relationships(
                 std::slice::from_ref(items),
                 &format!("{prop_ref}.items"),
                 schema_index,
+                contract_index,
             );
         }
     }
