@@ -19,7 +19,7 @@ def _fixture(name: str) -> bytes:
 
 def test_upstream_spec_version() -> None:
     assert pyodcs.UPSTREAM_SPEC_VERSION == "3.1.0"
-    assert pyodcs.__version__ == "0.7.0"
+    assert pyodcs.__version__ == "0.8.0"
     assert pyodcs.CODES["INVALID_KIND"] == "odcs:invalid-kind"
 
 
